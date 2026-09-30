@@ -140,3 +140,6 @@
       "content";
   }
 }
+
+/* Compact settings 20260930-12 */
+@media(min-width:851px){.admin-page .admin-main{padding:14px 22px 18px}.admin-page .admin-top{padding-bottom:10px}.admin-page .admin-top h1{font-size:30px}.admin-page [data-panel="settings"].admin-module.active{padding-top:12px}.admin-page [data-panel="settings"]>h2{font-size:26px;margin:0 0 10px}.admin-page .settings-grid-v11{gap:12px}.admin-page .settings-grid-v11 .settings-card{padding:14px;gap:8px;border-radius:14px}.admin-page .settings-grid-v11 .settings-card h3{font-size:20px;margin:0 0 4px}.admin-page .settings-grid-v11 label{font-size:14px;line-height:1.25}.admin-page .settings-grid-v11 input,.admin-page .settings-grid-v11 select{min-height:38px;height:38px;padding:7px 10px;margin-top:4px}.admin-page .settings-grid-v11 textarea{height:260px;min-height:220px;max-height:300px;padding:9px 10px;margin-top:4px;resize:vertical}.admin-page .settings-grid-v11 .btn{min-height:40px;padding:8px 14px}.admin-page .settings-grid-v11 .actions{margin-top:6px}}
