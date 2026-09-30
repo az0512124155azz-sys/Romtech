@@ -474,20 +474,16 @@
 }
 
 
-/* Mobile styles are isolated below; desktop above is restored from the old beautiful state. */
-/* Phone site rebuilt from scratch — 20261001-37 */
-.mobile-public{display:none}
 
+/* Mobile adaptation of the exact desktop design — 20261001-40
+   Same DOM, same visual language, only reflowed for phones. */
 @media(max-width:760px){
-  .desktop-public{display:none!important}
-  .mobile-public{display:block!important}
-
-  html{scroll-padding-top:64px}
   body:not(.admin-page){
-    background:#fff;
-    color:#1f1b17;
     overflow-x:hidden;
+    background:var(--bg);
+    color:var(--text);
   }
+
   body:not(.admin-page) .container{
     width:100%;
     max-width:none;
@@ -495,496 +491,366 @@
     padding-right:16px;
   }
 
-  /* Dedicated mobile header */
-  .mobile-store-header{
+  /* Header keeps the same logo + text links, simply reflows. */
+  body:not(.admin-page) .site-header{
     position:sticky;
     top:0;
-    z-index:90;
-    min-height:62px;
-    padding:7px 14px;
-    display:flex!important;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    background:#fff;
-    border-bottom:1px solid #e1dbd2;
+    z-index:70;
+    background:rgba(247,245,241,.98);
+    backdrop-filter:blur(8px);
   }
-  .mobile-store-brand{display:block;line-height:0}
-  .mobile-store-brand img{
-    display:block;
-    width:126px;
-    height:auto;
-  }
-  .mobile-store-contact{
-    min-height:40px;
-    padding:9px 12px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border:1px solid #315f48;
-    color:#315f48;
-    text-decoration:none;
-    font-size:13px;
-    font-weight:700;
-  }
-
-  /* Mobile homepage: one message, one action */
-  .mobile-store{background:#fff}
-  .mobile-store-intro{
-    padding:30px 18px 28px;
-    border-bottom:1px solid #e1dbd2;
-  }
-  .mobile-store-overline{
-    margin:0 0 8px;
-    color:#866232;
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:.14em;
-    direction:ltr;
-    text-align:right;
-  }
-  .mobile-store-intro h1{
-    margin:0 0 12px;
-    max-width:330px;
-    font-size:34px;
-    line-height:1.08;
-    font-weight:650;
-    letter-spacing:-.025em;
-  }
-  .mobile-store-intro>p:not(.mobile-store-overline){
-    margin:0;
-    max-width:350px;
-    color:#665e55;
-    font-size:16px;
-    line-height:1.6;
-  }
-  .mobile-main-cta{
-    width:100%;
-    min-height:50px;
-    margin-top:20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#201b17;
-    color:#fff;
-    text-decoration:none;
-    font-size:15px;
-    font-weight:700;
-  }
-
-  /* Catalog */
-  .mobile-catalog{
-    padding:28px 16px 20px;
-  }
-  .mobile-catalog-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:end;
-    gap:12px;
-    margin-bottom:16px;
-  }
-  .mobile-catalog-head h2{
-    margin:0 0 3px;
-    font-size:27px;
-    line-height:1.15;
-  }
-  .mobile-catalog-head p{
-    margin:0;
-    color:#7b736a;
-    font-size:13px;
-  }
-
-  .mobile-category-tabs{
-    display:flex;
-    gap:8px;
-    overflow-x:auto;
-    margin:0 -16px 16px;
-    padding:0 16px 4px;
-    scrollbar-width:none;
-    -webkit-overflow-scrolling:touch;
-  }
-  .mobile-category-tabs::-webkit-scrollbar{display:none}
-  .mobile-category-tabs button{
-    flex:0 0 auto;
-    min-height:38px;
-    padding:8px 13px;
-    border:1px solid #d2c9bd;
-    border-radius:0;
-    background:#fff;
-    color:#3e3933;
-    font:inherit;
-    font-size:13px;
-    cursor:pointer;
-  }
-  .mobile-category-tabs button.active{
-    background:#201b17;
-    border-color:#201b17;
-    color:#fff;
-  }
-
-  .mobile-catalog-tools{
-    margin-bottom:24px;
-  }
-  .mobile-catalog-tools>input{
-    width:100%;
-    min-height:46px;
-    margin:0 0 8px;
-    padding:10px 12px;
-    border:1px solid #cfc6ba;
-    border-radius:0;
-    background:#fff;
-    font-size:16px;
-  }
-  .mobile-filter-details{
-    border-bottom:1px solid #ddd5cb;
-  }
-  .mobile-filter-details summary{
-    min-height:44px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    cursor:pointer;
-    font-size:14px;
-    font-weight:700;
-  }
-  .mobile-filter-details summary::after{content:"+";font-size:20px;font-weight:400}
-  .mobile-filter-details[open] summary::after{content:"−"}
-  .mobile-filter-details select{
-    width:100%;
-    min-height:46px;
-    margin:0 0 12px;
-    border-radius:0;
-    font-size:16px;
-  }
-
-  .mobile-product-list{
-    display:grid;
-    gap:0;
-  }
-  .mobile-product-item{
-    display:grid;
-    grid-template-columns:112px minmax(0,1fr);
-    gap:14px;
-    padding:18px 0;
-    border-top:1px solid #e1dbd2;
-  }
-  .mobile-product-item:first-child{border-top:0;padding-top:0}
-  .mobile-product-image{
-    display:block;
-    width:112px;
-    height:140px;
-    overflow:hidden;
-    background:#eee9e1;
-    border:1px solid #ddd5ca;
-  }
-  .mobile-product-image img{
-    display:block;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-  }
-  .mobile-product-image-empty{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#866232;
-    text-decoration:none;
-    font-size:12px;
-    letter-spacing:.08em;
-  }
-  .mobile-product-info{
-    min-width:0;
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-  }
-  .mobile-product-context{
-    margin-bottom:4px;
-    color:#80766b;
-    font-size:11px;
-  }
-  .mobile-product-info h3{
-    margin:0 0 7px;
-    font-size:18px;
-    line-height:1.28;
-  }
-  .mobile-product-info h3 a{
-    color:inherit;
-    text-decoration:none;
-  }
-  .mobile-product-price{
-    margin-bottom:6px;
-    font-size:18px;
-    font-weight:700;
-  }
-  .mobile-product-price .old{font-size:13px}
-  .mobile-product-specs{
+  body:not(.admin-page) .site-header .nav{
+    min-height:0;
+    padding:7px 0 0;
     display:flex;
     flex-wrap:wrap;
-    gap:5px 12px;
-    margin-bottom:12px;
-    color:#70675e;
-    font-size:12px;
+    gap:0;
+    overflow:visible;
   }
-  .mobile-product-cta{
-    margin-top:auto;
-    min-height:40px;
-    display:inline-flex;
-    align-items:center;
-    color:#201b17;
-    font-size:13px;
-    font-weight:700;
-    text-underline-offset:4px;
+  body:not(.admin-page) .site-header .brand{
+    order:0;
+    width:100%;
+    margin:0;
+    padding:0 0 7px;
+    display:flex;
+    justify-content:center;
   }
-  .mobile-empty{
-    padding:30px 0;
-    color:#70675e;
-    text-align:center;
-    border-top:1px solid #e1dbd2;
+  body:not(.admin-page) .site-header .brand-logo img{
+    width:146px!important;
+    max-width:146px!important;
+    height:auto!important;
   }
-
-  /* Mobile footer is intentionally tiny */
-  .mobile-store-footer{
-    padding:24px 16px calc(76px + env(safe-area-inset-bottom));
-    background:#f4f0e9;
-    border-top:1px solid #d8d0c5;
-  }
-  .mobile-footer-contact{
-    display:grid;
-    gap:5px;
-    margin-bottom:16px;
-  }
-  .mobile-footer-contact strong{font-size:18px}
-  .mobile-footer-contact a{
-    width:max-content;
-    max-width:100%;
-    color:#554e47;
-    text-decoration:none;
-    font-size:14px;
-  }
-  .mobile-store-footer details{border-top:1px solid #d8d0c5}
-  .mobile-store-footer summary{
-    min-height:46px;
+  body:not(.admin-page) .site-header .nav>a:not(.brand){
+    order:1;
+    flex:1 1 0;
+    min-width:0;
+    min-height:43px;
     display:flex;
     align-items:center;
-    font-weight:700;
-    font-size:14px;
-    cursor:pointer;
+    justify-content:center;
+    padding:9px 4px;
+    border-top:1px solid var(--line);
+    font-size:13px;
+    text-align:center;
+    white-space:nowrap;
   }
-  .mobile-store-footer details div{
-    display:grid;
-    gap:10px;
-    padding:0 0 12px;
-  }
-  .mobile-store-footer details a{
-    color:#554e47;
-    font-size:14px;
+  body:not(.admin-page) .site-header .nav>a:not(.brand)+a:not(.brand){
+    border-right:1px solid var(--line);
   }
 
-  /* Remove duplicate floating sales CTA; WhatsApp already lives in the header */
-  body:not(.admin-page) .wa{display:none!important}
-  body:not(.admin-page) .access{
-    right:12px!important;
-    left:auto!important;
-    bottom:12px!important;
-  }
-  body:not(.admin-page) .access .btn{
-    min-height:42px;
-    padding:8px 10px;
-    font-size:12px;
-  }
-  body:not(.admin-page) .access-panel{
-    right:0!important;
-    left:auto!important;
-    width:min(280px,calc(100vw - 24px))!important;
-  }
-  body:not(.admin-page) .cookie{
-    right:8px!important;
-    left:8px!important;
-    bottom:62px!important;
-    padding:14px!important;
-    border-radius:6px!important;
-  }
-  body:not(.admin-page) .cookie .actions{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:8px!important;
-  }
-
-  /* Product page rebuilt for phone */
-  .mobile-product-header{
-    position:sticky;
-    top:0;
-    z-index:90;
-    min-height:60px;
-    padding:7px 14px;
-    background:#fff;
-    border-bottom:1px solid #e1dbd2;
-    display:grid!important;
-    grid-template-columns:1fr auto;
-    align-items:center;
-    gap:12px;
-  }
-  .mobile-back-link{
-    color:#201b17;
-    text-decoration:none;
-    font-size:14px;
-    font-weight:700;
-  }
-  .mobile-product-brand{line-height:0}
-  .mobile-product-brand img{display:block;width:106px;height:auto}
-
-  body:not(.admin-page) main.container.section{
-    padding:0 16px 32px;
-  }
-  body:not(.admin-page) .product-layout{
-    display:block!important;
-  }
-  body:not(.admin-page) .product-gallery{
-    margin:0 -16px;
-  }
-  body:not(.admin-page) .product-slider{
-    border:0!important;
-    border-bottom:1px solid #e1dbd2!important;
-    border-radius:0!important;
-  }
-  body:not(.admin-page) .product-slide img{
-    aspect-ratio:1/1!important;
-    object-fit:contain!important;
-    background:#fff!important;
-  }
-  body:not(.admin-page) .product-dots{
-    margin:10px 0 0;
-  }
-  body:not(.admin-page) .product-info{
+  /* Hero is the exact desktop composition, stacked instead of squeezed. */
+  body:not(.admin-page) .hero{
     display:flex;
     flex-direction:column;
-    padding:22px 0 8px;
+    gap:24px;
+    padding:34px 0 32px;
+    align-items:stretch;
   }
-  body:not(.admin-page) .product-context{order:1}
-  body:not(.admin-page) .product-info h1{
+  body:not(.admin-page) .hero>div:first-child{
+    order:1;
+    width:100%;
+  }
+  body:not(.admin-page) .hero-card{
     order:2;
-    margin:4px 0 10px!important;
-    font-size:32px!important;
-    line-height:1.12!important;
+    width:100%;
+    min-height:0;
   }
-  body:not(.admin-page) .product-info .price{
-    order:3;
-    margin:0 0 8px;
-    font-size:25px;
+  body:not(.admin-page) .hero .eyebrow{
+    font-size:13px;
+    line-height:1.4;
   }
-  body:not(.admin-page) .product-info>p:not(.lead):not(.order-note){
-    order:4;
-    margin:0 0 14px;
-    color:#665e55;
+  body:not(.admin-page) .hero h1{
+    margin:9px 0 14px;
+    font-size:clamp(36px,11vw,48px);
+    line-height:1.04;
+    letter-spacing:-.025em;
+  }
+  body:not(.admin-page) .hero .lead{
+    margin:0;
+    font-size:16px;
+    line-height:1.65;
+  }
+  body:not(.admin-page) .hero .actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+    margin-top:20px;
+  }
+  body:not(.admin-page) .hero .actions .btn{
+    width:100%;
+    min-height:48px;
+    padding:10px 8px;
+    border-radius:10px;
     font-size:14px;
   }
-  body:not(.admin-page) .product-buy-actions{
-    order:5;
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:8px!important;
-    margin:0 0 18px!important;
-  }
-  body:not(.admin-page) .product-buy-actions .btn{
-    width:100%!important;
-    min-height:50px!important;
-    border-radius:0!important;
-  }
-  body:not(.admin-page) .product-info .lead{
-    order:6;
-    margin:0 0 10px;
-    font-size:15px!important;
-    line-height:1.65!important;
-  }
-  body:not(.admin-page) .order-note{order:7;margin-top:0}
-  body:not(.admin-page) .section{
-    padding:30px 0;
-  }
-  body:not(.admin-page) .specs{
-    grid-template-columns:1fr!important;
-    gap:0!important;
-  }
-  body:not(.admin-page) .reviews-list{
-    grid-template-columns:1fr!important;
-  }
-  body:not(.admin-page) .review-form-card{
-    padding:18px 0!important;
-  }
 
-  /* Phone modals */
-  body:not(.admin-page) .modal{
-    padding:0!important;
-    align-items:flex-end!important;
+  /* Keep the beautiful original brand card, scaled naturally. */
+  body:not(.admin-page) .hero-card.hero-brand-card{
+    padding:22px 20px 24px;
+    border-radius:22px;
+    box-shadow:0 14px 36px rgba(64,48,30,.11);
   }
-  body:not(.admin-page) .modal-card{
+  body:not(.admin-page) .hero-brand-card .hero-logo-crop{
+    width:min(330px,96%);
+    margin:auto;
+  }
+  body:not(.admin-page) .hero-brand-card .hero-logo{
     width:100%!important;
     max-width:none!important;
-    max-height:92dvh!important;
-    overflow:auto!important;
-    border-radius:14px 14px 0 0!important;
-    padding:20px 16px calc(20px + env(safe-area-inset-bottom))!important;
+    margin:0!important;
+  }
+  body:not(.admin-page) .hero-brand-tagline{
+    margin-top:7px;
+    font-size:14px;
+  }
+  body:not(.admin-page) .hero-brand-divider{
+    margin:14px auto 16px;
+  }
+  body:not(.admin-page) .hero-card-copy .eyebrow{
+    font-size:13px;
+  }
+  body:not(.admin-page) .hero-card-copy h2{
+    margin-bottom:9px;
+    font-size:27px;
+    line-height:1.16;
+  }
+  body:not(.admin-page) .hero-card-copy p{
+    margin:0;
+    font-size:15px;
+    line-height:1.6;
+  }
+
+  /* Catalog preserves the desktop title / filters / cards. */
+  body:not(.admin-page) .section{
+    padding:34px 0;
+  }
+  body:not(.admin-page) #catalogSection{
+    border-top:1px solid var(--line);
+  }
+  body:not(.admin-page) #catalogSection>h2{
+    margin:0 0 18px;
+    font-size:30px;
+  }
+  body:not(.admin-page) .toolbar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:22px;
+  }
+  body:not(.admin-page) .toolbar .field{
+    grid-column:1/-1;
+  }
+  body:not(.admin-page) .toolbar .field,
+  body:not(.admin-page) .toolbar select{
+    width:100%;
+    min-width:0;
+    min-height:46px;
+    font-size:16px;
+    border-radius:10px;
+  }
+  body:not(.admin-page) .grid{
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+  body:not(.admin-page) .card{
+    border-radius:17px;
+    box-shadow:0 7px 22px rgba(0,0,0,.045);
+  }
+  body:not(.admin-page) .card img,
+  body:not(.admin-page) .card .ph{
+    aspect-ratio:4/3;
+  }
+  body:not(.admin-page) .card-body{
+    padding:16px;
+  }
+  body:not(.admin-page) .card-body h3{
+    margin:9px 0 7px;
+    font-size:22px;
+    line-height:1.25;
+  }
+  body:not(.admin-page) .card-body p{
+    margin:0 0 10px;
+    font-size:15px;
+    line-height:1.55;
+  }
+  body:not(.admin-page) .card .price{
+    font-size:22px;
+  }
+  body:not(.admin-page) .card .actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:16px;
+  }
+  body:not(.admin-page) .card .actions .btn{
+    width:100%;
+    min-height:46px;
+    padding:9px 8px;
+    font-size:13px;
+  }
+
+  /* Product page: same components, single-column reflow. */
+  body:not(.admin-page) main.container.section{
+    padding-top:24px;
+  }
+  body:not(.admin-page) .product-layout{
+    grid-template-columns:1fr;
+    gap:28px;
+  }
+  body:not(.admin-page) .product-gallery{
+    min-width:0;
+  }
+  body:not(.admin-page) .product-slider{
+    border-radius:18px;
+  }
+  body:not(.admin-page) .product-info h1{
+    margin:8px 0 12px;
+    font-size:36px;
+    line-height:1.08;
+  }
+  body:not(.admin-page) .product-info .lead{
+    font-size:16px;
+    line-height:1.65;
+  }
+  body:not(.admin-page) .product-buy-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  body:not(.admin-page) .product-buy-actions .btn{
+    width:100%;
+    min-height:48px;
+  }
+  body:not(.admin-page) .specs{
+    grid-template-columns:1fr;
+  }
+  body:not(.admin-page) .reviews-list{
+    grid-template-columns:1fr;
+  }
+
+  /* Forms/modals retain the same visual system but fit a phone. */
+  body:not(.admin-page) .modal{
+    padding:12px;
+    align-items:flex-end;
+  }
+  body:not(.admin-page) .modal-card{
+    width:100%;
+    max-width:none;
+    max-height:92dvh;
+    overflow:auto;
+    padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+    border-radius:18px;
   }
   body:not(.admin-page) .form-grid{
-    grid-template-columns:1fr!important;
+    grid-template-columns:1fr;
+    gap:12px;
   }
-  body:not(.admin-page) .form-grid .full{grid-column:auto!important}
+  body:not(.admin-page) .form-grid .full{
+    grid-column:auto;
+  }
   body:not(.admin-page) input,
   body:not(.admin-page) select,
   body:not(.admin-page) textarea{
     font-size:16px;
   }
 
-  /* Legal/contact pages: plain readable document */
+  /* Footer keeps the desktop composition instead of becoming a different product. */
+  body:not(.admin-page) .footer{
+    margin-top:34px;
+    padding:28px 0 82px;
+  }
+  body:not(.admin-page) .footer-grid-polished{
+    grid-template-columns:1fr 1fr;
+    gap:24px 20px;
+  }
+  body:not(.admin-page) .footer-brand-block{
+    grid-column:1/-1;
+    align-items:center;
+    text-align:center;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--line);
+  }
+  body:not(.admin-page) .footer-brand-link{
+    width:min(210px,75vw);
+  }
+  body:not(.admin-page) .footer-logo{
+    width:100%!important;
+    max-width:210px!important;
+  }
+  body:not(.admin-page) .footer-contact-line{
+    justify-content:center;
+    font-size:14px;
+  }
+  body:not(.admin-page) .footer-links-col{
+    padding-top:0;
+    align-items:flex-start;
+    gap:9px;
+    font-size:14px;
+  }
+
+  /* Fixed utilities stay unobtrusive. */
+  body:not(.admin-page) .wa{
+    left:12px;
+    bottom:12px;
+    min-height:43px;
+    padding:10px 13px;
+    font-size:13px;
+  }
+  body:not(.admin-page) .access{
+    left:auto;
+    right:12px;
+    bottom:12px;
+  }
+  body:not(.admin-page) .access .btn{
+    min-height:43px;
+    padding:9px 11px;
+    font-size:12px;
+  }
+  body:not(.admin-page) .access-panel{
+    right:0;
+    left:auto;
+    width:min(280px,calc(100vw - 24px));
+  }
+  body:not(.admin-page) .cookie{
+    right:8px;
+    left:8px;
+    bottom:62px;
+    padding:14px;
+  }
+
+  /* Legal/contact pages stay visually consistent with desktop. */
   body:not(.admin-page) .legal{
-    padding:28px 16px 80px;
+    padding:30px 16px 80px;
   }
   body:not(.admin-page) .legal h1{
-    font-size:34px;
+    font-size:36px;
     line-height:1.15;
   }
   body:not(.admin-page) .legal h2{
     margin-top:28px;
-    font-size:23px;
+    font-size:24px;
   }
 }
 
 @media(max-width:380px){
-  .mobile-store-intro h1{font-size:31px}
-  .mobile-product-item{grid-template-columns:98px minmax(0,1fr);gap:12px}
-  .mobile-product-image{width:98px;height:124px}
-}
-
-/* Strict desktop/mobile isolation 20261001-38
-   Desktop keeps the pre-rebuild markup and styling. Mobile is a separate view only. */
-@media(min-width:761px){
-  .mobile-public{display:none!important}
-}
-
-/* These rules ONLY affect phone widths. */
-@media(max-width:760px){
-  /* Hide the original desktop storefront only on phones. */
-  body:not(.admin-page) > .site-header{display:none!important}
-  body:not(.admin-page) #main > .shop-intro,
-  body:not(.admin-page) #main > .mobile-home-guide,
-  body:not(.admin-page) #main > .catalog-section,
-  body:not(.admin-page) > .footer{display:none!important}
-
-  /* Show the separate mobile storefront. */
-  .mobile-public{display:block!important}
-  .mobile-store-header{display:flex!important}
-  .mobile-product-header{display:grid!important}
-}
-
-@media(min-width:761px){
-  .mobile-public{display:none!important}
-}
-@media(max-width:760px){
-  body:not(.admin-page) > .site-header{display:none!important}
-  body:not(.admin-page) #main > .hero,
-  body:not(.admin-page) #main > #catalogSection,
-  body:not(.admin-page) > .footer{display:none!important}
-  .mobile-public{display:block!important}
-  .mobile-store-header{display:flex!important}
-  .mobile-product-header{display:grid!important}
+  body:not(.admin-page) .site-header .nav>a:not(.brand){
+    font-size:12px;
+  }
+  body:not(.admin-page) .hero h1{
+    font-size:34px;
+  }
+  body:not(.admin-page) .hero .actions,
+  body:not(.admin-page) .card .actions,
+  body:not(.admin-page) .product-buy-actions{
+    grid-template-columns:1fr;
+  }
+  body:not(.admin-page) .toolbar{
+    grid-template-columns:1fr;
+  }
+  body:not(.admin-page) .toolbar .field{
+    grid-column:auto;
+  }
+  body:not(.admin-page) .footer-grid-polished{
+    grid-template-columns:1fr;
+  }
 }
