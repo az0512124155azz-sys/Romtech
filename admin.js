@@ -42,29 +42,26 @@ function renderOrders(){const r=$("#ordersRows");if(!r)return;const os=RomTechDa
 function renderAll(){renderProducts();renderStats();renderInventory();renderReports();renderOrders()}
 
 function loadSettingsForm(){
- const s=RomTechData.loadSiteSettings(),f=s.footerLabels||{};
+ const s=RomTechData.loadSiteSettings();
  if($("#settingPhone"))$("#settingPhone").value=s.phone||"";
  if($("#settingWhatsapp"))$("#settingWhatsapp").value=s.whatsapp||"";
  if($("#settingEmail"))$("#settingEmail").value=s.email||"";
- const map={footerAccessibility:"accessibility",footerCookies:"cookies",footerFaq:"faq",footerContact:"contact",footerPrivacy:"privacy",footerTerms:"terms",footerReturns:"returns",footerShipping:"shipping"};
- Object.entries(map).forEach(([id,key])=>{if($("#"+id))$("#"+id).value=f[key]||""})
+ loadSettingsContentEditor()
 }
 function saveSiteSettings(){
- const s=RomTechData.loadSiteSettings();s.phone=$("#settingPhone").value.trim();s.whatsapp=$("#settingWhatsapp").value.replace(/D/g,"");s.email=$("#settingEmail").value.trim();RomTechData.saveSiteSettings(s);showSaved("#siteSettingsSaved")
+ const s=RomTechData.loadSiteSettings();s.phone=$("#settingPhone").value.trim();s.whatsapp=$("#settingWhatsapp").value.replace(/\D/g,"");s.email=$("#settingEmail").value.trim();RomTechData.saveSiteSettings(s);showSaved("#siteSettingsSaved")
 }
-function saveFooterLabels(){
- const s=RomTechData.loadSiteSettings();
- s.footerLabels={...(s.footerLabels||{}),
-  accessibility:$("#footerAccessibility").value.trim(),
-  cookies:$("#footerCookies").value.trim(),
-  faq:$("#footerFaq").value.trim(),
-  contact:$("#footerContact").value.trim(),
-  privacy:$("#footerPrivacy").value.trim(),
-  terms:$("#footerTerms").value.trim(),
-  returns:$("#footerReturns").value.trim(),
-  shipping:$("#footerShipping").value.trim()
- };
- RomTechData.saveSiteSettings(s);showSaved("#footerLabelsSaved")
+function loadSettingsContentEditor(){
+ const select=$("#settingsContentPage");if(!select)return;
+ const key=select.value||"accessibility",all=RomTechData.loadLegalContent(),item=all[key]||{title:"",body:""};
+ $("#settingsContentTitle").value=item.title||"";
+ $("#settingsContentBody").value=item.body||"";
+ $("#previewSettingsContent").href="../"+pageFiles[key]
+}
+function saveSettingsContent(){
+ const key=$("#settingsContentPage").value,all=RomTechData.loadLegalContent();
+ all[key]={title:$("#settingsContentTitle").value.trim(),body:$("#settingsContentBody").value};
+ RomTechData.saveLegalContent(all);showSaved("#settingsContentSaved")
 }
 function saveAdminCredentials(){
  const code=$("#settingAdminCode").value.trim(),pass=$("#settingAdminPassword").value,confirmPass=$("#settingAdminPasswordConfirm").value;
@@ -105,7 +102,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("#adminSubmit")?.addEventListener("click",enterAdmin);["adminCode","adminPassword"].forEach(id=>$("#"+id)?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();enterAdmin()}}));$("#logoutBtn")?.addEventListener("click",logout);
  $$(".side-link[data-module]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.module)));$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
  $("#newBtn")?.addEventListener("click",()=>openModal());$('[data-action="new-product"]')?.addEventListener("click",()=>{go("products");openModal()});$("#closeModal")?.addEventListener("click",closeModal);$("#cancelModal")?.addEventListener("click",closeModal);$("#productForm")?.addEventListener("submit",saveProduct);$("#productImages")?.addEventListener("change",async e=>{await addImages(e.target.files);e.target.value=""});$("#bulkApply")?.addEventListener("click",bulk);$("#exportCsv")?.addEventListener("click",exportCsv);$("#inventoryRefresh")?.addEventListener("click",renderInventory);$("#ordersRefresh")?.addEventListener("click",renderOrders);
- $("#saveSiteSettings")?.addEventListener("click",saveSiteSettings);$("#saveFooterLabels")?.addEventListener("click",saveFooterLabels);$("#saveAdminCredentials")?.addEventListener("click",saveAdminCredentials);$("#contentPageSelect")?.addEventListener("change",loadContentEditor);$("#saveContent")?.addEventListener("click",saveContent);
+ $("#saveSiteSettings")?.addEventListener("click",saveSiteSettings);$("#saveAdminCredentials")?.addEventListener("click",saveAdminCredentials);$("#settingsContentPage")?.addEventListener("change",loadSettingsContentEditor);$("#saveSettingsContent")?.addEventListener("click",saveSettingsContent);$("#contentPageSelect")?.addEventListener("change",loadContentEditor);$("#saveContent")?.addEventListener("click",saveContent);
  document.addEventListener("click",e=>{const a=e.target.closest("[data-row-action]");if(a){const id=a.dataset.id;if(a.dataset.rowAction==="edit"){const p=getProducts().find(x=>x.id===id);if(p)openModal(p)}if(a.dataset.rowAction==="duplicate")duplicateProduct(id);if(a.dataset.rowAction==="delete")deleteProduct(id)}const rm=e.target.closest("[data-remove-image]");if(rm){stagedImages.splice(Number(rm.dataset.removeImage),1);renderPreview()}const d=e.target.closest("[data-delete-order]");if(d)deleteOrder(d.dataset.deleteOrder)});
  document.addEventListener("change",e=>{const s=e.target.closest("[data-order-status]");if(s)updateOrderStatus(s.dataset.orderStatus,s.value)});
  refreshGate();if(sessionStorage.getItem(SESSION_KEY)==="1"&&getCredentials())showAdmin();else showGate()
