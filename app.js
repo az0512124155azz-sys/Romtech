@@ -93,4 +93,34 @@ function renderCatalog(){
     '</div></article>'
  }).join("")||'<p class="catalog-empty">לא נמצאו דגמים.</p>'
 }
-document.addEventListener("DOMContentLoaded",()=>{applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();setupHomeReviewForm();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview);el("#openReviewModal")?.addEventListener("click",openHomeReviewModal);el("#closeHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#cancelHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#homeReviewModal")?.addEventListener("click",e=>{if(e.target.id==="homeReviewModal")closeHomeReviewModal()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHomeReviewModal()})});
+
+function renderMobileCatalog(){
+ const root=el("#mobileCatalog");if(!root)return;
+ const all=RomTechData.loadProducts().filter(x=>x.status==="published");
+ const q=(el("#mobileSearch")?.value||"").trim();
+ const court=el("#mobileCourt")?.value||"";
+ const active=el("[data-mobile-category].active");
+ const category=active?.dataset.mobileCategory||"";
+ const rows=all.filter(p=>(!q||[p.name,p.short,p.court,p.category,p.fur].join(" ").includes(q))&&(!category||p.category===category)&&(!court||p.court===court));
+ const count=el("#mobileCatalogCount");if(count)count.textContent=rows.length+" דגמים";
+ root.innerHTML=rows.map(p=>{
+  const url="product.html?id="+encodeURIComponent(p.id);
+  const image=p.images?.[0]
+    ? '<a class="mobile-product-image" href="'+url+'"><img src="'+p.images[0]+'" alt="'+esc(p.name)+'"></a>'
+    : '<a class="mobile-product-image mobile-product-image-empty" href="'+url+'" aria-label="'+esc(p.name)+'"><span>RomTech</span></a>';
+  return '<article class="mobile-product-item">'+image+
+   '<div class="mobile-product-info">'+
+    '<div class="mobile-product-context">'+esc(p.court)+' · '+esc(p.category)+'</div>'+
+    '<h3><a href="'+url+'">'+esc(p.name)+'</a></h3>'+
+    '<div class="mobile-product-price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div>'+
+    '<div class="mobile-product-specs"><span>'+esc(p.fur)+'</span><span>'+p.height+' ס״מ</span></div>'+
+    '<a class="mobile-product-cta" href="'+url+'">לפרטים ולהזמנה</a>'+
+   '</div></article>'
+ }).join("")||'<div class="mobile-empty">לא נמצאו דגמים שמתאימים לסינון.</div>'
+}
+function selectMobileCategory(button){
+ document.querySelectorAll("[data-mobile-category]").forEach(b=>b.classList.toggle("active",b===button));
+ renderMobileCatalog()
+}
+
+document.addEventListener("DOMContentLoaded",()=>{applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));["mobileSearch","mobileCourt"].forEach(id=>el("#"+id)?.addEventListener("input",renderMobileCatalog));document.querySelectorAll("[data-mobile-category]").forEach(b=>b.addEventListener("click",()=>selectMobileCategory(b)));renderCatalog();renderMobileCatalog();setupHomeReviewForm();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview);el("#openReviewModal")?.addEventListener("click",openHomeReviewModal);el("#closeHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#cancelHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#homeReviewModal")?.addEventListener("click",e=>{if(e.target.id==="homeReviewModal")closeHomeReviewModal()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHomeReviewModal()})});
