@@ -1,1 +1,63 @@
-<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>מוצר | רוםטק</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=20260930-3"></head><body><a class="skip" href="#main">דלג לתוכן הראשי</a><header class="site-header"><div class="container nav"><a class="brand brand-logo" href="index.html"><img src="assets/logo.webp?v=20260930-3" alt="RomTech"></a><a href="index.html#catalogSection">קטלוג</a><a href="contact.html">צור קשר</a></div></header><main id="main" class="container section"><div id="productView"></div></main><script src="data.js?v=20260930-3"></script><script src="app.js?v=20260930-3"></script><script>document.addEventListener("DOMContentLoaded",()=>{const id=new URLSearchParams(location.search).get("id");const p=RomTechData.loadProducts().find(x=>x.id===id);const r=document.getElementById("productView");if(!p){r.innerHTML="<h1>המוצר לא נמצא</h1>";return}document.title=p.seoTitle||p.name;const img=p.images&&p.images[0]?'<img class="product-main-image" src="'+p.images[0]+'" alt="'+esc(p.name)+'">':'<div class="ph" role="img" aria-label="'+esc(p.name)+'"></div>';r.innerHTML='<div class="hero">'+img+'<div><div class="eyebrow">'+esc(p.court)+' · '+esc(p.category)+'</div><h1 style="font-size:48px">'+esc(p.name)+'</h1><p class="lead">'+esc(p.full)+'</p><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><p>מלאי זמין: '+p.stock+'</p><div class="actions"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/359879858846?text='+encodeURIComponent("שלום, אשמח להזמין/לקבל פרטים על "+p.name)+'">הזמנה וייעוץ ב-WhatsApp</a></div></div></div><section class="section"><h2>מפרט טכני</h2><div class="specs"><div class="spec">גובה: '+p.height+' ס״מ</div><div class="spec">מספר שיניים: '+p.teeth+'</div><div class="spec">סוג פרווה: '+esc(p.fur)+'</div><div class="spec">צבע בטנה: '+esc(p.lining||"לפי בחירה")+'</div><div class="spec">קופסה: '+esc(p.box||"ללא")+'</div><div class="spec">רקמת שם: '+(p.embroidery?"אפשרית בתוספת "+money(p.embroideryPrice):"לא")+'</div></div></section>'})</script></body></html>
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>מוצר | רוםטק</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=20260930-6">
+</head>
+<body>
+  <a class="skip" href="#main">דלג לתוכן הראשי</a>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand brand-logo" href="index.html"><img src="assets/logo.webp?v=20260930-3" alt="RomTech"></a>
+      <a href="index.html#catalogSection">קטלוג</a>
+      <a href="contact.html">צור קשר</a>
+    </div>
+  </header>
+
+  <main id="main" class="container section">
+    <div id="productView"></div>
+  </main>
+
+  <div class="modal" id="orderModal" aria-hidden="true">
+    <div class="modal-card order-modal-card">
+      <div class="module-head">
+        <div>
+          <div class="small">הזמנה חדשה</div>
+          <h2 id="orderProductTitle">הזמן עכשיו</h2>
+        </div>
+        <button class="icon-btn" id="closeOrderModal" type="button" aria-label="סגור">✕</button>
+      </div>
+      <form id="orderForm">
+        <input type="hidden" id="orderProductId">
+        <div class="order-summary" id="orderSummary"></div>
+        <div class="form-grid">
+          <label>שם מלא<input id="orderName" required autocomplete="name"></label>
+          <label>טלפון<input id="orderPhone" required type="tel" autocomplete="tel"></label>
+          <label>אימייל<input id="orderEmail" type="email" autocomplete="email"></label>
+          <label>עיר<input id="orderCity" autocomplete="address-level2"></label>
+          <label class="full">כתובת למשלוח<input id="orderAddress" autocomplete="street-address"></label>
+          <label class="full">הערות להזמנה<textarea id="orderNotes" rows="4" placeholder="מידה, התאמות מיוחדות, בקשות נוספות"></textarea></label>
+        </div>
+        <label class="order-consent"><input id="orderPrivacy" required type="checkbox"> אני מאשר/ת שימוש בפרטים לצורך טיפול בהזמנה</label>
+        <div class="actions">
+          <button class="btn" type="submit">שלח הזמנה</button>
+          <button class="btn secondary" type="button" id="cancelOrder">ביטול</button>
+        </div>
+        <div id="orderMessage" class="notice success" hidden></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="product-lightbox" id="productLightbox" hidden>
+    <button class="lightbox-close" id="closeLightbox" type="button" aria-label="סגור">✕</button>
+    <img id="lightboxImage" alt="">
+  </div>
+
+  <script src="data.js?v=20260930-6"></script>
+  <script src="app.js?v=20260930-6"></script>
+  <script src="product.js?v=20260930-6"></script>
+</body>
+</html>
