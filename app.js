@@ -31,10 +31,34 @@ function injectGlobal(){
  el("#cookie")?.addEventListener("click",e=>{const v=e.target.dataset.c;if(!v)return;localStorage.rt_cookie=JSON.stringify({essential:true,analytics:v==="all",marketing:v==="all",functional:v==="all",at:new Date().toISOString()});el("#cookie").remove()})
 }
 
+function reviewStars(value){return "★".repeat(Number(value||0))+"☆".repeat(Math.max(0,5-Number(value||0)))}
+function renderHomeReviews(){
+ const list=el("#homeReviewsList"),productSelect=el("#homeReviewProduct");
+ if(productSelect){
+   const products=RomTechData.loadProducts().filter(p=>p.status==="published");
+   productSelect.innerHTML=products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("");
+ }
+ if(!list)return;
+ const rows=(RomTechData.loadReviews?.()||[]).filter(r=>r.status==="approved").slice(0,12);
+ list.innerHTML=rows.length?rows.map(r=>'<article class="review-card"><div class="review-card-head"><strong>'+esc(r.name||"לקוח")+'</strong><span class="review-stars" aria-label="'+Number(r.rating||0)+' מתוך 5">'+reviewStars(r.rating)+'</span></div><div class="small">'+esc(r.productName||"")+'</div><p>'+esc(r.text||"")+'</p></article>').join(""):'<div class="empty-state">עדיין אין ביקורות מאושרות.</div>'
+}
+function submitHomeReview(event){
+ event.preventDefault();
+ const productId=el("#homeReviewProduct").value,product=RomTechData.loadProducts().find(p=>p.id===productId);
+ if(!product)return;
+ const review={id:"rev-"+Date.now(),productId,productName:product.name,name:el("#homeReviewName").value.trim(),rating:Number(el("#homeReviewRating").value||5),text:el("#homeReviewText").value.trim(),status:"pending",createdAt:new Date().toISOString()};
+ if(!review.name||!review.text)return;
+ const rows=RomTechData.loadReviews?.()||[];
+ rows.unshift(review);
+ RomTechData.saveReviews(rows);
+ event.currentTarget.reset();
+ renderHomeReviews();
+ const m=el("#homeReviewMessage");if(m){m.textContent="תודה! הביקורת נשלחה לאישור.";m.hidden=false}
+}
 function renderCatalog(){
  const root=el("#catalog");if(!root)return;
  const all=RomTechData.loadProducts().filter(x=>x.status==="published"),q=(el("#search")?.value||"").trim(),cat=el("#category")?.value||"",court=el("#court")?.value||"",wa=String(siteSettings().whatsapp||"").replace(/\D/g,"");
  const rows=all.filter(p=>(!q||[p.name,p.short,p.court,p.category,p.fur].join(" ").includes(q))&&(!cat||p.category===cat)&&(!court||p.court===court));
  root.innerHTML=rows.map(p=>'<article class="card">'+(p.images?.[0]?'<img src="'+p.images[0]+'" alt="'+esc(p.name)+'">':'<div class="ph" role="img" aria-label="'+esc(p.name)+'"></div>')+'<div class="card-body"><div>'+((p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(""))+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.short)+'</p><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><div class="small">מלאי: '+p.stock+' · '+esc(p.fur)+' · '+p.height+' ס״מ</div><div class="actions"><a class="btn" href="product.html?id='+encodeURIComponent(p.id)+'">לצפייה והזמנה</a><a class="btn secondary" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent("שלום, אשמח לפרטים על "+p.name)+'">שאל ב-WhatsApp</a></div></div></article>').join("")||'<p>לא נמצאו מוצרים.</p>'
 }
-document.addEventListener("DOMContentLoaded",()=>{applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog()});
+document.addEventListener("DOMContentLoaded",()=>{applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();renderHomeReviews();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview)});
