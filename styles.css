@@ -143,3 +143,18 @@
 
 /* Compact settings 20260930-12 */
 @media(min-width:851px){.admin-page .admin-main{padding:14px 22px 18px}.admin-page .admin-top{padding-bottom:10px}.admin-page .admin-top h1{font-size:30px}.admin-page [data-panel="settings"].admin-module.active{padding-top:12px}.admin-page [data-panel="settings"]>h2{font-size:26px;margin:0 0 10px}.admin-page .settings-grid-v11{gap:12px}.admin-page .settings-grid-v11 .settings-card{padding:14px;gap:8px;border-radius:14px}.admin-page .settings-grid-v11 .settings-card h3{font-size:20px;margin:0 0 4px}.admin-page .settings-grid-v11 label{font-size:14px;line-height:1.25}.admin-page .settings-grid-v11 input,.admin-page .settings-grid-v11 select{min-height:38px;height:38px;padding:7px 10px;margin-top:4px}.admin-page .settings-grid-v11 textarea{height:260px;min-height:220px;max-height:300px;padding:9px 10px;margin-top:4px;resize:vertical}.admin-page .settings-grid-v11 .btn{min-height:40px;padding:8px 14px}.admin-page .settings-grid-v11 .actions{margin-top:6px}}
+
+/* Rich page editor 20260930-13 */
+.rich-editor-shell{display:grid;gap:0}
+.rich-toolbar{display:flex;gap:6px;flex-wrap:wrap;padding:7px;background:#f4f1ec;border:1px solid #cfc7bb;border-bottom:0;border-radius:10px 10px 0 0}
+.rich-toolbar button{border:1px solid #d6cec2;background:#fff;color:#171717;border-radius:7px;padding:6px 10px;min-height:34px;font:inherit;cursor:pointer}
+.rich-toolbar button:hover{background:#ece6dc}
+.rich-editor{min-height:220px;max-height:300px;overflow:auto;border:1px solid #cfc7bb;border-radius:0 0 10px 10px;background:#fff;padding:12px 14px;line-height:1.7;outline:none;text-align:right}
+.rich-editor:focus{border-color:#8b6b3f;box-shadow:0 0 0 2px rgba(139,107,63,.12)}
+.rich-editor h2{font-size:28px;line-height:1.2;margin:18px 0 10px}
+.rich-editor p{margin:0 0 12px}
+.rich-editor ul,.rich-editor ol{margin:0 0 12px;padding-right:24px}
+.rich-editor li{margin:4px 0}
+.rich-editor a{text-decoration:underline}
+.admin-page .settings-grid-v11 .rich-editor{height:230px;min-height:190px;max-height:260px}
+.admin-page .settings-grid-v11 .rich-toolbar button{min-height:32px;padding:5px 9px}
