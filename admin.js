@@ -51,16 +51,51 @@ function loadSettingsForm(){
 function saveSiteSettings(){
  const s=RomTechData.loadSiteSettings();s.phone=$("#settingPhone").value.trim();s.whatsapp=$("#settingWhatsapp").value.replace(/\D/g,"");s.email=$("#settingEmail").value.trim();RomTechData.saveSiteSettings(s);showSaved("#siteSettingsSaved")
 }
+function setRichEditor(editorSelector,hiddenSelector,html){
+ const editor=$(editorSelector),hidden=$(hiddenSelector),value=html||"";
+ if(editor)editor.innerHTML=value;
+ if(hidden)hidden.value=value
+}
+function sanitizeRichHtml(html){
+ const doc=new DOMParser().parseFromString('<div>'+String(html||"")+'</div>',"text/html");
+ doc.querySelectorAll("script,style,iframe,object,embed,form,input,button,textarea,select").forEach(n=>n.remove());
+ doc.querySelectorAll("*").forEach(n=>{
+  [...n.attributes].forEach(a=>{
+   const name=a.name.toLowerCase(),value=String(a.value||"").trim().toLowerCase();
+   if(name.startsWith("on")||name==="style"||name==="class"||name==="id")n.removeAttribute(a.name);
+   if((name==="href"||name==="src")&&value.startsWith("javascript:"))n.removeAttribute(a.name)
+  })
+ });
+ return doc.body.firstElementChild?.innerHTML||""
+}
+function readRichEditor(editorSelector,hiddenSelector){
+ const editor=$(editorSelector),hidden=$(hiddenSelector),html=sanitizeRichHtml(editor?.innerHTML||"");
+ if(editor)editor.innerHTML=html;
+ if(hidden)hidden.value=html;
+ return html
+}
+function runRichEditorAction(button){
+ const editor=$("#"+button.dataset.editorTarget);if(!editor)return;
+ editor.focus();
+ const block=button.dataset.richBlock,command=button.dataset.richCommand;
+ if(block){document.execCommand("formatBlock",false,"<"+block.toLowerCase()+">");return}
+ if(command==="createLink"){
+  const url=prompt("הכנס כתובת קישור:");
+  if(url)document.execCommand("createLink",false,url);
+  return
+ }
+ if(command)document.execCommand(command,false,null)
+}
 function loadSettingsContentEditor(){
  const select=$("#settingsContentPage");if(!select)return;
  const key=select.value||"accessibility",all=RomTechData.loadLegalContent(),item=all[key]||{title:"",body:""};
  $("#settingsContentTitle").value=item.title||"";
- $("#settingsContentBody").value=item.body||"";
+ setRichEditor("#settingsContentEditor","#settingsContentBody",item.body||"");
  $("#previewSettingsContent").href="../"+pageFiles[key]
 }
 function saveSettingsContent(){
  const key=$("#settingsContentPage").value,all=RomTechData.loadLegalContent();
- all[key]={title:$("#settingsContentTitle").value.trim(),body:$("#settingsContentBody").value};
+ all[key]={title:$("#settingsContentTitle").value.trim(),body:readRichEditor("#settingsContentEditor","#settingsContentBody")};
  RomTechData.saveLegalContent(all);showSaved("#settingsContentSaved")
 }
 function saveAdminCredentials(){
@@ -74,13 +109,13 @@ function showSaved(sel){const n=$(sel);if(!n)return;n.hidden=false;setTimeout(()
 function loadContentEditor(){
  const key=$("#contentPageSelect")?.value||"accessibility",all=RomTechData.loadLegalContent(),settings=RomTechData.loadSiteSettings(),item=all[key]||{title:"",body:""};
  if($("#contentTitle"))$("#contentTitle").value=item.title||"";
- if($("#contentBody"))$("#contentBody").value=item.body||"";
+ setRichEditor("#contentEditor","#contentBody",item.body||"");
  if($("#contentFooterLabel"))$("#contentFooterLabel").value=settings.footerLabels?.[key]||"";
  if($("#previewContentPage"))$("#previewContentPage").href="../"+pageFiles[key]
 }
 function saveContent(){
  const key=$("#contentPageSelect").value,all=RomTechData.loadLegalContent(),settings=RomTechData.loadSiteSettings();
- all[key]={title:$("#contentTitle").value.trim(),body:$("#contentBody").value};
+ all[key]={title:$("#contentTitle").value.trim(),body:readRichEditor("#contentEditor","#contentBody")};
  settings.footerLabels={...(settings.footerLabels||{}),[key]:$("#contentFooterLabel").value.trim()};
  RomTechData.saveLegalContent(all);RomTechData.saveSiteSettings(settings);showSaved("#contentSaved")
 }
@@ -98,6 +133,8 @@ function exportCsv(){const cols=["id","name","short","full","court","category","
 function updateOrderStatus(id,status){const os=RomTechData.loadOrders(),o=os.find(x=>x.id===id);if(o){o.status=status;RomTechData.saveOrders(os);renderOrders()}}
 function deleteOrder(id){if(confirm("למחוק את ההזמנה?")){RomTechData.saveOrders(RomTechData.loadOrders().filter(x=>x.id!==id));renderOrders()}}
 
+document.addEventListener("mousedown",e=>{const b=e.target.closest("[data-rich-command],[data-rich-block]");if(!b)return;e.preventDefault();runRichEditorAction(b)});
+document.addEventListener("input",e=>{if(e.target.matches("#settingsContentEditor"))$("#settingsContentBody").value=e.target.innerHTML;if(e.target.matches("#contentEditor"))$("#contentBody").value=e.target.innerHTML});
 document.addEventListener("DOMContentLoaded",()=>{
  $("#adminSubmit")?.addEventListener("click",enterAdmin);["adminCode","adminPassword"].forEach(id=>$("#"+id)?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();enterAdmin()}}));$("#logoutBtn")?.addEventListener("click",logout);
  $$(".side-link[data-module]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.module)));$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
