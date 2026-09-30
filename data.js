@@ -5,4 +5,6 @@ const DEFAULT_PRODUCTS=[
 ];
 function loadProducts(){try{return JSON.parse(localStorage.getItem("romtech_products"))||DEFAULT_PRODUCTS}catch{return DEFAULT_PRODUCTS}}
 function saveProducts(items){localStorage.setItem("romtech_products",JSON.stringify(items))}
-window.RomTechData={loadProducts,saveProducts,DEFAULT_PRODUCTS};
+function loadOrders(){try{return JSON.parse(localStorage.getItem("romtech_orders"))||[]}catch{return []}}
+function saveOrders(items){localStorage.setItem("romtech_orders",JSON.stringify(items))}
+window.RomTechData={loadProducts,saveProducts,loadOrders,saveOrders,DEFAULT_PRODUCTS};
