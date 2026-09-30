@@ -1,67 +1,205 @@
-<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>פאנל ניהול | RomTech</title><link rel="icon" href="../assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../styles.css?v=20260930-3"></head><body class="admin-page">
-<div id="adminGate" class="admin-gate"><div class="login-card"><div class="admin-login-kicker">RomTech Admin</div><h1>כניסה לניהול</h1><p id="adminGateText">בכניסה הראשונה בחר סיסמת מנהל. לאחר מכן השתמש באותה סיסמה בכל כניסה בדפדפן הזה.</p>
-<div id="adminLogin">
-  <input id="adminCode" type="password" autocomplete="current-password" placeholder="סיסמת מנהל" required minlength="4">
-  <input id="adminCodeConfirm" type="password" autocomplete="new-password" placeholder="אימות סיסמה" minlength="4">
-  <button class="btn" id="adminSubmit" type="button">הגדר סיסמה והיכנס</button>
-  <button class="btn secondary" id="resetLocalPassword" type="button" hidden>איפוס סיסמה מקומית</button>
-  <p id="loginError" class="error-text" hidden></p>
-</div></div></div>
-<div id="adminApp" class="admin-shell" hidden><aside class="sidebar"><div class="admin-name">RomTech</div><div class="admin-subtitle">פאנל ניהול</div><nav><button class="side-link" data-module="dashboard">Dashboard</button><button class="side-link" data-module="orders">הזמנות</button><button class="side-link active" data-module="products">מוצרים</button><button class="side-link" data-module="inventory">מלאי</button><button class="side-link" data-module="customers">לקוחות</button><button class="side-link" data-module="content">תוכן</button><button class="side-link" data-module="marketing">שיווק</button><button class="side-link" data-module="reviews">ביקורות</button><button class="side-link" data-module="support">תמיכה</button><button class="side-link" data-module="reports">דוחות</button><button class="side-link" data-module="settings">הגדרות</button></nav><hr><a href="../index.html">חזרה לאתר</a><button class="side-link logout" id="logoutBtn">התנתקות</button></aside>
-<main class="admin-main">
-<header class="admin-top"><div><h1 id="moduleTitle">מוצרים</h1><div class="small">ניהול מוצרים, מלאי ותוכן במקום אחד</div></div></header>
-<section class="admin-module" data-panel="dashboard"><div class="grid stats-grid"><div class="card card-body"><div class="small">מוצרים</div><div class="price" id="count">0</div></div><div class="card card-body"><div class="small">מלאי נמוך</div><div class="price" id="low">0</div></div><div class="card card-body"><div class="small">מוצרים מפורסמים</div><div class="price" id="publishedCount">0</div></div></div><div class="section"><h2>פעולות מהירות</h2><div class="actions"><button class="btn" data-open-products>הוסף שטריימל</button><button class="btn secondary" data-go="inventory">בדיקת מלאי</button><button class="btn secondary" data-go="reports">דוחות</button></div></div></section>
-<section class="admin-module active" data-panel="products"><div class="module-head"><h2>מוצרים</h2><div class="actions"><button class="btn" id="newBtn">הוסף שטריימל חדש</button><button class="btn secondary" id="exportCsv">ייצוא CSV</button><label class="btn secondary">ייבוא CSV<input id="importCsv" type="file" accept=".csv" hidden></label></div></div><div class="toolbar"><select id="bulkStatus"><option value="">סטטוס</option><option value="draft">טיוטה</option><option value="published">מפורסם</option><option value="hidden">מוסתר</option></select><select id="bulkCategory"><option value="">קטגוריה</option><option>קלאסי</option><option>מהודר</option><option>ספודיק</option><option>קולפיק</option></select><input id="bulkPrice" class="field" type="number" placeholder="מחיר חדש"><input id="bulkStock" class="field" type="number" placeholder="מלאי חדש"><button class="btn" id="bulkApply">החל עריכה המונית</button></div><div class="table-wrap"><table><thead><tr><th></th><th>תמונה</th><th>שם</th><th>קטגוריה</th><th>מחיר</th><th>מלאי</th><th>סטטוס</th><th>פעולות</th></tr></thead><tbody id="adminRows"></tbody></table></div></section>
-<section class="admin-module" data-panel="inventory"><div class="module-head"><h2>מלאי</h2><button class="btn secondary" id="inventoryRefresh">רענן</button></div><div id="inventoryList" class="admin-list"></div></section>
-<section class="admin-module" data-panel="orders"><h2>הזמנות</h2><div class="empty-state"><b>מודול הזמנות מוכן לחיבור</b><p>כרגע אין Backend להזמנות. הכפתורים כאן אינם מזויפים: לאחר חיבור Checkout/DB יוצגו כאן הזמנות אמיתיות.</p></div></section>
-<section class="admin-module" data-panel="customers"><h2>לקוחות</h2><div class="empty-state"><b>אין לקוחות שמורים עדיין</b><p>המודול יופעל עם חיבור מסד הנתונים וטופס הרכישה.</p></div></section>
-<section class="admin-module" data-panel="content"><h2>תוכן</h2><div class="admin-list"><a class="admin-action-card" href="../faq.html" target="_blank">פתח שאלות נפוצות</a><a class="admin-action-card" href="../contact.html" target="_blank">פתח צור קשר</a><a class="admin-action-card" href="../accessibility.html" target="_blank">פתח הצהרת נגישות</a></div></section>
-<section class="admin-module" data-panel="marketing"><h2>שיווק</h2><div class="empty-state"><b>כלי שיווק</b><p>קמפיינים ואוטומציות יופעלו רק לאחר חיבור ספק דיוור והסכמה מתועדת.</p></div></section>
-<section class="admin-module" data-panel="reviews"><h2>ביקורות</h2><div class="empty-state"><b>אין ביקורות עדיין</b><p>לא יוצגו ביקורות דמה.</p></div></section>
-<section class="admin-module" data-panel="support"><h2>תמיכה</h2><div class="admin-list"><a class="admin-action-card" href="https://wa.me/359879858846" target="_blank" rel="noopener">פתח WhatsApp Business</a><a class="admin-action-card" href="mailto:info@romtech.co.il">שלח אימייל</a></div></section>
-<section class="admin-module" data-panel="reports"><h2>דוחות</h2><div id="reportCards" class="grid stats-grid"></div></section>
-<section class="admin-module" data-panel="settings"><h2>הגדרות</h2><div class="card card-body settings-card"><label>שם העסק<input value="RomTech" disabled></label><label>טלפון<input value="+359 87 985 8846" disabled></label><p class="small">הגדרות רגישות יועברו לשרת כאשר יחובר Backend.</p></div></section>
-</main></div>
-<div class="modal" id="productModal"><div class="modal-card"><div class="module-head"><h2 id="modalTitle">הוסף שטריימל חדש</h2><button class="icon-btn" id="closeModal" type="button">✕</button></div><form id="productForm"><input type="hidden" id="pid"><div class="form-grid"><label>שם השטריימל<input required name="name"></label><label>תיאור קצר<input required maxlength="160" name="short"></label><label class="full">תיאור מלא<textarea required name="full" rows="4"></textarea></label><label class="full image-upload">תמונות המוצר (עד 10)<input id="productImages" type="file" accept="image/*" multiple><span class="small">PNG/JPG/WebP. התמונות מוצגות מיד בקטלוג.</span><div id="imagePreview" class="image-preview"></div></label><label>חצר חסידית<select required name="court"><option>סאטמר</option><option>בעלז</option><option>גור</option><option>ויז'ניץ</option><option>צאנז</option><option>אחר</option></select></label><label>קטגוריה<select required name="category"><option>קלאסי</option><option>מהודר</option><option>ספודיק</option><option>קולפיק</option></select></label><label>מחיר<input required type="number" name="price"></label><label>מחיר מבצע<input type="number" name="salePrice"></label><label>מחיר עלות<input type="number" name="cost"></label><label>מלאי<input required type="number" name="stock"></label><label>התראת מלאי נמוך<input type="number" name="lowStock" value="3"></label><label>SKU<input name="sku"></label><label>ברקוד<input name="barcode"></label><label>גובה (ס״מ)<input required type="number" name="height"></label><label>מספר שיניים<select required name="teeth"><option>13</option><option>18</option><option>22</option><option>26</option></select></label><label>סוג פרווה<select required name="fur"><option>מינק</option><option>שועל</option><option>סאבל</option><option>כסף</option><option>ריאן</option></select></label><label>צבע בטנה<select name="lining"><option>שחור</option><option>כחול</option><option>אפור</option><option>בז'</option></select></label><label>סוג קופסה<select name="box"><option>קופסת עץ</option><option>קופסת עור</option><option>ללא</option></select></label><label>אפשרות רקמת שם <input type="checkbox" name="embroidery" class="inline-check"></label><label>תוספת לרקמה<input type="number" name="embroideryPrice" value="150"></label><label>תגיות<input name="tags" placeholder="חדש, מבצע, נדיר"></label><label>סטטוס<select required name="status"><option value="draft">טיוטה</option><option value="published">מפורסם</option><option value="hidden">מוסתר</option></select></label><label>SEO — כותרת<input required maxlength="60" name="seoTitle"></label><label>SEO — תיאור<input required maxlength="160" name="seoDescription"></label><label>SEO — Slug<input name="slug"></label><label class="full">וידאו / קישור<input name="video"></label></div><div class="actions"><button class="btn" type="submit">שמור</button><button class="btn secondary" type="button" id="cancelModal">ביטול</button></div></form></div></div>
-<script src="../data.js?v=20260930-4"></script><script src="../app.js?v=20260930-4"></script><script src="../admin.js?v=20260930-4"></script>
-<script>
-(function(){
-  const key="rt_admin_password_hash";
-  const enc=v=>btoa(unescape(encodeURIComponent(v)));
-  function refreshGate(){
-    const saved=localStorage.getItem(key);
-    const confirm=document.getElementById("adminCodeConfirm");
-    const submit=document.getElementById("adminSubmit");
-    const reset=document.getElementById("resetLocalPassword");
-    const text=document.getElementById("adminGateText");
-    if(confirm) confirm.hidden=!!saved;
-    if(submit) submit.textContent=saved?"כניסה":"הגדר סיסמה והיכנס";
-    if(reset) reset.hidden=!saved;
-    if(text) text.textContent=saved?"הזן את סיסמת המנהל שהגדרת בדפדפן הזה.":"בכניסה הראשונה בחר סיסמת מנהל ואשר אותה.";
-  }
-  function enterAdmin(){
-    const pass=document.getElementById("adminCode").value;
-    const confirmPass=document.getElementById("adminCodeConfirm").value;
-    const err=document.getElementById("loginError");
-    const saved=localStorage.getItem(key);
-    err.hidden=true;
-    if(pass.length<4){err.textContent="הסיסמה חייבת להכיל לפחות 4 תווים.";err.hidden=false;return;}
-    if(!saved){
-      if(pass!==confirmPass){err.textContent="הסיסמאות אינן תואמות.";err.hidden=false;return;}
-      localStorage.setItem(key,enc(pass));
-    } else if(enc(pass)!==saved){
-      err.textContent="הסיסמה שגויה.";err.hidden=false;return;
-    }
-    sessionStorage.setItem("rt_admin_ok","1");
-    const gate=document.getElementById("adminGate");
-    const app=document.getElementById("adminApp");
-    if(gate){gate.hidden=true;gate.style.display="none";}
-    if(app){app.hidden=false;app.style.display="grid";}
-    if(typeof renderAdmin==="function") renderAdmin();
-  }
-  document.getElementById("adminSubmit").addEventListener("click",enterAdmin);
-  ["adminCode","adminCodeConfirm"].forEach(id=>document.getElementById(id)?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();enterAdmin();}}));
-  document.getElementById("resetLocalPassword").addEventListener("click",()=>{localStorage.removeItem(key);sessionStorage.removeItem("rt_admin_ok");document.getElementById("adminCode").value="";document.getElementById("adminCodeConfirm").value="";refreshGate();});
-  refreshGate();
-})();
-</script></body></html>
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>פאנל ניהול | RomTech</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../styles.css?v=20260930-5">
+</head>
+<body class="admin-page">
+  <div id="adminGate" class="admin-gate">
+    <div class="login-card admin-login-simple">
+      <div class="admin-login-kicker">RomTech Admin</div>
+      <h1>כניסה לניהול</h1>
+      <p id="adminGateText">הזן קוד מנהל כדי להיכנס.</p>
+      <div class="admin-login-fields">
+        <input id="adminCode" type="password" autocomplete="current-password" placeholder="קוד / סיסמת מנהל">
+        <button class="btn" id="adminSubmit" type="button">כניסה</button>
+        <button class="admin-reset-link" id="resetLocalPassword" type="button" hidden>איפוס הקוד בדפדפן הזה</button>
+        <p id="loginError" class="error-text" hidden></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="adminApp" class="admin-shell" hidden>
+    <aside class="sidebar">
+      <div class="admin-name">RomTech</div>
+      <div class="admin-subtitle">פאנל ניהול</div>
+      <nav>
+        <button class="side-link" data-module="dashboard">Dashboard</button>
+        <button class="side-link" data-module="orders">הזמנות</button>
+        <button class="side-link active" data-module="products">מוצרים</button>
+        <button class="side-link" data-module="inventory">מלאי</button>
+        <button class="side-link" data-module="customers">לקוחות</button>
+        <button class="side-link" data-module="content">תוכן</button>
+        <button class="side-link" data-module="marketing">שיווק</button>
+        <button class="side-link" data-module="reviews">ביקורות</button>
+        <button class="side-link" data-module="support">תמיכה</button>
+        <button class="side-link" data-module="reports">דוחות</button>
+        <button class="side-link" data-module="settings">הגדרות</button>
+      </nav>
+      <hr>
+      <a href="../index.html">חזרה לאתר</a>
+      <button class="side-link logout" id="logoutBtn" type="button">התנתקות</button>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-top">
+        <div>
+          <h1 id="moduleTitle">מוצרים</h1>
+          <div class="small">ניהול מוצרים, מלאי ותוכן במקום אחד</div>
+        </div>
+      </header>
+
+      <section class="admin-module" data-panel="dashboard">
+        <div class="grid stats-grid">
+          <div class="card card-body"><div class="small">מוצרים</div><div class="price" id="count">0</div></div>
+          <div class="card card-body"><div class="small">מלאי נמוך</div><div class="price" id="low">0</div></div>
+          <div class="card card-body"><div class="small">מוצרים מפורסמים</div><div class="price" id="publishedCount">0</div></div>
+        </div>
+        <div class="section">
+          <h2>פעולות מהירות</h2>
+          <div class="actions">
+            <button class="btn" data-action="new-product" type="button">הוסף שטריימל</button>
+            <button class="btn secondary" data-go="inventory" type="button">בדיקת מלאי</button>
+            <button class="btn secondary" data-go="reports" type="button">דוחות</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-module active" data-panel="products">
+        <div class="module-head">
+          <h2>מוצרים</h2>
+          <div class="actions">
+            <button class="btn" id="newBtn" type="button">הוסף שטריימל חדש</button>
+            <button class="btn secondary" id="exportCsv" type="button">ייצוא CSV</button>
+            <label class="btn secondary">ייבוא CSV<input id="importCsv" type="file" accept=".csv,text/csv" hidden></label>
+          </div>
+        </div>
+        <div class="toolbar">
+          <select id="bulkStatus"><option value="">סטטוס</option><option value="draft">טיוטה</option><option value="published">מפורסם</option><option value="hidden">מוסתר</option></select>
+          <select id="bulkCategory"><option value="">קטגוריה</option><option>קלאסי</option><option>מהודר</option><option>ספודיק</option><option>קולפיק</option></select>
+          <input id="bulkPrice" class="field" type="number" placeholder="מחיר חדש">
+          <input id="bulkStock" class="field" type="number" placeholder="מלאי חדש">
+          <button class="btn" id="bulkApply" type="button">החל עריכה המונית</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th></th><th>תמונה</th><th>שם</th><th>קטגוריה</th><th>מחיר</th><th>מלאי</th><th>סטטוס</th><th>פעולות</th></tr></thead>
+            <tbody id="adminRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="admin-module" data-panel="inventory">
+        <div class="module-head"><h2>מלאי</h2><button class="btn secondary" id="inventoryRefresh" type="button">רענן</button></div>
+        <div id="inventoryList" class="admin-list"></div>
+      </section>
+
+      <section class="admin-module" data-panel="orders">
+        <h2>הזמנות</h2>
+        <div class="empty-state"><b>עדיין אין מערכת הזמנות מחוברת</b><p>כאן יוצגו הזמנות אמיתיות לאחר חיבור Checkout ומסד נתונים.</p></div>
+      </section>
+
+      <section class="admin-module" data-panel="customers">
+        <h2>לקוחות</h2>
+        <div class="empty-state"><b>עדיין אין מסד לקוחות מחובר</b><p>המודול מוכן למידע אמיתי לאחר חיבור Backend.</p></div>
+      </section>
+
+      <section class="admin-module" data-panel="content">
+        <h2>תוכן</h2>
+        <div class="admin-list">
+          <a class="admin-action-card" href="../faq.html" target="_blank">פתח שאלות נפוצות</a>
+          <a class="admin-action-card" href="../contact.html" target="_blank">פתח צור קשר</a>
+          <a class="admin-action-card" href="../accessibility.html" target="_blank">פתח הצהרת נגישות</a>
+          <a class="admin-action-card" href="../privacy.html" target="_blank">פתח מדיניות פרטיות</a>
+        </div>
+      </section>
+
+      <section class="admin-module" data-panel="marketing">
+        <h2>שיווק</h2>
+        <div class="empty-state"><b>כלי שיווק</b><p>יופעלו לאחר חיבור ספק דיוור והסכמות משתמשים.</p></div>
+      </section>
+
+      <section class="admin-module" data-panel="reviews">
+        <h2>ביקורות</h2>
+        <div class="empty-state"><b>אין ביקורות עדיין</b><p>לא יוצגו נתוני דמה.</p></div>
+      </section>
+
+      <section class="admin-module" data-panel="support">
+        <h2>תמיכה</h2>
+        <div class="admin-list">
+          <a class="admin-action-card" href="https://wa.me/359879858846" target="_blank" rel="noopener">פתח WhatsApp Business</a>
+          <a class="admin-action-card" href="mailto:info@romtech.co.il">שלח אימייל</a>
+        </div>
+      </section>
+
+      <section class="admin-module" data-panel="reports">
+        <h2>דוחות</h2>
+        <div id="reportCards" class="grid stats-grid"></div>
+      </section>
+
+      <section class="admin-module" data-panel="settings">
+        <h2>הגדרות</h2>
+        <div class="card card-body settings-card">
+          <label>שם העסק<input value="RomTech" disabled></label>
+          <label>טלפון<input value="+359 87 985 8846" disabled></label>
+          <p class="small">הגדרות רגישות יועברו לשרת כאשר יחובר Backend.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="productModal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="module-head">
+        <h2 id="modalTitle">הוסף שטריימל חדש</h2>
+        <button class="icon-btn" id="closeModal" type="button">✕</button>
+      </div>
+      <form id="productForm">
+        <input type="hidden" id="pid">
+        <div class="form-grid">
+          <label>שם השטריימל<input required name="name"></label>
+          <label>תיאור קצר<input required maxlength="160" name="short"></label>
+          <label class="full">תיאור מלא<textarea required name="full" rows="4"></textarea></label>
+          <label class="full image-upload">תמונות המוצר (עד 10)
+            <input id="productImages" type="file" accept="image/*" multiple>
+            <span class="small">PNG/JPG/WebP. ניתן לבחור מספר תמונות.</span>
+            <div id="imagePreview" class="image-preview"></div>
+          </label>
+          <label>חצר חסידית<select required name="court"><option>סאטמר</option><option>בעלז</option><option>גור</option><option>ויז'ניץ</option><option>צאנז</option><option>אחר</option></select></label>
+          <label>קטגוריה<select required name="category"><option>קלאסי</option><option>מהודר</option><option>ספודיק</option><option>קולפיק</option></select></label>
+          <label>מחיר<input required type="number" name="price"></label>
+          <label>מחיר מבצע<input type="number" name="salePrice"></label>
+          <label>מחיר עלות<input type="number" name="cost"></label>
+          <label>מלאי<input required type="number" name="stock"></label>
+          <label>התראת מלאי נמוך<input type="number" name="lowStock" value="3"></label>
+          <label>SKU<input name="sku"></label>
+          <label>ברקוד<input name="barcode"></label>
+          <label>גובה (ס״מ)<input required type="number" name="height"></label>
+          <label>מספר שיניים<select required name="teeth"><option>13</option><option>18</option><option>22</option><option>26</option></select></label>
+          <label>סוג פרווה<select required name="fur"><option>מינק</option><option>שועל</option><option>סאבל</option><option>כסף</option><option>ריאן</option></select></label>
+          <label>צבע בטנה<select name="lining"><option>שחור</option><option>כחול</option><option>אפור</option><option>בז'</option></select></label>
+          <label>סוג קופסה<select name="box"><option>קופסת עץ</option><option>קופסת עור</option><option>ללא</option></select></label>
+          <label>אפשרות רקמת שם <input type="checkbox" name="embroidery" class="inline-check"></label>
+          <label>תוספת לרקמה<input type="number" name="embroideryPrice" value="150"></label>
+          <label>תגיות<input name="tags" placeholder="חדש, מבצע, נדיר"></label>
+          <label>סטטוס<select required name="status"><option value="draft">טיוטה</option><option value="published">מפורסם</option><option value="hidden">מוסתר</option></select></label>
+          <label>SEO — כותרת<input required maxlength="60" name="seoTitle"></label>
+          <label>SEO — תיאור<input required maxlength="160" name="seoDescription"></label>
+          <label>SEO — Slug<input name="slug"></label>
+          <label class="full">וידאו / קישור<input name="video"></label>
+        </div>
+        <div class="actions">
+          <button class="btn" type="submit">שמור</button>
+          <button class="btn secondary" type="button" id="cancelModal">ביטול</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../data.js?v=20260930-5"></script>
+  <script src="../admin.js?v=20260930-5"></script>
+</body>
+</html>
