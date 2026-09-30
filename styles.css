@@ -380,3 +380,71 @@
   .hero-logo{width:min(320px,94%)!important}
   .footer-logo{width:220px!important}
 }
+
+/* Natural hero brand card 20261001-31 */
+.hero-card.hero-brand-card{
+  min-height:0;
+  padding:28px 32px 30px;
+  background:linear-gradient(145deg,#fffdf9 0%,#f1e9dc 100%);
+  color:var(--text);
+  border:1px solid #e0d6c8;
+  box-shadow:0 18px 50px rgba(64,48,30,.12);
+  justify-content:flex-start;
+  align-items:stretch;
+  gap:0;
+}
+.hero-brand-card .hero-logo-crop{
+  width:min(390px,94%);
+  aspect-ratio:900 / 390;
+  margin:0 auto;
+  overflow:hidden!important;
+  position:relative;
+}
+.hero-brand-card .hero-logo{
+  width:100%!important;
+  max-width:none!important;
+  height:auto!important;
+  margin:0!important;
+  display:block!important;
+  object-fit:contain!important;
+  object-position:center top!important;
+}
+.hero-brand-tagline{
+  margin:8px 0 0;
+  text-align:center;
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:.02em;
+  color:#4b4033;
+}
+.hero-brand-divider{
+  width:74px;
+  height:1px;
+  margin:18px auto 20px;
+  background:linear-gradient(90deg,transparent,#a77a39,transparent);
+}
+.hero-card-copy{
+  width:100%;
+  text-align:right;
+}
+.hero-card-copy .eyebrow{
+  margin-bottom:6px;
+  color:#8b632f;
+}
+.hero-card-copy h2{
+  margin:0 0 12px;
+  color:#1d1a16;
+  font-size:clamp(28px,3vw,38px);
+  line-height:1.15;
+}
+.hero-card-copy p{
+  margin:0;
+  color:#5f574d;
+  font-size:17px;
+  line-height:1.7;
+}
+@media(max-width:700px){
+  .hero-card.hero-brand-card{padding:22px 20px 24px}
+  .hero-brand-card .hero-logo-crop{width:min(330px,96%)}
+  .hero-brand-tagline{font-size:15px}
+}
