@@ -1039,3 +1039,351 @@ body:not(.admin-page) .wa:hover{background:#285c43;color:#fff}
   body:not(.admin-page) #catalog.grid{grid-template-columns:1fr}
   body:not(.admin-page) .product-no-image{min-height:340px}
 }
+
+/* Mobile-first repair pass 20261001-35
+   Keep desktop unchanged; rebuild public layout below tablet width. */
+@media(max-width:760px){
+  body:not(.admin-page){
+    overflow-x:hidden;
+    font-size:16px;
+  }
+  body:not(.admin-page) .container{
+    width:100%;
+    max-width:none;
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  /* Header: two clean rows, no horizontal scrolling */
+  body:not(.admin-page) .site-header{
+    position:relative;
+    top:auto;
+  }
+  body:not(.admin-page) .shop-nav{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:0;
+    min-height:0;
+    padding-top:8px;
+    padding-bottom:0;
+    overflow:visible;
+  }
+  body:not(.admin-page) .shop-nav .brand{
+    display:flex;
+    justify-content:center;
+    margin:0;
+    padding:2px 0 8px;
+  }
+  body:not(.admin-page) .shop-nav .brand-logo img{
+    width:150px!important;
+    max-width:150px!important;
+  }
+  body:not(.admin-page) .shop-nav-links{
+    width:100%;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:0;
+    border-top:1px solid #d7cec0;
+  }
+  body:not(.admin-page) .shop-nav-links a{
+    min-height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 6px;
+    font-size:13px;
+    white-space:nowrap;
+    border-left:1px solid #ddd4c7;
+    border-bottom:0;
+  }
+  body:not(.admin-page) .shop-nav-links a:last-child{border-left:0}
+  body:not(.admin-page) .header-contact{display:none}
+
+  /* Intro: logo first, then a compact shop description */
+  body:not(.admin-page) .shop-intro{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    padding-top:26px;
+    padding-bottom:30px;
+  }
+  body:not(.admin-page) .shop-intro-logo{
+    order:0;
+    border:0;
+    padding:0 0 18px;
+    border-bottom:1px solid #d4cabb;
+  }
+  body:not(.admin-page) .shop-intro-logo img{
+    width:min(280px,82vw);
+    max-width:280px;
+    margin:0 auto;
+  }
+  body:not(.admin-page) .shop-intro-copy{
+    order:1;
+    text-align:right;
+  }
+  body:not(.admin-page) .shop-intro-copy h1{
+    font-size:34px;
+    line-height:1.12;
+    letter-spacing:-.025em;
+    margin-bottom:10px;
+  }
+  body:not(.admin-page) .shop-intro-copy>p{
+    font-size:16px;
+    line-height:1.65;
+  }
+  body:not(.admin-page) .shop-intro-actions{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:0;
+    margin-top:18px;
+    border-top:1px solid #d4cabb;
+  }
+  body:not(.admin-page) .shop-intro-actions a{
+    display:block;
+    min-height:46px;
+    padding:12px 0;
+    border-bottom:1px solid #d4cabb!important;
+    text-decoration:none;
+  }
+
+  /* Catalog controls are thumb-friendly and do not overflow */
+  body:not(.admin-page) .section{padding:34px 0}
+  body:not(.admin-page) .catalog-section{padding-top:30px}
+  body:not(.admin-page) .catalog-heading{
+    display:block;
+    margin-bottom:18px;
+  }
+  body:not(.admin-page) .catalog-heading h2{
+    font-size:30px;
+    margin-bottom:6px;
+  }
+  body:not(.admin-page) .catalog-heading p{
+    font-size:14px;
+    line-height:1.55;
+  }
+  body:not(.admin-page) .toolbar{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:9px;
+    padding-bottom:18px;
+    margin-bottom:26px;
+  }
+  body:not(.admin-page) .toolbar .field,
+  body:not(.admin-page) .toolbar select{
+    width:100%;
+    min-width:0;
+    min-height:46px;
+    font-size:16px;
+  }
+
+  /* One product per row — readable, tappable, no cramped two-column cards */
+  body:not(.admin-page) #catalog.grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:34px;
+  }
+  body:not(.admin-page) .product-card{
+    width:100%;
+  }
+  body:not(.admin-page) .product-card-image img{
+    width:100%;
+    max-height:none;
+    aspect-ratio:4/5;
+    object-fit:cover;
+  }
+  body:not(.admin-page) .product-card .card-body{
+    padding-top:12px;
+  }
+  body:not(.admin-page) .product-card h3{
+    font-size:21px;
+  }
+  body:not(.admin-page) .product-card .price{
+    font-size:20px;
+  }
+  body:not(.admin-page) .product-card p{
+    font-size:15px;
+  }
+  body:not(.admin-page) .product-card-links{
+    gap:0;
+    margin-top:14px;
+    border-top:1px solid #d8cec0;
+  }
+  body:not(.admin-page) .product-card-links a{
+    flex:1;
+    min-height:44px;
+    display:flex;
+    align-items:center;
+    padding-top:10px;
+    padding-bottom:8px;
+  }
+  body:not(.admin-page) .product-card-links a+a{
+    justify-content:flex-end;
+  }
+
+  /* Product page */
+  body:not(.admin-page) .product-layout{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:26px;
+  }
+  body:not(.admin-page) .product-slider{
+    width:100%;
+    border-radius:0;
+  }
+  body:not(.admin-page) .product-slide img{
+    width:100%;
+    height:auto;
+    aspect-ratio:1/1;
+  }
+  body:not(.admin-page) .product-info h1{
+    font-size:34px;
+    line-height:1.12;
+    margin:6px 0 12px;
+  }
+  body:not(.admin-page) .product-info .lead{
+    font-size:16px;
+    line-height:1.65;
+  }
+  body:not(.admin-page) .product-buy-actions{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+  body:not(.admin-page) .product-buy-actions .btn{
+    width:100%;
+    min-height:48px;
+  }
+  body:not(.admin-page) .product-buy-actions .btn.secondary{
+    background:transparent;
+  }
+  body:not(.admin-page) .specs{
+    grid-template-columns:1fr;
+  }
+  body:not(.admin-page) .reviews-list{
+    grid-template-columns:1fr;
+  }
+
+  /* Forms and modals */
+  body:not(.admin-page) .modal{
+    padding:0;
+    align-items:flex-end;
+  }
+  body:not(.admin-page) .modal-card{
+    width:100%;
+    max-width:none;
+    max-height:92dvh;
+    overflow:auto;
+    border-radius:14px 14px 0 0;
+    padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+  }
+  body:not(.admin-page) .form-grid{
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  body:not(.admin-page) .form-grid .full{grid-column:auto}
+  body:not(.admin-page) input,
+  body:not(.admin-page) select,
+  body:not(.admin-page) textarea{
+    min-height:46px;
+    font-size:16px;
+  }
+  body:not(.admin-page) textarea{min-height:110px}
+
+  /* Footer stacks naturally and stays readable */
+  body:not(.admin-page) .footer{
+    margin-top:34px;
+    padding:30px 0 84px;
+  }
+  body:not(.admin-page) .footer-grid-polished{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+  }
+  body:not(.admin-page) .footer-brand-block,
+  body:not(.admin-page) .footer-links-col{
+    align-items:flex-start;
+    text-align:right;
+  }
+  body:not(.admin-page) .footer-brand-block{
+    grid-column:auto;
+    padding-bottom:20px;
+    border-bottom:1px solid #d4cabb;
+  }
+  body:not(.admin-page) .footer-brand-link{
+    width:190px;
+  }
+  body:not(.admin-page) .footer-logo{
+    width:190px!important;
+    max-width:190px!important;
+  }
+  body:not(.admin-page) .footer-contact-line{
+    display:grid;
+    gap:4px;
+    justify-content:start;
+    font-size:15px;
+  }
+  body:not(.admin-page) .footer-contact-line>span{display:none}
+  body:not(.admin-page) .footer-links-col{
+    gap:10px;
+    padding-top:0;
+  }
+
+  /* Fixed tools no longer cover product/footer content */
+  body:not(.admin-page) .wa{
+    left:12px;
+    bottom:12px;
+    min-height:44px;
+    padding:10px 12px;
+    font-size:13px;
+  }
+  body:not(.admin-page) .access{
+    left:auto;
+    right:12px;
+    bottom:12px;
+  }
+  body:not(.admin-page) .access .btn{
+    min-height:44px;
+    padding:9px 11px;
+  }
+  body:not(.admin-page) .access-panel{
+    left:auto;
+    right:0;
+    width:min(280px,calc(100vw - 24px));
+  }
+  body:not(.admin-page) .cookie{
+    right:8px;
+    left:8px;
+    bottom:64px;
+    border-radius:8px;
+    padding:14px;
+    font-size:14px;
+  }
+  body:not(.admin-page) .cookie .actions{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+  body:not(.admin-page) .cookie .btn{
+    width:100%;
+    min-height:44px;
+  }
+}
+
+@media(max-width:380px){
+  body:not(.admin-page) .container{
+    padding-left:12px;
+    padding-right:12px;
+  }
+  body:not(.admin-page) .shop-nav-links a{
+    font-size:12px;
+    padding-left:3px;
+    padding-right:3px;
+  }
+  body:not(.admin-page) .shop-intro-copy h1{
+    font-size:31px;
+  }
+  body:not(.admin-page) .product-info h1{
+    font-size:31px;
+  }
+}
