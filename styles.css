@@ -158,3 +158,15 @@
 .rich-editor a{text-decoration:underline}
 .admin-page .settings-grid-v11 .rich-editor{height:230px;min-height:190px;max-height:260px}
 .admin-page .settings-grid-v11 .rich-toolbar button{min-height:32px;padding:5px 9px}
+
+/* Reviews 20260930-16 */
+.reviews-section{border-top:1px solid var(--line);margin-top:20px}
+.reviews-head{display:flex;justify-content:space-between;align-items:end;gap:16px}
+.reviews-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}
+.review-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}
+.review-card-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.review-stars{color:#a8772e;letter-spacing:2px;white-space:nowrap}
+.review-form-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:18px}
+.review-form-card h3{margin-top:0;font-size:24px}
+.review-text-cell{white-space:normal;min-width:260px;max-width:520px}
+@media(max-width:700px){.reviews-list{grid-template-columns:1fr}}
