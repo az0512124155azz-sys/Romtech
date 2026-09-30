@@ -55,6 +55,17 @@ const DEFAULT_LEGAL_CONTENT={
   }
 };
 
+function normalizeWhatsAppNumber(value){
+ let digits=String(value||"").replace(/\D/g,"");
+ if(digits.startsWith("00"))digits=digits.slice(2);
+ return digits
+}
+function buildWhatsAppLink(number,message=""){
+ const digits=normalizeWhatsAppNumber(number);
+ if(!digits)return "";
+ const base="https://wa.me/"+digits;
+ return message?base+"?text="+encodeURIComponent(message):base
+}
 function read(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return v??fallback}catch{return fallback}}
 function write(key,value){localStorage.setItem(key,JSON.stringify(value))}
 function loadProducts(){return read("romtech_products",DEFAULT_PRODUCTS)}
@@ -63,8 +74,20 @@ function loadOrders(){return read("romtech_orders",[])}
 function saveOrders(items){write("romtech_orders",items)}
 function loadReviews(){return read("romtech_reviews",[])}
 function saveReviews(items){write("romtech_reviews",items)}
-function loadSiteSettings(){const saved=read("romtech_site_settings",{});return {...DEFAULT_SITE_SETTINGS,...saved,footerLabels:{...DEFAULT_SITE_SETTINGS.footerLabels,...(saved.footerLabels||{})}}}
-function saveSiteSettings(settings){write("romtech_site_settings",settings)}
+function loadSiteSettings(){
+ const saved=read("romtech_site_settings",{});
+ const merged={...DEFAULT_SITE_SETTINGS,...saved,footerLabels:{...DEFAULT_SITE_SETTINGS.footerLabels,...(saved.footerLabels||{})}};
+ merged.whatsapp=normalizeWhatsAppNumber(merged.whatsapp);
+ merged.whatsappUrl=buildWhatsAppLink(merged.whatsapp);
+ return merged
+}
+function saveSiteSettings(settings){
+ const next={...DEFAULT_SITE_SETTINGS,...settings,footerLabels:{...DEFAULT_SITE_SETTINGS.footerLabels,...(settings.footerLabels||{})}};
+ next.whatsapp=normalizeWhatsAppNumber(next.whatsapp);
+ next.whatsappUrl=buildWhatsAppLink(next.whatsapp);
+ write("romtech_site_settings",next);
+ return next
+}
 function loadLegalContent(){const saved=read("romtech_legal_content",{});const out={};Object.keys(DEFAULT_LEGAL_CONTENT).forEach(k=>out[k]={...DEFAULT_LEGAL_CONTENT[k],...(saved[k]||{})});return out}
 function saveLegalContent(content){write("romtech_legal_content",content)}
-window.RomTechData={loadProducts,saveProducts,loadOrders,saveOrders,loadReviews,saveReviews,loadSiteSettings,saveSiteSettings,loadLegalContent,saveLegalContent,DEFAULT_PRODUCTS,DEFAULT_SITE_SETTINGS,DEFAULT_LEGAL_CONTENT};
+window.RomTechData={loadProducts,saveProducts,loadOrders,saveOrders,loadReviews,saveReviews,normalizeWhatsAppNumber,buildWhatsAppLink,loadSiteSettings,saveSiteSettings,loadLegalContent,saveLegalContent,DEFAULT_PRODUCTS,DEFAULT_SITE_SETTINGS,DEFAULT_LEGAL_CONTENT};
