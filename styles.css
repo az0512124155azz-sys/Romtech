@@ -407,3 +407,44 @@
   .hero-logo{width:min(310px,92%)!important}
   .footer-logo{width:220px!important}
 }
+
+/* Original RomTech logo 20260930-27 */
+.brand-logo,
+.footer-brand-link,
+.hero-card{
+  overflow:visible!important;
+}
+.brand-logo img,
+.hero-logo,
+.footer-logo{
+  display:block!important;
+  height:auto!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  clip-path:none!important;
+  overflow:visible!important;
+  aspect-ratio:auto!important;
+  background:transparent!important;
+  border-radius:0!important;
+  padding:0!important;
+  filter:none!important;
+}
+.brand-logo img{
+  width:190px!important;
+  max-width:190px!important;
+}
+.hero-logo{
+  width:min(360px,88%)!important;
+  max-width:360px!important;
+  margin:0 auto 18px!important;
+}
+.footer-logo{
+  width:250px!important;
+  max-width:100%!important;
+}
+@media(max-width:560px){
+  .brand-logo img{width:150px!important;max-width:150px!important}
+  .hero-logo{width:min(310px,92%)!important}
+  .footer-logo{width:220px!important}
+}
