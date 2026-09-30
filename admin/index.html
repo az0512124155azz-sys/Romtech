@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20260930-16">
+  <link rel="stylesheet" href="../styles.css?v=20260930-17">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -151,7 +151,13 @@
       </section>
 
       <section class="admin-module" data-panel="reviews">
-        <div class="module-head"><h2>ביקורות</h2><button class="btn secondary" id="reviewsRefresh" type="button">רענן</button></div>
+        <div class="module-head">
+          <h2>ביקורות</h2>
+          <div class="actions" style="margin-top:0">
+            <button class="btn" id="addReviewBtn" type="button">הוסף ביקורת</button>
+            <button class="btn secondary" id="reviewsRefresh" type="button">רענן</button>
+          </div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>תאריך</th><th>מוצר</th><th>שם</th><th>דירוג</th><th>ביקורת</th><th>סטטוס</th><th>פעולות</th></tr></thead>
@@ -222,6 +228,48 @@
     </main>
   </div>
 
+  <div class="modal" id="reviewModal" aria-hidden="true">
+    <div class="modal-card review-admin-modal">
+      <div class="module-head">
+        <h2>הוסף ביקורת</h2>
+        <button class="icon-btn" id="closeReviewModal" type="button" aria-label="סגור">✕</button>
+      </div>
+      <form id="adminReviewForm">
+        <div class="form-grid">
+          <label>מוצר
+            <select id="adminReviewProduct" required></select>
+          </label>
+          <label>שם הלקוח
+            <input id="adminReviewName" required maxlength="60" placeholder="למשל: יוסי כהן">
+          </label>
+          <label>דירוג
+            <select id="adminReviewRating" required>
+              <option value="5">5 — מצוין</option>
+              <option value="4">4 — טוב מאוד</option>
+              <option value="3">3 — טוב</option>
+              <option value="2">2 — בינוני</option>
+              <option value="1">1 — לא טוב</option>
+            </select>
+          </label>
+          <label>סטטוס
+            <select id="adminReviewStatus">
+              <option value="approved">מאושרת — תוצג באתר</option>
+              <option value="pending">ממתינה</option>
+              <option value="rejected">נדחתה</option>
+            </select>
+          </label>
+          <label class="full">ביקורת
+            <textarea id="adminReviewText" required rows="6" maxlength="1200" placeholder="כתוב כאן את תוכן הביקורת"></textarea>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="btn" type="submit">שמור ביקורת</button>
+          <button class="btn secondary" id="cancelReviewModal" type="button">ביטול</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="modal" id="productModal" aria-hidden="true">
     <div class="modal-card">
       <div class="module-head">
@@ -270,7 +318,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20260930-16"></script>
-  <script src="../admin.js?v=20260930-16"></script>
+  <script src="../data.js?v=20260930-17"></script>
+  <script src="../admin.js?v=20260930-17"></script>
 </body>
 </html>
