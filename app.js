@@ -32,15 +32,24 @@ function injectGlobal(){
 }
 
 function reviewStars(value){return "★".repeat(Number(value||0))+"☆".repeat(Math.max(0,5-Number(value||0)))}
-function renderHomeReviews(){
- const list=el("#homeReviewsList"),productSelect=el("#homeReviewProduct");
- if(productSelect){
-   const products=RomTechData.loadProducts().filter(p=>p.status==="published");
-   productSelect.innerHTML=products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("");
- }
- if(!list)return;
- const rows=(RomTechData.loadReviews?.()||[]).filter(r=>r.status==="approved").slice(0,12);
- list.innerHTML=rows.length?rows.map(r=>'<article class="review-card"><div class="review-card-head"><strong>'+esc(r.name||"לקוח")+'</strong><span class="review-stars" aria-label="'+Number(r.rating||0)+' מתוך 5">'+reviewStars(r.rating)+'</span></div><div class="small">'+esc(r.productName||"")+'</div><p>'+esc(r.text||"")+'</p></article>').join(""):'<div class="empty-state">עדיין אין ביקורות מאושרות.</div>'
+function setupHomeReviewForm(){
+ const productSelect=el("#homeReviewProduct");
+ if(!productSelect)return;
+ const products=RomTechData.loadProducts().filter(p=>p.status==="published");
+ productSelect.innerHTML=products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("")
+}
+function openHomeReviewModal(){
+ setupHomeReviewForm();
+ const modal=el("#homeReviewModal"),msg=el("#homeReviewMessage");
+ if(msg)msg.hidden=true;
+ modal?.classList.add("open");
+ modal?.setAttribute("aria-hidden","false");
+ setTimeout(()=>el("#homeReviewName")?.focus(),0)
+}
+function closeHomeReviewModal(){
+ const modal=el("#homeReviewModal");
+ modal?.classList.remove("open");
+ modal?.setAttribute("aria-hidden","true")
 }
 function submitHomeReview(event){
  event.preventDefault();
@@ -52,8 +61,7 @@ function submitHomeReview(event){
  rows.unshift(review);
  RomTechData.saveReviews(rows);
  event.currentTarget.reset();
- renderHomeReviews();
- const m=el("#homeReviewMessage");if(m){m.textContent="תודה! הביקורת נשלחה לאישור.";m.hidden=false}
+ const m=el("#homeReviewMessage");if(m){m.textContent="תודה! הביקורת נשלחה לאישור.";m.hidden=false}setTimeout(closeHomeReviewModal,1200)
 }
 function renderCatalog(){
  const root=el("#catalog");if(!root)return;
@@ -61,4 +69,4 @@ function renderCatalog(){
  const rows=all.filter(p=>(!q||[p.name,p.short,p.court,p.category,p.fur].join(" ").includes(q))&&(!cat||p.category===cat)&&(!court||p.court===court));
  root.innerHTML=rows.map(p=>'<article class="card">'+(p.images?.[0]?'<img src="'+p.images[0]+'" alt="'+esc(p.name)+'">':'<div class="ph" role="img" aria-label="'+esc(p.name)+'"></div>')+'<div class="card-body"><div>'+((p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(""))+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.short)+'</p><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><div class="small">מלאי: '+p.stock+' · '+esc(p.fur)+' · '+p.height+' ס״מ</div><div class="actions"><a class="btn" href="product.html?id='+encodeURIComponent(p.id)+'">לצפייה והזמנה</a><a class="btn secondary" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent("שלום, אשמח לפרטים על "+p.name)+'">שאל ב-WhatsApp</a></div></div></article>').join("")||'<p>לא נמצאו מוצרים.</p>'
 }
-document.addEventListener("DOMContentLoaded",()=>{applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();renderHomeReviews();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview)});
+document.addEventListener("DOMContentLoaded",()=>{applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();setupHomeReviewForm();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview);el("#openReviewModal")?.addEventListener("click",openHomeReviewModal);el("#closeHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#cancelHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#homeReviewModal")?.addEventListener("click",e=>{if(e.target.id==="homeReviewModal")closeHomeReviewModal()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHomeReviewModal()})});
