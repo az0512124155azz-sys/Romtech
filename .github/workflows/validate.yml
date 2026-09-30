@@ -1,0 +1,33 @@
+name: Validate static site
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: |
+          node --check data.js
+          node --check app.js
+          node --check admin.js
+      - name: Required files
+        run: |
+          test -f index.html
+          test -f product.html
+          test -f admin.html
+          test -f accessibility.html
+          test -f privacy.html
+          test -f terms.html
+          test -f returns.html
+          test -f shipping.html
+          test -f cookies.html
+          test -f faq.html
+          test -f contact.html
+          test -f sitemap.xml
+          test -f robots.txt
