@@ -76,6 +76,20 @@ function renderCatalog(){
  const root=el("#catalog");if(!root)return;
  const all=RomTechData.loadProducts().filter(x=>x.status==="published"),q=(el("#search")?.value||"").trim(),cat=el("#category")?.value||"",court=el("#court")?.value||"";
  const rows=all.filter(p=>(!q||[p.name,p.short,p.court,p.category,p.fur].join(" ").includes(q))&&(!cat||p.category===cat)&&(!court||p.court===court));
- root.innerHTML=rows.map(p=>'<article class="card product-card">'+(p.images?.[0]?'<a class="product-card-image" href="product.html?id='+encodeURIComponent(p.id)+'"><img src="'+p.images[0]+'" alt="'+esc(p.name)+'"></a>':'<a class="product-card-image" href="product.html?id='+encodeURIComponent(p.id)+'"><div class="ph" role="img" aria-label="'+esc(p.name)+'"></div></a>')+'<div class="card-body">'+((p.tags||[]).length?'<div class="product-tags">'+(p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join("")+'</div>':"")+'<h3><a href="product.html?id='+encodeURIComponent(p.id)+'">'+esc(p.name)+'</a></h3><p>'+esc(p.short)+'</p><div class="product-meta">'+esc(p.court)+' · '+esc(p.fur)+' · '+p.height+' ס״מ</div><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><div class="product-card-actions"><a class="btn" href="product.html?id='+encodeURIComponent(p.id)+'">פרטים והזמנה</a><a class="text-link" target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">WhatsApp</a></div></div></article>').join("")||'<p>לא נמצאו מוצרים.</p>'
+ root.innerHTML=rows.map(p=>{
+  const url="product.html?id="+encodeURIComponent(p.id);
+  const media=p.images?.[0]
+    ? '<a class="product-card-image" href="'+url+'"><img src="'+p.images[0]+'" alt="'+esc(p.name)+'"></a>'
+    : '';
+  const labels=(p.tags||[]).length?'<div class="product-labels">'+(p.tags||[]).map(esc).join(" · ")+'</div>':"";
+  return '<article class="product-card '+(media?"has-image":"no-image")+'">'+media+
+    '<div class="card-body">'+labels+
+      '<div class="product-card-context">'+esc(p.court)+' · '+esc(p.category)+'</div>'+
+      '<h3><a href="'+url+'">'+esc(p.name)+'</a></h3>'+
+      '<div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div>'+
+      '<p>'+esc(p.short)+'</p>'+
+      '<div class="product-card-links"><a href="'+url+'">פרטים והזמנה</a><a target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">WhatsApp</a></div>'+
+    '</div></article>'
+ }).join("")||'<p class="catalog-empty">לא נמצאו דגמים.</p>'
 }
 document.addEventListener("DOMContentLoaded",()=>{applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();setupHomeReviewForm();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview);el("#openReviewModal")?.addEventListener("click",openHomeReviewModal);el("#closeHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#cancelHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#homeReviewModal")?.addEventListener("click",e=>{if(e.target.id==="homeReviewModal")closeHomeReviewModal()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHomeReviewModal()})});
