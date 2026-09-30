@@ -2,12 +2,21 @@ function el(q){return document.querySelector(q)}
 function esc(s=""){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
 function money(n){return new Intl.NumberFormat("he-IL",{style:"currency",currency:"ILS",maximumFractionDigits:0}).format(Number(n||0))}
 function siteSettings(){return window.RomTechData?.loadSiteSettings?.()||{phone:"+359 87 985 8846",whatsapp:"359879858846",email:"info@romtech.co.il",footerLabels:{}}}
+function whatsappLink(message=""){
+ const settings=siteSettings();
+ if(window.RomTechData?.buildWhatsAppLink)return RomTechData.buildWhatsAppLink(settings.whatsapp,message);
+ const digits=String(settings.whatsapp||"").replace(/\D/g,"");
+ return digits?("https://wa.me/"+digits+(message?"?text="+encodeURIComponent(message):"")):""
+}
 
 function applySiteSettings(){
  const s=siteSettings();
  document.querySelectorAll("[data-site-phone]").forEach(n=>{n.textContent=s.phone||"";if(n.tagName==="A")n.href="tel:"+String(s.phone||"").replace(/\s/g,"")});
  document.querySelectorAll("[data-site-email]").forEach(n=>{n.textContent=s.email||"";if(n.tagName==="A")n.href="mailto:"+(s.email||"")});
- document.querySelectorAll("[data-site-whatsapp]").forEach(n=>{n.href="https://wa.me/"+String(s.whatsapp||"").replace(/\D/g,"")});
+ document.querySelectorAll("[data-site-whatsapp]").forEach(n=>{
+  const href=whatsappLink(n.dataset.whatsappMessage||"");
+  if(href)n.href=href;else n.removeAttribute("href")
+ });
  document.querySelectorAll("[data-footer-key]").forEach(n=>{const k=n.dataset.footerKey;if(s.footerLabels?.[k])n.textContent=s.footerLabels[k]});
 }
 
@@ -17,8 +26,8 @@ function injectGlobal(){
   const l=document.createElement("link");l.rel="icon";l.type="image/svg+xml";l.href=(location.pathname.includes("/admin/")?"../":"")+"assets/favicon.svg";document.head.appendChild(l)
  }
  if(!el(".wa")&&!body.classList.contains("admin-page")){
-  const wa=String(siteSettings().whatsapp||"").replace(/\D/g,"");
-  body.insertAdjacentHTML("beforeend",'<a class="wa" aria-label="פתיחת WhatsApp" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">WhatsApp</a><div class="access"><button class="btn" id="accBtn" aria-expanded="false">נגישות</button><div class="access-panel" id="accPanel" role="dialog" aria-label="אפשרויות נגישות"><button data-a="font">הגדלת טקסט</button><button data-a="contrast">ניגודיות גבוהה</button><button data-a="readable">גופן קריא</button><button data-a="motion">עצירת אנימציות</button><button data-a="links">הדגשת קישורים</button><button data-a="reset">איפוס</button></div></div>')
+  const wa=whatsappLink();
+  body.insertAdjacentHTML("beforeend",'<a class="wa" aria-label="פתיחת WhatsApp" href="'+esc(wa)+'" target="_blank" rel="noopener">WhatsApp</a><div class="access"><button class="btn" id="accBtn" aria-expanded="false">נגישות</button><div class="access-panel" id="accPanel" role="dialog" aria-label="אפשרויות נגישות"><button data-a="font">הגדלת טקסט</button><button data-a="contrast">ניגודיות גבוהה</button><button data-a="readable">גופן קריא</button><button data-a="motion">עצירת אנימציות</button><button data-a="links">הדגשת קישורים</button><button data-a="reset">איפוס</button></div></div>')
  }
  const btn=el("#accBtn"),panel=el("#accPanel");
  btn?.addEventListener("click",()=>{panel.classList.toggle("open");btn.setAttribute("aria-expanded",panel.classList.contains("open"))});
@@ -65,8 +74,8 @@ function submitHomeReview(event){
 }
 function renderCatalog(){
  const root=el("#catalog");if(!root)return;
- const all=RomTechData.loadProducts().filter(x=>x.status==="published"),q=(el("#search")?.value||"").trim(),cat=el("#category")?.value||"",court=el("#court")?.value||"",wa=String(siteSettings().whatsapp||"").replace(/\D/g,"");
+ const all=RomTechData.loadProducts().filter(x=>x.status==="published"),q=(el("#search")?.value||"").trim(),cat=el("#category")?.value||"",court=el("#court")?.value||"";
  const rows=all.filter(p=>(!q||[p.name,p.short,p.court,p.category,p.fur].join(" ").includes(q))&&(!cat||p.category===cat)&&(!court||p.court===court));
- root.innerHTML=rows.map(p=>'<article class="card">'+(p.images?.[0]?'<img src="'+p.images[0]+'" alt="'+esc(p.name)+'">':'<div class="ph" role="img" aria-label="'+esc(p.name)+'"></div>')+'<div class="card-body"><div>'+((p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(""))+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.short)+'</p><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><div class="small">מלאי: '+p.stock+' · '+esc(p.fur)+' · '+p.height+' ס״מ</div><div class="actions"><a class="btn" href="product.html?id='+encodeURIComponent(p.id)+'">לצפייה והזמנה</a><a class="btn secondary" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent("שלום, אשמח לפרטים על "+p.name)+'">שאל ב-WhatsApp</a></div></div></article>').join("")||'<p>לא נמצאו מוצרים.</p>'
+ root.innerHTML=rows.map(p=>'<article class="card">'+(p.images?.[0]?'<img src="'+p.images[0]+'" alt="'+esc(p.name)+'">':'<div class="ph" role="img" aria-label="'+esc(p.name)+'"></div>')+'<div class="card-body"><div>'+((p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(""))+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.short)+'</p><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><div class="small">מלאי: '+p.stock+' · '+esc(p.fur)+' · '+p.height+' ס״מ</div><div class="actions"><a class="btn" href="product.html?id='+encodeURIComponent(p.id)+'">לצפייה והזמנה</a><a class="btn secondary" target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">שאל ב-WhatsApp</a></div></div></article>').join("")||'<p>לא נמצאו מוצרים.</p>'
 }
 document.addEventListener("DOMContentLoaded",()=>{applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();setupHomeReviewForm();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview);el("#openReviewModal")?.addEventListener("click",openHomeReviewModal);el("#closeHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#cancelHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#homeReviewModal")?.addEventListener("click",e=>{if(e.target.id==="homeReviewModal")closeHomeReviewModal()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHomeReviewModal()})});
