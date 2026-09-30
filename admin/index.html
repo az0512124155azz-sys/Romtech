@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20260930-10">
+  <link rel="stylesheet" href="../styles.css?v=20260930-11">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -166,24 +166,7 @@
 
       <section class="admin-module" data-panel="settings">
         <h2>הגדרות</h2>
-        <div class="settings-grid">
-          <div class="card card-body settings-card settings-credentials-card">
-            <h3>קוד וסיסמת ניהול</h3>
-            <label>קוד חדש<input id="settingAdminCode" autocomplete="off"></label>
-            <label>סיסמה חדשה<input id="settingAdminPassword" type="password" autocomplete="new-password"></label>
-            <label>אימות סיסמה חדשה<input id="settingAdminPasswordConfirm" type="password" autocomplete="new-password"></label>
-            <button class="btn" id="saveAdminCredentials" type="button">שמור קוד וסיסמה</button>
-            <div class="notice success" id="credentialsSaved" hidden>פרטי הכניסה עודכנו.</div>
-          </div>
-          <div class="card card-body settings-card">
-            <h3>פרטי קשר</h3>
-            <label>טלפון<input id="settingPhone"></label>
-            <label>WhatsApp (ספרות בלבד, כולל קידומת מדינה)<input id="settingWhatsapp"></label>
-            <label>אימייל<input id="settingEmail" type="email"></label>
-            <button class="btn" id="saveSiteSettings" type="button">שמור פרטי קשר</button>
-            <div class="notice success" id="siteSettingsSaved" hidden>פרטי הקשר נשמרו.</div>
-          </div>
-          <div class="card card-body settings-card settings-content-editor">
+        <div class="settings-grid settings-grid-v11"><div class="card card-body settings-card settings-content-editor">
             <h3>תוכן העמודים שבתחתית האתר</h3>
             <label>בחר עמוד
               <select id="settingsContentPage">
@@ -206,7 +189,24 @@
               <a class="btn secondary" id="previewSettingsContent" target="_blank">תצוגה מקדימה</a>
             </div>
             <div class="notice success" id="settingsContentSaved" hidden>תוכן העמוד נשמר.</div>
+          </div><div class="card card-body settings-card settings-contact-card">
+            <h3>פרטי קשר</h3>
+            <label>טלפון<input id="settingPhone"></label>
+            <label>WhatsApp (ספרות בלבד, כולל קידומת מדינה)<input id="settingWhatsapp"></label>
+            <label>אימייל<input id="settingEmail" type="email"></label>
+            <button class="btn" id="saveSiteSettings" type="button">שמור פרטי קשר</button>
+            <div class="notice success" id="siteSettingsSaved" hidden>פרטי הקשר נשמרו.</div>
+          </div><div class="card card-body settings-card settings-credentials-card">
+            <h3>קוד וסיסמת ניהול</h3>
+            <label>קוד חדש<input id="settingAdminCode" autocomplete="off"></label>
+            <label>סיסמה חדשה<input id="settingAdminPassword" type="password" autocomplete="new-password"></label>
+            <label>אימות סיסמה חדשה<input id="settingAdminPasswordConfirm" type="password" autocomplete="new-password"></label>
+            <button class="btn" id="saveAdminCredentials" type="button">שמור קוד וסיסמה</button>
+            <div class="notice success" id="credentialsSaved" hidden>פרטי הכניסה עודכנו.</div>
           </div>
+          
+          
+          
         </div>
       </section>
     </main>
@@ -260,7 +260,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20260930-10"></script>
-  <script src="../admin.js?v=20260930-10"></script>
+  <script src="../data.js?v=20260930-11"></script>
+  <script src="../admin.js?v=20260930-11"></script>
 </body>
 </html>
