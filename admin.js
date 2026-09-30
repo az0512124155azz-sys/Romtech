@@ -28,7 +28,7 @@ function enterAdmin(){
 }
 function logout(){sessionStorage.removeItem(SESSION_KEY);showGate()}
 
-const titles={dashboard:"Dashboard",orders:"הזמנות",products:"מוצרים",inventory:"מלאי",customers:"לקוחות",content:"תוכן",marketing:"שיווק",reviews:"ביקורות",support:"תמיכה",reports:"דוחות",settings:"הגדרות"};
+const titles={dashboard:"Dashboard",orders:"הזמנות",products:"מוצרים",inventory:"מלאי",customers:"לקוחות",content:"תוכן",reviews:"ביקורות",support:"תמיכה",reports:"דוחות",settings:"הגדרות"};
 function go(name){$$(".admin-module").forEach(p=>p.classList.toggle("active",p.dataset.panel===name));$$(".side-link[data-module]").forEach(b=>b.classList.toggle("active",b.dataset.module===name));if($("#moduleTitle"))$("#moduleTitle").textContent=titles[name]||name;if(name==="orders")renderOrders();if(name==="inventory")renderInventory();if(name==="reports")renderReports();if(name==="settings")loadSettingsForm();if(name==="content")loadContentEditor()}
 
 function renderProducts(){
