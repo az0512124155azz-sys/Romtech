@@ -174,3 +174,11 @@
 /* Admin manual reviews 20260930-17 */
 .review-admin-modal{width:min(760px,100%)}
 .review-admin-modal .form-grid{margin-top:12px}
+
+/* Home reviews 20260930-20 */
+.home-reviews{padding-top:22px}
+.home-reviews-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:18px}
+.home-reviews-head h2{margin-bottom:0}
+.home-reviews .reviews-list{margin-bottom:20px}
+.home-reviews .review-form-card{max-width:860px;margin-inline:auto}
+@media(max-width:700px){.home-reviews-head{align-items:flex-start;flex-direction:column}}
