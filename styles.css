@@ -41,3 +41,37 @@
 .admin-page button,.admin-page a,.admin-page label.btn{pointer-events:auto}
 .admin-page .sidebar{z-index:2}
 .admin-page .admin-main{min-width:0}
+
+/* Product gallery + ordering 20260930-6 */
+.product-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:46px;align-items:start}
+.product-info h1{font-size:clamp(40px,5vw,64px);margin-top:10px}
+.product-gallery{min-width:0}
+.product-main-wrap{position:relative;background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden}
+.gallery-main-button{display:block;width:100%;padding:0;border:0;background:transparent;cursor:zoom-in}
+.product-main-image{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff;display:block}
+.product-thumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px}
+.product-thumb{padding:0;border:2px solid transparent;border-radius:12px;overflow:hidden;background:#fff;cursor:pointer}
+.product-thumb.active{border-color:var(--accent)}
+.product-thumb img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
+.gallery-arrow{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;border-radius:50%;background:#fffddd;color:#111;font-size:28px;cursor:pointer;box-shadow:0 4px 18px #0003;z-index:2}
+.gallery-arrow.prev{right:14px}.gallery-arrow.next{left:14px}
+.gallery-counter{position:absolute;left:14px;bottom:14px;background:#000a;color:#fff;padding:5px 9px;border-radius:999px;font-size:13px}
+.buy-now-btn{min-width:150px}
+.order-note{margin-top:12px;max-width:520px}
+.order-modal-card{width:min(760px,100%)}
+.order-summary{display:flex;justify-content:space-between;gap:16px;background:#f7f3ec;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:18px}
+.order-consent{display:flex;gap:9px;align-items:flex-start;margin-top:16px}
+.order-consent input{width:auto;margin-top:5px}
+.product-lightbox{position:fixed;inset:0;background:#000e;z-index:300;display:grid;place-items:center;padding:30px}
+.product-lightbox[hidden]{display:none!important}
+.product-lightbox img{max-width:min(1200px,94vw);max-height:90vh;object-fit:contain}
+.lightbox-close{position:fixed;top:20px;left:20px;width:44px;height:44px;border:0;border-radius:50%;background:#fff;color:#111;font-size:24px;cursor:pointer}
+#ordersRows select{min-width:120px}
+@media(max-width:850px){
+  .product-layout{grid-template-columns:1fr}
+  .product-thumbs{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .product-thumbs{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .gallery-arrow{width:38px;height:38px}
+}
