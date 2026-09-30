@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20260930-18">
+  <link rel="stylesheet" href="../styles.css?v=20261001-32">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -205,7 +205,11 @@
           </div><div class="card card-body settings-card settings-contact-card">
             <h3>פרטי קשר</h3>
             <label>טלפון<input id="settingPhone"></label>
-            <label>WhatsApp (ספרות בלבד, כולל קידומת מדינה)<input id="settingWhatsapp"></label>
+            <label>WhatsApp (כולל קידומת מדינה)<input id="settingWhatsapp" inputmode="tel" autocomplete="tel" placeholder="לדוגמה: +359879858846"></label>
+            <div class="whatsapp-generated" id="settingWhatsappGenerated">
+              <span class="small">קישור WhatsApp שנוצר אוטומטית:</span>
+              <a id="settingWhatsappLink" target="_blank" rel="noopener" aria-disabled="true">יש להזין מספר WhatsApp עם קידומת מדינה</a>
+            </div>
             <label>אימייל<input id="settingEmail" type="email"></label>
             <button class="btn" id="saveSiteSettings" type="button">שמור פרטי קשר</button>
             <div class="notice success" id="siteSettingsSaved" hidden>פרטי הקשר נשמרו.</div>
@@ -273,7 +277,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20260930-18"></script>
-  <script src="../admin.js?v=20260930-18"></script>
+  <script src="../data.js?v=20261001-32"></script>
+  <script src="../admin.js?v=20261001-32"></script>
 </body>
 </html>
