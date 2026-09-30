@@ -335,3 +335,40 @@
   .footer-links-col{align-items:center}
   .footer-contact-line{font-size:15px}
 }
+
+/* Guaranteed full-logo rendering 20260930-23 */
+.brand-logo,
+.footer-brand-link,
+.hero-card{
+  overflow:visible!important;
+}
+.brand-logo img,
+.hero-logo,
+.footer-logo{
+  display:block!important;
+  height:auto!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  clip-path:none!important;
+  overflow:visible!important;
+  aspect-ratio:auto!important;
+}
+.brand-logo img{
+  width:210px!important;
+  max-width:210px!important;
+}
+.hero-logo{
+  width:min(410px,94%)!important;
+  max-width:410px!important;
+  margin:0 auto 14px!important;
+}
+.footer-logo{
+  width:280px!important;
+  max-width:100%!important;
+}
+@media(max-width:560px){
+  .brand-logo img{width:165px!important;max-width:165px!important}
+  .hero-logo{width:min(340px,96%)!important}
+  .footer-logo{width:240px!important}
+}
