@@ -102,3 +102,41 @@
 @media(max-width:850px){
   .settings-credentials-card{grid-column:auto;width:100%}
 }
+
+/* Settings layout 20260930-11 */
+.admin-page .settings-grid-v11{
+  direction:ltr;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-areas:
+    "content contact"
+    "content credentials";
+  align-items:start;
+}
+.admin-page .settings-grid-v11 > *{direction:rtl}
+.admin-page .settings-grid-v11 .settings-content-editor{
+  grid-area:content;
+  width:100%;
+  max-width:none;
+}
+.admin-page .settings-grid-v11 .settings-contact-card{
+  grid-area:contact;
+  width:100%;
+  max-width:none;
+}
+.admin-page .settings-grid-v11 .settings-credentials-card{
+  grid-area:credentials;
+  grid-column:auto;
+  justify-self:stretch;
+  width:100%;
+  max-width:none;
+}
+@media(max-width:850px){
+  .admin-page .settings-grid-v11{
+    direction:rtl;
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "contact"
+      "credentials"
+      "content";
+  }
+}
