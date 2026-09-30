@@ -2167,3 +2167,24 @@ body:not(.admin-page) .wa:hover{background:#285c43;color:#fff}
   .mobile-product-item{grid-template-columns:98px minmax(0,1fr);gap:12px}
   .mobile-product-image{width:98px;height:124px}
 }
+
+/* Strict desktop/mobile isolation 20261001-38
+   Desktop keeps the pre-rebuild markup and styling. Mobile is a separate view only. */
+@media(min-width:761px){
+  .mobile-public{display:none!important}
+}
+
+/* These rules ONLY affect phone widths. */
+@media(max-width:760px){
+  /* Hide the original desktop storefront only on phones. */
+  body:not(.admin-page) > .site-header{display:none!important}
+  body:not(.admin-page) #main > .shop-intro,
+  body:not(.admin-page) #main > .mobile-home-guide,
+  body:not(.admin-page) #main > .catalog-section,
+  body:not(.admin-page) > .footer{display:none!important}
+
+  /* Show the separate mobile storefront. */
+  .mobile-public{display:block!important}
+  .mobile-store-header{display:flex!important}
+  .mobile-product-header{display:grid!important}
+}
