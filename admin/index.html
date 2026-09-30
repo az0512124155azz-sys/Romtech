@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20260930-12">
+  <link rel="stylesheet" href="../styles.css?v=20260930-13">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -133,9 +133,18 @@
           </label>
           <label>שם הקישור בפוטר<input id="contentFooterLabel"></label>
           <label>כותרת העמוד<input id="contentTitle"></label>
-          <label>תוכן העמוד
-            <textarea id="contentBody" rows="16" placeholder="אפשר להשתמש ב-HTML בסיסי כמו <h2>, <p>, <ul>"></textarea>
-          </label>
+          <label>תוכן העמוד</label>
+          <div class="rich-editor-shell">
+            <div class="rich-toolbar" aria-label="כלי עריכה">
+              <button type="button" data-editor-target="contentEditor" data-rich-command="bold"><b>B</b></button>
+              <button type="button" data-editor-target="contentEditor" data-rich-block="H2">כותרת</button>
+              <button type="button" data-editor-target="contentEditor" data-rich-block="P">פסקה</button>
+              <button type="button" data-editor-target="contentEditor" data-rich-command="insertUnorderedList">• רשימה</button>
+              <button type="button" data-editor-target="contentEditor" data-rich-command="createLink">קישור</button>
+            </div>
+            <div id="contentEditor" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true"></div>
+            <textarea id="contentBody" hidden></textarea>
+          </div>
           <div class="actions"><button class="btn" id="saveContent" type="button">שמור תוכן</button></div>
           <div class="notice success" id="contentSaved" hidden>התוכן נשמר.</div>
         </div>
@@ -181,9 +190,18 @@
               </select>
             </label>
             <label>כותרת העמוד<input id="settingsContentTitle"></label>
-            <label>מה שכתוב בתוך העמוד
-              <textarea id="settingsContentBody" rows="8" placeholder="כאן עורכים את הטקסט שמופיע בתוך העמוד עצמו"></textarea>
-            </label>
+            <label>מה שכתוב בתוך העמוד</label>
+            <div class="rich-editor-shell">
+              <div class="rich-toolbar" aria-label="כלי עריכה">
+                <button type="button" data-editor-target="settingsContentEditor" data-rich-command="bold"><b>B</b></button>
+                <button type="button" data-editor-target="settingsContentEditor" data-rich-block="H2">כותרת</button>
+                <button type="button" data-editor-target="settingsContentEditor" data-rich-block="P">פסקה</button>
+                <button type="button" data-editor-target="settingsContentEditor" data-rich-command="insertUnorderedList">• רשימה</button>
+                <button type="button" data-editor-target="settingsContentEditor" data-rich-command="createLink">קישור</button>
+              </div>
+              <div id="settingsContentEditor" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true"></div>
+              <textarea id="settingsContentBody" hidden></textarea>
+            </div>
             <div class="actions">
               <button class="btn" id="saveSettingsContent" type="button">שמור תוכן עמוד</button>
               <a class="btn secondary" id="previewSettingsContent" target="_blank">תצוגה מקדימה</a>
@@ -260,7 +278,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20260930-12"></script>
-  <script src="../admin.js?v=20260930-12"></script>
+  <script src="../data.js?v=20260930-13"></script>
+  <script src="../admin.js?v=20260930-13"></script>
 </body>
 </html>
