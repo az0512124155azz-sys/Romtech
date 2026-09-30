@@ -182,3 +182,17 @@
 .home-reviews .reviews-list{margin-bottom:20px}
 .home-reviews .review-form-card{max-width:860px;margin-inline:auto}
 @media(max-width:700px){.home-reviews-head{align-items:flex-start;flex-direction:column}}
+
+/* Footer review entry 20260930-21 */
+.footer-review-link{
+  border:0;
+  background:transparent;
+  padding:0;
+  margin-top:2px;
+  font:inherit;
+  color:inherit;
+  text-decoration:underline;
+  cursor:pointer;
+}
+.footer-review-link:hover{opacity:.7}
+.home-review-modal-card{width:min(680px,100%)}
