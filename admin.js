@@ -49,15 +49,44 @@ function updateReview(id,status){
 function deleteReview(id){if(!confirm("למחוק את הביקורת?"))return;RomTechData.saveReviews(RomTechData.loadReviews().filter(x=>x.id!==id));renderReviews()}
 function renderAll(){renderProducts();renderStats();renderInventory();renderReports();renderOrders();renderReviews()}
 
+function updateWhatsAppPreview(){
+ const input=$("#settingWhatsapp"),link=$("#settingWhatsappLink"),box=$("#settingWhatsappGenerated");
+ if(!input||!link)return;
+ const digits=RomTechData.normalizeWhatsAppNumber?RomTechData.normalizeWhatsAppNumber(input.value):input.value.replace(/\D/g,"");
+ const href=RomTechData.buildWhatsAppLink?RomTechData.buildWhatsAppLink(digits):(digits?"https://wa.me/"+digits:"");
+ link.textContent=href||"יש להזין מספר WhatsApp עם קידומת מדינה";
+ if(href){
+  link.href=href;
+  link.removeAttribute("aria-disabled");
+  if(box)box.classList.remove("invalid")
+ }else{
+  link.removeAttribute("href");
+  link.setAttribute("aria-disabled","true");
+  if(box)box.classList.add("invalid")
+ }
+}
 function loadSettingsForm(){
  const s=RomTechData.loadSiteSettings();
  if($("#settingPhone"))$("#settingPhone").value=s.phone||"";
  if($("#settingWhatsapp"))$("#settingWhatsapp").value=s.whatsapp||"";
  if($("#settingEmail"))$("#settingEmail").value=s.email||"";
+ updateWhatsAppPreview();
  loadSettingsContentEditor()
 }
 function saveSiteSettings(){
- const s=RomTechData.loadSiteSettings();s.phone=$("#settingPhone").value.trim();s.whatsapp=$("#settingWhatsapp").value.replace(/\D/g,"");s.email=$("#settingEmail").value.trim();RomTechData.saveSiteSettings(s);showSaved("#siteSettingsSaved")
+ const input=$("#settingWhatsapp");
+ const digits=RomTechData.normalizeWhatsAppNumber?RomTechData.normalizeWhatsAppNumber(input?.value||""):(input?.value||"").replace(/\D/g,"");
+ if(digits.length<8||digits.length>15){alert("מספר WhatsApp חייב לכלול קידומת מדינה ולהכיל 8–15 ספרות.");return}
+ const s=RomTechData.loadSiteSettings();
+ s.phone=$("#settingPhone").value.trim();
+ s.whatsapp=digits;
+ s.email=$("#settingEmail").value.trim();
+ const saved=RomTechData.saveSiteSettings(s);
+ if(input)input.value=saved.whatsapp;
+ updateWhatsAppPreview();
+ const notice=$("#siteSettingsSaved");
+ if(notice)notice.textContent="פרטי הקשר נשמרו וקישור WhatsApp חדש נוצר.";
+ showSaved("#siteSettingsSaved")
 }
 function setRichEditor(editorSelector,hiddenSelector,html){
  const editor=$(editorSelector),hidden=$(hiddenSelector),value=html||"";
@@ -147,7 +176,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("#adminSubmit")?.addEventListener("click",enterAdmin);["adminCode","adminPassword"].forEach(id=>$("#"+id)?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();enterAdmin()}}));$("#logoutBtn")?.addEventListener("click",logout);
  $$(".side-link[data-module]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.module)));$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
  $("#newBtn")?.addEventListener("click",()=>openModal());$('[data-action="new-product"]')?.addEventListener("click",()=>{go("products");openModal()});$("#closeModal")?.addEventListener("click",closeModal);$("#cancelModal")?.addEventListener("click",closeModal);$("#productForm")?.addEventListener("submit",saveProduct);$("#productImages")?.addEventListener("change",async e=>{await addImages(e.target.files);e.target.value=""});$("#bulkApply")?.addEventListener("click",bulk);$("#exportCsv")?.addEventListener("click",exportCsv);$("#inventoryRefresh")?.addEventListener("click",renderInventory);$("#ordersRefresh")?.addEventListener("click",renderOrders);$("#reviewsRefresh")?.addEventListener("click",renderReviews);
- $("#saveSiteSettings")?.addEventListener("click",saveSiteSettings);$("#saveAdminCredentials")?.addEventListener("click",saveAdminCredentials);$("#settingsContentPage")?.addEventListener("change",loadSettingsContentEditor);$("#saveSettingsContent")?.addEventListener("click",saveSettingsContent);$("#contentPageSelect")?.addEventListener("change",loadContentEditor);$("#saveContent")?.addEventListener("click",saveContent);
+ $("#saveSiteSettings")?.addEventListener("click",saveSiteSettings);$("#settingWhatsapp")?.addEventListener("input",updateWhatsAppPreview);$("#saveAdminCredentials")?.addEventListener("click",saveAdminCredentials);$("#settingsContentPage")?.addEventListener("change",loadSettingsContentEditor);$("#saveSettingsContent")?.addEventListener("click",saveSettingsContent);$("#contentPageSelect")?.addEventListener("change",loadContentEditor);$("#saveContent")?.addEventListener("click",saveContent);
  document.addEventListener("click",e=>{const a=e.target.closest("[data-row-action]");if(a){const id=a.dataset.id;if(a.dataset.rowAction==="edit"){const p=getProducts().find(x=>x.id===id);if(p)openModal(p)}if(a.dataset.rowAction==="duplicate")duplicateProduct(id);if(a.dataset.rowAction==="delete")deleteProduct(id)}const rm=e.target.closest("[data-remove-image]");if(rm){stagedImages.splice(Number(rm.dataset.removeImage),1);renderPreview()}const d=e.target.closest("[data-delete-order]");if(d)deleteOrder(d.dataset.deleteOrder);const ra=e.target.closest("[data-review-action]");if(ra){if(ra.dataset.reviewAction==="delete")deleteReview(ra.dataset.id);else updateReview(ra.dataset.id,ra.dataset.reviewAction==="approve"?"approved":"rejected")}});
  document.addEventListener("change",e=>{const s=e.target.closest("[data-order-status]");if(s)updateOrderStatus(s.dataset.orderStatus,s.value)});
  $("#reviewModal")?.addEventListener("click",e=>{if(e.target.id==="reviewModal")closeReviewModal()});
