@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20260930-8">
+  <link rel="stylesheet" href="../styles.css?v=20260930-9">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -175,18 +175,29 @@
             <button class="btn" id="saveSiteSettings" type="button">שמור פרטי קשר</button>
             <div class="notice success" id="siteSettingsSaved" hidden>פרטי הקשר נשמרו.</div>
           </div>
-          <div class="card card-body settings-card">
-            <h3>קישורים בפוטר</h3>
-            <label>הצהרת נגישות<input id="footerAccessibility"></label>
-            <label>עוגיות<input id="footerCookies"></label>
-            <label>שאלות נפוצות<input id="footerFaq"></label>
-            <label>צור קשר<input id="footerContact"></label>
-            <label>פרטיות<input id="footerPrivacy"></label>
-            <label>תקנון<input id="footerTerms"></label>
-            <label>ביטולים והחזרות<input id="footerReturns"></label>
-            <label>משלוחים<input id="footerShipping"></label>
-            <button class="btn" id="saveFooterLabels" type="button">שמור קישורי פוטר</button>
-            <div class="notice success" id="footerLabelsSaved" hidden>קישורי הפוטר נשמרו.</div>
+          <div class="card card-body settings-card settings-content-editor">
+            <h3>תוכן העמודים שבתחתית האתר</h3>
+            <label>בחר עמוד
+              <select id="settingsContentPage">
+                <option value="accessibility">הצהרת נגישות</option>
+                <option value="cookies">עוגיות</option>
+                <option value="faq">שאלות נפוצות</option>
+                <option value="contact">צור קשר</option>
+                <option value="privacy">פרטיות</option>
+                <option value="terms">תקנון</option>
+                <option value="returns">ביטולים והחזרות</option>
+                <option value="shipping">משלוחים</option>
+              </select>
+            </label>
+            <label>כותרת העמוד<input id="settingsContentTitle"></label>
+            <label>מה שכתוב בתוך העמוד
+              <textarea id="settingsContentBody" rows="14" placeholder="כאן עורכים את הטקסט שמופיע בתוך העמוד עצמו"></textarea>
+            </label>
+            <div class="actions">
+              <button class="btn" id="saveSettingsContent" type="button">שמור תוכן עמוד</button>
+              <a class="btn secondary" id="previewSettingsContent" target="_blank">תצוגה מקדימה</a>
+            </div>
+            <div class="notice success" id="settingsContentSaved" hidden>תוכן העמוד נשמר.</div>
           </div>
           <div class="card card-body settings-card">
             <h3>קוד וסיסמת ניהול</h3>
@@ -249,7 +260,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20260930-8"></script>
-  <script src="../admin.js?v=20260930-8"></script>
+  <script src="../data.js?v=20260930-9"></script>
+  <script src="../admin.js?v=20260930-9"></script>
 </body>
 </html>
