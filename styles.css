@@ -448,3 +448,27 @@
   .hero-brand-card .hero-logo-crop{width:min(330px,96%)}
   .hero-brand-tagline{font-size:15px}
 }
+
+/* Dynamic WhatsApp link preview 20261001-32 */
+.whatsapp-generated{
+  display:grid;
+  gap:4px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#faf8f4;
+  overflow:hidden;
+}
+.whatsapp-generated a{
+  direction:ltr;
+  text-align:left;
+  unicode-bidi:plaintext;
+  color:#176b42;
+  font-size:13px;
+  overflow-wrap:anywhere;
+}
+.whatsapp-generated.invalid a{
+  color:var(--muted);
+  text-decoration:none;
+  pointer-events:none;
+}
