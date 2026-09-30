@@ -76,22 +76,7 @@ function renderCatalog(){
  const root=el("#catalog");if(!root)return;
  const all=RomTechData.loadProducts().filter(x=>x.status==="published"),q=(el("#search")?.value||"").trim(),cat=el("#category")?.value||"",court=el("#court")?.value||"";
  const rows=all.filter(p=>(!q||[p.name,p.short,p.court,p.category,p.fur].join(" ").includes(q))&&(!cat||p.category===cat)&&(!court||p.court===court));
- root.innerHTML=rows.map(p=>{
-  const url="product.html?id="+encodeURIComponent(p.id);
-  const media=p.images?.[0]
-    ? '<a class="product-card-image" href="'+url+'"><img src="'+p.images[0]+'" alt="'+esc(p.name)+'"></a>'
-    : '';
-  const labels=(p.tags||[]).length?'<div class="product-labels">'+(p.tags||[]).map(esc).join(" · ")+'</div>':"";
-  return '<article class="product-card '+(media?"has-image":"no-image")+'">'+media+
-    '<div class="card-body">'+labels+
-      '<div class="product-card-context">'+esc(p.court)+' · '+esc(p.category)+'</div>'+
-      '<h3><a href="'+url+'">'+esc(p.name)+'</a></h3>'+
-      '<div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div>'+
-      '<div class="product-card-specs"><span>פרווה: '+esc(p.fur)+'</span><span>גובה: '+p.height+' ס״מ</span></div>'+
-      '<p>'+esc(p.short)+'</p>'+
-      '<div class="product-card-links"><a class="product-primary-link" href="'+url+'">לפרטים ולהזמנה</a><a target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">שאלה ב-WhatsApp</a></div>'+
-    '</div></article>'
- }).join("")||'<p class="catalog-empty">לא נמצאו דגמים.</p>'
+ root.innerHTML=rows.map(p=>'<article class="card">'+(p.images?.[0]?'<img src="'+p.images[0]+'" alt="'+esc(p.name)+'">':'<div class="ph" role="img" aria-label="'+esc(p.name)+'"></div>')+'<div class="card-body"><div>'+((p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(""))+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.short)+'</p><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><div class="small">מלאי: '+p.stock+' · '+esc(p.fur)+' · '+p.height+' ס״מ</div><div class="actions"><a class="btn" href="product.html?id='+encodeURIComponent(p.id)+'">לצפייה והזמנה</a><a class="btn secondary" target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">שאל ב-WhatsApp</a></div></div></article>').join("")||'<p>לא נמצאו מוצרים.</p>'
 }
 
 function renderMobileCatalog(){
@@ -106,8 +91,8 @@ function renderMobileCatalog(){
  root.innerHTML=rows.map(p=>{
   const url="product.html?id="+encodeURIComponent(p.id);
   const image=p.images?.[0]
-    ? '<a class="mobile-product-image" href="'+url+'"><img src="'+p.images[0]+'" alt="'+esc(p.name)+'"></a>'
-    : '<a class="mobile-product-image mobile-product-image-empty" href="'+url+'" aria-label="'+esc(p.name)+'"><span>RomTech</span></a>';
+   ? '<a class="mobile-product-image" href="'+url+'"><img src="'+p.images[0]+'" alt="'+esc(p.name)+'"></a>'
+   : '<a class="mobile-product-image mobile-product-image-empty" href="'+url+'" aria-label="'+esc(p.name)+'"><span>RomTech</span></a>';
   return '<article class="mobile-product-item">'+image+
    '<div class="mobile-product-info">'+
     '<div class="mobile-product-context">'+esc(p.court)+' · '+esc(p.category)+'</div>'+
