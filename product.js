@@ -6,7 +6,7 @@ const imagesOf=p=>Array.isArray(p.images)?p.images.filter(Boolean):[];
 
 function renderGallery(product){
  const images=imagesOf(product);
- if(!images.length)return '<div class="product-gallery"><div class="ph product-main-image" role="img" aria-label="'+esc(product.name)+'"></div></div>';
+ if(!images.length)return '<div class="product-gallery"><div class="product-no-image" role="img" aria-label="אין עדיין תמונה למוצר"><span>RomTech</span><strong>'+esc(product.name)+'</strong><small>תמונה תתווסף בקרוב</small></div></div>';
  const slides=images.map((src,i)=>'<div class="product-slide" data-slide-index="'+i+'"><img src="'+src+'" alt="'+esc(product.name)+' — תמונה '+(i+1)+'"></div>').join("");
  const dots=images.length>1?'<div class="product-dots">'+images.map((_,i)=>'<button class="product-dot '+(i===0?"active":"")+'" type="button" data-gallery-index="'+i+'" aria-label="תמונה '+(i+1)+'"></button>').join("")+'</div>':"";
  return '<div class="product-gallery"><div class="product-slider" id="productSlider">'+slides+'</div>'+dots+'</div>'
