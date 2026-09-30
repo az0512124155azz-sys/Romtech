@@ -1,5 +1,12 @@
 <!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>פאנל ניהול | RomTech</title><link rel="icon" href="../assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../styles.css"></head><body class="admin-page">
-<div id="adminGate" class="admin-gate"><div class="login-card"><div class="admin-login-kicker">RomTech Admin</div><h1>כניסה לניהול</h1><p>הזן קוד מנהל כדי להמשיך.</p><form id="adminLogin"><input id="adminCode" type="password" autocomplete="current-password" placeholder="קוד מנהל" required><button class="btn" type="submit">כניסה</button><p id="loginError" class="error-text" hidden>קוד שגוי</p></form></div></div>
+<div id="adminGate" class="admin-gate"><div class="login-card"><div class="admin-login-kicker">RomTech Admin</div><h1>כניסה לניהול</h1><p id="adminGateText">בכניסה הראשונה בחר סיסמת מנהל. לאחר מכן השתמש באותה סיסמה בכל כניסה בדפדפן הזה.</p>
+<form id="adminLogin">
+  <input id="adminCode" type="password" autocomplete="current-password" placeholder="סיסמת מנהל" required minlength="4">
+  <input id="adminCodeConfirm" type="password" autocomplete="new-password" placeholder="אימות סיסמה" minlength="4">
+  <button class="btn" id="adminSubmit" type="submit">הגדר סיסמה והיכנס</button>
+  <button class="btn secondary" id="resetLocalPassword" type="button" hidden>איפוס סיסמה מקומית</button>
+  <p id="loginError" class="error-text" hidden></p>
+</form></div></div>
 <div id="adminApp" class="admin-shell" hidden><aside class="sidebar"><div class="admin-name">RomTech</div><div class="admin-subtitle">פאנל ניהול</div><nav><button class="side-link" data-module="dashboard">Dashboard</button><button class="side-link" data-module="orders">הזמנות</button><button class="side-link active" data-module="products">מוצרים</button><button class="side-link" data-module="inventory">מלאי</button><button class="side-link" data-module="customers">לקוחות</button><button class="side-link" data-module="content">תוכן</button><button class="side-link" data-module="marketing">שיווק</button><button class="side-link" data-module="reviews">ביקורות</button><button class="side-link" data-module="support">תמיכה</button><button class="side-link" data-module="reports">דוחות</button><button class="side-link" data-module="settings">הגדרות</button></nav><hr><a href="../index.html">חזרה לאתר</a><button class="side-link logout" id="logoutBtn">התנתקות</button></aside>
 <main class="admin-main">
 <header class="admin-top"><div><h1 id="moduleTitle">מוצרים</h1><div class="small">ניהול מוצרים, מלאי ותוכן במקום אחד</div></div></header>
