@@ -61,8 +61,10 @@ function loadProducts(){return read("romtech_products",DEFAULT_PRODUCTS)}
 function saveProducts(items){write("romtech_products",items)}
 function loadOrders(){return read("romtech_orders",[])}
 function saveOrders(items){write("romtech_orders",items)}
+function loadReviews(){return read("romtech_reviews",[])}
+function saveReviews(items){write("romtech_reviews",items)}
 function loadSiteSettings(){const saved=read("romtech_site_settings",{});return {...DEFAULT_SITE_SETTINGS,...saved,footerLabels:{...DEFAULT_SITE_SETTINGS.footerLabels,...(saved.footerLabels||{})}}}
 function saveSiteSettings(settings){write("romtech_site_settings",settings)}
 function loadLegalContent(){const saved=read("romtech_legal_content",{});const out={};Object.keys(DEFAULT_LEGAL_CONTENT).forEach(k=>out[k]={...DEFAULT_LEGAL_CONTENT[k],...(saved[k]||{})});return out}
 function saveLegalContent(content){write("romtech_legal_content",content)}
-window.RomTechData={loadProducts,saveProducts,loadOrders,saveOrders,loadSiteSettings,saveSiteSettings,loadLegalContent,saveLegalContent,DEFAULT_PRODUCTS,DEFAULT_SITE_SETTINGS,DEFAULT_LEGAL_CONTENT};
+window.RomTechData={loadProducts,saveProducts,loadOrders,saveOrders,loadReviews,saveReviews,loadSiteSettings,saveSiteSettings,loadLegalContent,saveLegalContent,DEFAULT_PRODUCTS,DEFAULT_SITE_SETTINGS,DEFAULT_LEGAL_CONTENT};
