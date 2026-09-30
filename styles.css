@@ -170,3 +170,7 @@
 .review-form-card h3{margin-top:0;font-size:24px}
 .review-text-cell{white-space:normal;min-width:260px;max-width:520px}
 @media(max-width:700px){.reviews-list{grid-template-columns:1fr}}
+
+/* Admin manual reviews 20260930-17 */
+.review-admin-modal{width:min(760px,100%)}
+.review-admin-modal .form-grid{margin-top:12px}
