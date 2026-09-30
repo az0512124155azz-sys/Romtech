@@ -91,3 +91,14 @@
 .content-editor-card textarea{font-family:Consolas,Monaco,monospace;line-height:1.55;direction:rtl}
 .settings-card h3{margin:0 0 8px}
 @media(max-width:850px){.settings-grid{grid-template-columns:1fr}}
+
+/* Settings layout 20260930-10 */
+.settings-credentials-card{
+  grid-column:1 / -1;
+  justify-self:center;
+  width:min(620px,100%);
+}
+.settings-content-editor{max-width:none}
+@media(max-width:850px){
+  .settings-credentials-card{grid-column:auto;width:100%}
+}
