@@ -15,38 +15,16 @@
       return '<div class="product-gallery"><div class="ph product-main-image" role="img" aria-label="' + esc(product.name) + '"></div></div>';
     }
 
-    const thumbs = images.map((src, index) =>
-      '<button class="product-thumb ' + (index === 0 ? 'active' : '') + '" type="button" data-gallery-index="' + index + '" aria-label="תמונה ' + (index + 1) + ' מתוך ' + images.length + '">' +
-        '<img src="' + src + '" alt="">' +
-      '</button>'
-    ).join("");
-
-    return '<div class="product-gallery">' +
-      '<div class="product-main-wrap">' +
-        '<button class="gallery-main-button" type="button" id="openLightbox" aria-label="הגדל תמונה">' +
-          '<img class="product-main-image" id="productMainImage" src="' + images[0] + '" alt="' + esc(product.name) + '">' +
-        '</button>' +
-        (images.length > 1 ? '<button class="gallery-arrow prev" type="button" data-gallery-step="-1" aria-label="תמונה קודמת">‹</button><button class="gallery-arrow next" type="button" data-gallery-step="1" aria-label="תמונה הבאה">›</button>' : '') +
-        '<div class="gallery-counter" id="galleryCounter">1 / ' + images.length + '</div>' +
-      '</div>' +
-      '<div class="product-thumbs">' + thumbs + '</div>' +
-    '</div>';
+    const slides=images.map((src,index)=>'<div class="product-slide" data-slide-index="'+index+'"><img src="'+src+'" alt="'+esc(product.name)+' — תמונה '+(index+1)+'"></div>').join("");
+    const dots=images.map((_,index)=>'<button class="product-dot '+(index===0?"active":"")+'" type="button" data-gallery-index="'+index+'" aria-label="עבור לתמונה '+(index+1)+'"></button>').join("");
+    return '<div class="product-gallery"><div class="product-slider" id="productSlider">'+slides+'</div><div class="product-dots">'+dots+'</div></div>';
   }
 
-  function setImage(index) {
-    const images = imageList(currentProduct);
-    if (!images.length) return;
-    activeImage = (index + images.length) % images.length;
-
-    const main = $("#productMainImage");
-    if (main) main.src = images[activeImage];
-
-    document.querySelectorAll("[data-gallery-index]").forEach((button) => {
-      button.classList.toggle("active", Number(button.dataset.galleryIndex) === activeImage);
-    });
-
-    const counter = $("#galleryCounter");
-    if (counter) counter.textContent = (activeImage + 1) + " / " + images.length;
+  function setImage(index){
+    const images=imageList(currentProduct),slider=$("#productSlider");if(!images.length||!slider)return;
+    activeImage=Math.max(0,Math.min(index,images.length-1));
+    slider.scrollTo({left:slider.clientWidth*activeImage,behavior:"smooth"});
+    document.querySelectorAll("[data-gallery-index]").forEach(b=>b.classList.toggle("active",Number(b.dataset.galleryIndex)===activeImage));
   }
 
   function renderProduct(product) {
@@ -138,17 +116,7 @@
     $("#orderProductId").value = currentProduct.id;
   }
 
-  function openLightbox() {
-    const images = imageList(currentProduct);
-    if (!images.length) return;
-    $("#lightboxImage").src = images[activeImage];
-    $("#lightboxImage").alt = currentProduct.name;
-    $("#productLightbox").hidden = false;
-  }
-
-  function closeLightbox() {
-    $("#productLightbox").hidden = true;
-  }
+  
 
   document.addEventListener("DOMContentLoaded", () => {
     const id = new URLSearchParams(location.search).get("id");
@@ -158,7 +126,7 @@
       return;
     }
 
-    renderProduct(product);
+    renderProduct(product);setTimeout(()=>{const slider=$("#productSlider");if(!slider)return;let dragging=false,startX=0,startScroll=0;slider.addEventListener("pointerdown",e=>{dragging=true;startX=e.clientX;startScroll=slider.scrollLeft;slider.setPointerCapture?.(e.pointerId)});slider.addEventListener("pointermove",e=>{if(dragging)slider.scrollLeft=startScroll-(e.clientX-startX)});slider.addEventListener("pointerup",()=>{dragging=false;const i=Math.round(slider.scrollLeft/Math.max(1,slider.clientWidth));setImage(i)});slider.addEventListener("pointercancel",()=>dragging=false);let t;slider.addEventListener("scroll",()=>{clearTimeout(t);t=setTimeout(()=>{const i=Math.round(slider.scrollLeft/Math.max(1,slider.clientWidth));activeImage=Math.max(0,Math.min(i,imageList(currentProduct).length-1));document.querySelectorAll("[data-gallery-index]").forEach(b=>b.classList.toggle("active",Number(b.dataset.galleryIndex)===activeImage))},80)})},0);
 
     document.addEventListener("click", (event) => {
       const thumb = event.target.closest("[data-gallery-index]");
@@ -167,14 +135,10 @@
         return;
       }
 
-      const step = event.target.closest("[data-gallery-step]");
-      if (step) {
-        setImage(activeImage + Number(step.dataset.galleryStep));
-        return;
-      }
+      
 
       if (event.target.closest("#buyNow")) openOrder();
-      if (event.target.closest("#openLightbox")) openLightbox();
+      
     });
 
     $("#closeOrderModal")?.addEventListener("click", closeOrder);
