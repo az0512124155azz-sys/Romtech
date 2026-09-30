@@ -177,6 +177,7 @@
     const title = $("#moduleTitle");
     if (title) title.textContent = moduleTitles[name] || name;
     if (name === "inventory") renderInventory();
+    if (name === "orders") renderOrders();
     if (name === "reports") renderReports();
   }
 
@@ -232,6 +233,41 @@
     }).join("") || '<div class="empty-state">אין מוצרים.</div>';
   }
 
+  function renderOrders() {
+    const root = $("#ordersRows");
+    if (!root) return;
+    const orders = window.RomTechData?.loadOrders ? RomTechData.loadOrders() : [];
+
+    root.innerHTML = orders.map((order) => {
+      const date = order.createdAt ? new Date(order.createdAt).toLocaleString("he-IL") : "";
+      return '<tr>' +
+        '<td>' + escapeHtml(order.id) + '</td>' +
+        '<td>' + escapeHtml(date) + '</td>' +
+        '<td>' + escapeHtml(order.productName || "") + '</td>' +
+        '<td>' + escapeHtml(order.customerName || "") + '</td>' +
+        '<td><a href="tel:' + escapeHtml(order.phone || "") + '">' + escapeHtml(order.phone || "") + '</a></td>' +
+        '<td>' + money(order.price || 0) + '</td>' +
+        '<td><select data-order-status="' + escapeHtml(order.id) + '"><option value="new"' + (order.status==="new"?" selected":"") + '>חדש</option><option value="contacted"' + (order.status==="contacted"?" selected":"") + '>נוצר קשר</option><option value="confirmed"' + (order.status==="confirmed"?" selected":"") + '>אושר</option><option value="completed"' + (order.status==="completed"?" selected":"") + '>הושלם</option><option value="cancelled"' + (order.status==="cancelled"?" selected":"") + '>בוטל</option></select></td>' +
+        '<td><button type="button" data-delete-order="' + escapeHtml(order.id) + '">מחיקה</button></td>' +
+      '</tr>';
+    }).join("") || '<tr><td colspan="8"><div class="empty-state">עדיין אין הזמנות.</div></td></tr>';
+  }
+
+  function updateOrderStatus(id, status) {
+    const orders = RomTechData.loadOrders();
+    const order = orders.find((item) => item.id === id);
+    if (!order) return;
+    order.status = status;
+    RomTechData.saveOrders(orders);
+    renderOrders();
+  }
+
+  function deleteOrder(id) {
+    if (!confirm("למחוק את ההזמנה?")) return;
+    RomTechData.saveOrders(RomTechData.loadOrders().filter((item) => item.id !== id));
+    renderOrders();
+  }
+
   function renderReports() {
     const root = $("#reportCards");
     if (!root) return;
@@ -250,6 +286,7 @@
     renderProducts();
     renderStats();
     renderInventory();
+    renderOrders();
     renderReports();
   }
 
@@ -538,6 +575,12 @@
         return;
       }
 
+      const deleteOrderButton = event.target.closest("[data-delete-order]");
+      if (deleteOrderButton) {
+        deleteOrder(deleteOrderButton.dataset.deleteOrder);
+        return;
+      }
+
       const removeImage = event.target.closest("[data-remove-image]");
       if (removeImage) {
         stagedImages.splice(Number(removeImage.dataset.removeImage), 1);
@@ -551,6 +594,11 @@
     $("#bulkApply")?.addEventListener("click", applyBulkEdit);
     $("#exportCsv")?.addEventListener("click", exportCsv);
     $("#inventoryRefresh")?.addEventListener("click", renderInventory);
+    $("#ordersRefresh")?.addEventListener("click", renderOrders);
+    document.addEventListener("change", (event) => {
+      const statusSelect = event.target.closest("[data-order-status]");
+      if (statusSelect) updateOrderStatus(statusSelect.dataset.orderStatus, statusSelect.value);
+    });
     $("#productForm")?.addEventListener("submit", saveProductFromForm);
 
     $("#productImages")?.addEventListener("change", async (event) => {
