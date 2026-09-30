@@ -336,7 +336,8 @@
   .footer-contact-line{font-size:15px}
 }
 
-/* Guaranteed full-logo rendering 20260930-23 */
+
+/* Final original RomTech logo rendering 20261001-30 */
 .brand-logo,
 .footer-brand-link,
 .hero-card{
@@ -346,78 +347,7 @@
 .hero-logo,
 .footer-logo{
   display:block!important;
-  height:auto!important;
-  max-height:none!important;
-  object-fit:contain!important;
-  object-position:center!important;
-  clip-path:none!important;
-  overflow:visible!important;
-  aspect-ratio:auto!important;
-}
-.brand-logo img{
-  width:210px!important;
-  max-width:210px!important;
-}
-.hero-logo{
-  width:min(410px,94%)!important;
-  max-width:410px!important;
-  margin:0 auto 14px!important;
-}
-.footer-logo{
-  width:280px!important;
-  max-width:100%!important;
-}
-@media(max-width:560px){
-  .brand-logo img{width:165px!important;max-width:165px!important}
-  .hero-logo{width:min(340px,96%)!important}
-  .footer-logo{width:240px!important}
-}
-
-/* Restore reliable vector logo 20260930-25 */
-.brand-logo img,
-.hero-logo,
-.footer-logo{
-  display:block!important;
-  object-fit:contain!important;
-  object-position:center!important;
-  clip-path:none!important;
-  overflow:visible!important;
-  max-height:none!important;
-  height:auto!important;
-  aspect-ratio:auto!important;
-}
-.brand-logo img{
-  width:190px!important;
-  max-width:190px!important;
-}
-.hero-logo{
-  width:min(360px,88%)!important;
-  max-width:360px!important;
-  margin:0 auto 18px!important;
-  background:rgba(255,255,255,.94)!important;
-  border-radius:18px!important;
-  padding:10px 14px!important;
-}
-.footer-logo{
-  width:250px!important;
-  max-width:100%!important;
-}
-@media(max-width:560px){
-  .brand-logo img{width:150px!important;max-width:150px!important}
-  .hero-logo{width:min(310px,92%)!important}
-  .footer-logo{width:220px!important}
-}
-
-/* Original RomTech logo 20260930-27 */
-.brand-logo,
-.footer-brand-link,
-.hero-card{
-  overflow:visible!important;
-}
-.brand-logo img,
-.hero-logo,
-.footer-logo{
-  display:block!important;
+  width:auto;
   height:auto!important;
   max-height:none!important;
   object-fit:contain!important;
@@ -426,17 +356,19 @@
   overflow:visible!important;
   aspect-ratio:auto!important;
   background:transparent!important;
+  border:0!important;
   border-radius:0!important;
   padding:0!important;
   filter:none!important;
+  transform:none!important;
 }
 .brand-logo img{
   width:190px!important;
   max-width:190px!important;
 }
 .hero-logo{
-  width:min(360px,88%)!important;
-  max-width:360px!important;
+  width:min(390px,92%)!important;
+  max-width:390px!important;
   margin:0 auto 18px!important;
 }
 .footer-logo{
@@ -445,6 +377,6 @@
 }
 @media(max-width:560px){
   .brand-logo img{width:150px!important;max-width:150px!important}
-  .hero-logo{width:min(310px,92%)!important}
+  .hero-logo{width:min(320px,94%)!important}
   .footer-logo{width:220px!important}
 }
