@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20260930-7">
+  <link rel="stylesheet" href="../styles.css?v=20260930-8">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -176,6 +176,19 @@
             <div class="notice success" id="siteSettingsSaved" hidden>פרטי הקשר נשמרו.</div>
           </div>
           <div class="card card-body settings-card">
+            <h3>קישורים בפוטר</h3>
+            <label>הצהרת נגישות<input id="footerAccessibility"></label>
+            <label>עוגיות<input id="footerCookies"></label>
+            <label>שאלות נפוצות<input id="footerFaq"></label>
+            <label>צור קשר<input id="footerContact"></label>
+            <label>פרטיות<input id="footerPrivacy"></label>
+            <label>תקנון<input id="footerTerms"></label>
+            <label>ביטולים והחזרות<input id="footerReturns"></label>
+            <label>משלוחים<input id="footerShipping"></label>
+            <button class="btn" id="saveFooterLabels" type="button">שמור קישורי פוטר</button>
+            <div class="notice success" id="footerLabelsSaved" hidden>קישורי הפוטר נשמרו.</div>
+          </div>
+          <div class="card card-body settings-card">
             <h3>קוד וסיסמת ניהול</h3>
             <label>קוד חדש<input id="settingAdminCode" autocomplete="off"></label>
             <label>סיסמה חדשה<input id="settingAdminPassword" type="password" autocomplete="new-password"></label>
@@ -236,7 +249,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20260930-7"></script>
-  <script src="../admin.js?v=20260930-7"></script>
+  <script src="../data.js?v=20260930-8"></script>
+  <script src="../admin.js?v=20260930-8"></script>
 </body>
 </html>
