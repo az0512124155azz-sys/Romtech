@@ -87,8 +87,9 @@ function renderCatalog(){
       '<div class="product-card-context">'+esc(p.court)+' · '+esc(p.category)+'</div>'+
       '<h3><a href="'+url+'">'+esc(p.name)+'</a></h3>'+
       '<div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div>'+
+      '<div class="product-card-specs"><span>פרווה: '+esc(p.fur)+'</span><span>גובה: '+p.height+' ס״מ</span></div>'+
       '<p>'+esc(p.short)+'</p>'+
-      '<div class="product-card-links"><a href="'+url+'">פרטים והזמנה</a><a target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">WhatsApp</a></div>'+
+      '<div class="product-card-links"><a class="product-primary-link" href="'+url+'">לפרטים ולהזמנה</a><a target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">שאלה ב-WhatsApp</a></div>'+
     '</div></article>'
  }).join("")||'<p class="catalog-empty">לא נמצאו דגמים.</p>'
 }
