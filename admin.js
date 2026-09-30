@@ -10,7 +10,12 @@ function configureAdminGate(){
  if(reset)reset.hidden=!saved;
  if(text)text.textContent=saved?"הזן את סיסמת המנהל שהגדרת בדפדפן הזה.":"בכניסה הראשונה בחר סיסמת מנהל. הסיסמה נשמרת בצורה מוצפנת מקומית בדפדפן.";
 }
-function unlock(){ael("#adminGate")?.setAttribute("hidden","");ael("#adminApp")?.removeAttribute("hidden");renderAdmin()}
+function unlock(){
+ const gate=ael("#adminGate"),app=ael("#adminApp");
+ if(gate){gate.hidden=true;gate.style.display="none"}
+ if(app){app.hidden=false;app.style.display="grid"}
+ renderAdmin();
+}
 function go(name){document.querySelectorAll(".admin-module").forEach(x=>x.classList.toggle("active",x.dataset.panel===name));document.querySelectorAll(".side-link[data-module]").forEach(x=>x.classList.toggle("active",x.dataset.module===name));const titles={dashboard:"Dashboard",orders:"הזמנות",products:"מוצרים",inventory:"מלאי",customers:"לקוחות",content:"תוכן",marketing:"שיווק",reviews:"ביקורות",support:"תמיכה",reports:"דוחות",settings:"הגדרות"};ael("#moduleTitle").textContent=titles[name]||name;if(name==="inventory")renderInventory();if(name==="reports")renderReports()}
 function renderAdmin(){const rows=products(),root=ael("#adminRows");if(root)root.innerHTML=rows.map(p=>'<tr><td><input type="checkbox" class="pick" value="'+p.id+'"></td><td>'+(p.images?.[0]?'<img class="admin-thumb" src="'+p.images[0]+'" alt="">':'<div class="admin-thumb empty"></div>')+'</td><td>'+esc(p.name)+'</td><td>'+esc(p.category)+'</td><td>'+money(p.salePrice||p.price)+'</td><td>'+p.stock+(p.stock<=Number(p.lowStock||3)?' <span class="tag">נמוך</span>':'')+'</td><td>'+esc(p.status)+'</td><td><button onclick="editProduct(\''+p.id+'\')">עריכה</button> <button onclick="duplicateProduct(\''+p.id+'\')">שכפול</button> <button onclick="deleteProduct(\''+p.id+'\')">מחיקה</button></td></tr>').join("");if(ael("#count"))ael("#count").textContent=rows.length;if(ael("#low"))ael("#low").textContent=rows.filter(p=>p.stock<=Number(p.lowStock||3)).length;if(ael("#publishedCount"))ael("#publishedCount").textContent=rows.filter(p=>p.status==="published").length;renderInventory();renderReports()}
 function openModal(){ael("#productModal").classList.add("open");ael("#productForm").reset();ael("#pid").value="";ael("#modalTitle").textContent="הוסף שטריימל חדש";stagedImages=[];preview()}
