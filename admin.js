@@ -39,6 +39,44 @@ function renderStats(){const ps=getProducts();if($("#count"))$("#count").textCon
 function renderInventory(){const r=$("#inventoryList");if(!r)return;r.innerHTML=[...getProducts()].sort((a,b)=>Number(a.stock||0)-Number(b.stock||0)).map(p=>'<div class="admin-action-card"><b>'+esc(p.name)+'</b><span>מלאי: '+Number(p.stock||0)+'</span><span>'+(Number(p.stock||0)<=Number(p.lowStock||3)?"⚠ מלאי נמוך":"תקין")+'</span></div>').join("")||'<div class="empty-state">אין מוצרים.</div>'}
 function renderReports(){const r=$("#reportCards"),ps=getProducts();if(!r)return;r.innerHTML='<div class="card card-body"><div class="small">שווי מלאי לפי עלות</div><div class="price">'+money(ps.reduce((s,p)=>s+Number(p.stock||0)*Number(p.cost||0),0))+'</div></div><div class="card card-body"><div class="small">יחידות במלאי</div><div class="price">'+ps.reduce((s,p)=>s+Number(p.stock||0),0)+'</div></div><div class="card card-body"><div class="small">טיוטות</div><div class="price">'+ps.filter(p=>p.status==="draft").length+'</div></div>'}
 function renderOrders(){const r=$("#ordersRows");if(!r)return;const os=RomTechData.loadOrders();r.innerHTML=os.map(o=>'<tr><td>'+esc(o.id)+'</td><td>'+esc(o.createdAt?new Date(o.createdAt).toLocaleString("he-IL"):"")+'</td><td>'+esc(o.productName||"")+'</td><td>'+esc(o.customerName||"")+'</td><td><a href="tel:'+esc(o.phone||"")+'">'+esc(o.phone||"")+'</a></td><td>'+money(o.price||0)+'</td><td><select data-order-status="'+esc(o.id)+'"><option value="new"'+(o.status==="new"?" selected":"")+'>חדש</option><option value="contacted"'+(o.status==="contacted"?" selected":"")+'>נוצר קשר</option><option value="confirmed"'+(o.status==="confirmed"?" selected":"")+'>אושר</option><option value="completed"'+(o.status==="completed"?" selected":"")+'>הושלם</option><option value="cancelled"'+(o.status==="cancelled"?" selected":"")+'>בוטל</option></select></td><td><button type="button" data-delete-order="'+esc(o.id)+'">מחיקה</button></td></tr>').join("")||'<tr><td colspan="8"><div class="empty-state">עדיין אין הזמנות.</div></td></tr>'}
+function populateReviewProducts(){
+ const select=$("#adminReviewProduct");if(!select)return;
+ select.innerHTML=getProducts().map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>').join("")
+}
+function openReviewModal(){
+ populateReviewProducts();
+ $("#adminReviewForm")?.reset();
+ if($("#adminReviewStatus"))$("#adminReviewStatus").value="approved";
+ $("#reviewModal")?.classList.add("open");
+ $("#reviewModal")?.setAttribute("aria-hidden","false");
+ setTimeout(()=>$("#adminReviewName")?.focus(),0)
+}
+function closeReviewModal(){
+ $("#reviewModal")?.classList.remove("open");
+ $("#reviewModal")?.setAttribute("aria-hidden","true")
+}
+function saveManualReview(e){
+ e.preventDefault();
+ const productId=$("#adminReviewProduct").value;
+ const product=getProducts().find(p=>p.id===productId);
+ if(!product)return alert("בחר מוצר.");
+ const review={
+   id:"rev-"+Date.now(),
+   productId,
+   productName:product.name,
+   name:$("#adminReviewName").value.trim(),
+   rating:Number($("#adminReviewRating").value||5),
+   text:$("#adminReviewText").value.trim(),
+   status:$("#adminReviewStatus").value||"approved",
+   createdAt:new Date().toISOString()
+ };
+ if(!review.name||!review.text)return;
+ const rows=RomTechData.loadReviews();
+ rows.unshift(review);
+ RomTechData.saveReviews(rows);
+ closeReviewModal();
+ renderReviews()
+}
 function renderReviews(){
  const root=$("#reviewsRows");if(!root)return;const rows=RomTechData.loadReviews?.()||[];
  root.innerHTML=rows.map(r=>'<tr><td>'+esc(r.createdAt?new Date(r.createdAt).toLocaleString("he-IL"):"")+'</td><td>'+esc(r.productName||"")+'</td><td>'+esc(r.name||"")+'</td><td><span class="review-stars">'+("★".repeat(Number(r.rating||0)))+'</span></td><td class="review-text-cell">'+esc(r.text||"")+'</td><td><span class="tag">'+esc(r.status==="approved"?"מאושרת":r.status==="rejected"?"נדחתה":"ממתינה")+'</span></td><td class="row-actions"><button type="button" data-review-action="approve" data-id="'+esc(r.id)+'">אשר</button><button type="button" data-review-action="reject" data-id="'+esc(r.id)+'">דחה</button><button type="button" data-review-action="delete" data-id="'+esc(r.id)+'">מחק</button></td></tr>').join("")||'<tr><td colspan="7"><div class="empty-state">עדיין לא נשלחו ביקורות.</div></td></tr>'
@@ -146,10 +184,11 @@ document.addEventListener("input",e=>{if(e.target.matches("#settingsContentEdito
 document.addEventListener("DOMContentLoaded",()=>{
  $("#adminSubmit")?.addEventListener("click",enterAdmin);["adminCode","adminPassword"].forEach(id=>$("#"+id)?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();enterAdmin()}}));$("#logoutBtn")?.addEventListener("click",logout);
  $$(".side-link[data-module]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.module)));$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
- $("#newBtn")?.addEventListener("click",()=>openModal());$('[data-action="new-product"]')?.addEventListener("click",()=>{go("products");openModal()});$("#closeModal")?.addEventListener("click",closeModal);$("#cancelModal")?.addEventListener("click",closeModal);$("#productForm")?.addEventListener("submit",saveProduct);$("#productImages")?.addEventListener("change",async e=>{await addImages(e.target.files);e.target.value=""});$("#bulkApply")?.addEventListener("click",bulk);$("#exportCsv")?.addEventListener("click",exportCsv);$("#inventoryRefresh")?.addEventListener("click",renderInventory);$("#ordersRefresh")?.addEventListener("click",renderOrders);$("#reviewsRefresh")?.addEventListener("click",renderReviews);
+ $("#newBtn")?.addEventListener("click",()=>openModal());$('[data-action="new-product"]')?.addEventListener("click",()=>{go("products");openModal()});$("#closeModal")?.addEventListener("click",closeModal);$("#cancelModal")?.addEventListener("click",closeModal);$("#productForm")?.addEventListener("submit",saveProduct);$("#productImages")?.addEventListener("change",async e=>{await addImages(e.target.files);e.target.value=""});$("#bulkApply")?.addEventListener("click",bulk);$("#exportCsv")?.addEventListener("click",exportCsv);$("#inventoryRefresh")?.addEventListener("click",renderInventory);$("#ordersRefresh")?.addEventListener("click",renderOrders);$("#reviewsRefresh")?.addEventListener("click",renderReviews);$("#addReviewBtn")?.addEventListener("click",openReviewModal);$("#closeReviewModal")?.addEventListener("click",closeReviewModal);$("#cancelReviewModal")?.addEventListener("click",closeReviewModal);$("#adminReviewForm")?.addEventListener("submit",saveManualReview);
  $("#saveSiteSettings")?.addEventListener("click",saveSiteSettings);$("#saveAdminCredentials")?.addEventListener("click",saveAdminCredentials);$("#settingsContentPage")?.addEventListener("change",loadSettingsContentEditor);$("#saveSettingsContent")?.addEventListener("click",saveSettingsContent);$("#contentPageSelect")?.addEventListener("change",loadContentEditor);$("#saveContent")?.addEventListener("click",saveContent);
  document.addEventListener("click",e=>{const a=e.target.closest("[data-row-action]");if(a){const id=a.dataset.id;if(a.dataset.rowAction==="edit"){const p=getProducts().find(x=>x.id===id);if(p)openModal(p)}if(a.dataset.rowAction==="duplicate")duplicateProduct(id);if(a.dataset.rowAction==="delete")deleteProduct(id)}const rm=e.target.closest("[data-remove-image]");if(rm){stagedImages.splice(Number(rm.dataset.removeImage),1);renderPreview()}const d=e.target.closest("[data-delete-order]");if(d)deleteOrder(d.dataset.deleteOrder);const ra=e.target.closest("[data-review-action]");if(ra){if(ra.dataset.reviewAction==="delete")deleteReview(ra.dataset.id);else updateReview(ra.dataset.id,ra.dataset.reviewAction==="approve"?"approved":"rejected")}});
  document.addEventListener("change",e=>{const s=e.target.closest("[data-order-status]");if(s)updateOrderStatus(s.dataset.orderStatus,s.value)});
+ $("#reviewModal")?.addEventListener("click",e=>{if(e.target.id==="reviewModal")closeReviewModal()});
  refreshGate();if(sessionStorage.getItem(SESSION_KEY)==="1"&&getCredentials())showAdmin();else showGate()
 });
 })();
