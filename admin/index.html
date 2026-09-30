@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20260930-9">
+  <link rel="stylesheet" href="../styles.css?v=20260930-10">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -167,6 +167,14 @@
       <section class="admin-module" data-panel="settings">
         <h2>הגדרות</h2>
         <div class="settings-grid">
+          <div class="card card-body settings-card settings-credentials-card">
+            <h3>קוד וסיסמת ניהול</h3>
+            <label>קוד חדש<input id="settingAdminCode" autocomplete="off"></label>
+            <label>סיסמה חדשה<input id="settingAdminPassword" type="password" autocomplete="new-password"></label>
+            <label>אימות סיסמה חדשה<input id="settingAdminPasswordConfirm" type="password" autocomplete="new-password"></label>
+            <button class="btn" id="saveAdminCredentials" type="button">שמור קוד וסיסמה</button>
+            <div class="notice success" id="credentialsSaved" hidden>פרטי הכניסה עודכנו.</div>
+          </div>
           <div class="card card-body settings-card">
             <h3>פרטי קשר</h3>
             <label>טלפון<input id="settingPhone"></label>
@@ -198,14 +206,6 @@
               <a class="btn secondary" id="previewSettingsContent" target="_blank">תצוגה מקדימה</a>
             </div>
             <div class="notice success" id="settingsContentSaved" hidden>תוכן העמוד נשמר.</div>
-          </div>
-          <div class="card card-body settings-card">
-            <h3>קוד וסיסמת ניהול</h3>
-            <label>קוד חדש<input id="settingAdminCode" autocomplete="off"></label>
-            <label>סיסמה חדשה<input id="settingAdminPassword" type="password" autocomplete="new-password"></label>
-            <label>אימות סיסמה חדשה<input id="settingAdminPasswordConfirm" type="password" autocomplete="new-password"></label>
-            <button class="btn" id="saveAdminCredentials" type="button">שמור קוד וסיסמה</button>
-            <div class="notice success" id="credentialsSaved" hidden>פרטי הכניסה עודכנו.</div>
           </div>
         </div>
       </section>
@@ -260,7 +260,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20260930-9"></script>
-  <script src="../admin.js?v=20260930-9"></script>
+  <script src="../data.js?v=20260930-10"></script>
+  <script src="../admin.js?v=20260930-10"></script>
 </body>
 </html>
