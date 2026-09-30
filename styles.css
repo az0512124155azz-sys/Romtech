@@ -28,3 +28,16 @@
 
 .brand-logo img,.hero-logo,.footer-logo{image-rendering:auto}
 .hero-logo{filter:none!important;transform:none!important}
+
+/* Admin login + controls reset 20260930-5 */
+.admin-login-simple{width:min(420px,calc(100vw - 32px));padding:30px;border-radius:18px}
+.admin-login-simple h1{font-size:36px;margin:6px 0 10px}
+.admin-login-simple p{margin:0 0 18px;color:var(--muted)}
+.admin-login-fields{display:grid;gap:10px}
+.admin-login-fields input{height:48px;font-size:16px}
+.admin-login-fields .btn{height:48px}
+.admin-reset-link{border:0;background:transparent;color:#6b6257;text-decoration:underline;cursor:pointer;padding:6px;font:inherit}
+.row-actions{display:flex;gap:6px;align-items:center}
+.admin-page button,.admin-page a,.admin-page label.btn{pointer-events:auto}
+.admin-page .sidebar{z-index:2}
+.admin-page .admin-main{min-width:0}
