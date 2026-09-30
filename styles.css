@@ -23,3 +23,8 @@
 .admin-page .login-card{padding:32px 30px}
 .admin-login-kicker{font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:8px}
 @media(max-width:850px){.admin-page .admin-shell{grid-template-columns:1fr}.admin-page .sidebar{position:static}.admin-page .admin-main{padding:20px}}
+
+[hidden]{display:none!important}
+
+.brand-logo img,.hero-logo,.footer-logo{image-rendering:auto}
+.hero-logo{filter:none!important;transform:none!important}
