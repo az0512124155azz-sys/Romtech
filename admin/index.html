@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20260930-15">
+  <link rel="stylesheet" href="../styles.css?v=20260930-16">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -151,8 +151,13 @@
       </section>
 
       <section class="admin-module" data-panel="reviews">
-        <h2>ביקורות</h2>
-        <div class="empty-state"><b>אין ביקורות עדיין</b><p>לא יוצגו נתוני דמה.</p></div>
+        <div class="module-head"><h2>ביקורות</h2><button class="btn secondary" id="reviewsRefresh" type="button">רענן</button></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>תאריך</th><th>מוצר</th><th>שם</th><th>דירוג</th><th>ביקורת</th><th>סטטוס</th><th>פעולות</th></tr></thead>
+            <tbody id="reviewsRows"></tbody>
+          </table>
+        </div>
       </section>
 
       <section class="admin-module" data-panel="reports">
@@ -265,7 +270,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20260930-15"></script>
-  <script src="../admin.js?v=20260930-15"></script>
+  <script src="../data.js?v=20260930-16"></script>
+  <script src="../admin.js?v=20260930-16"></script>
 </body>
 </html>
