@@ -98,8 +98,16 @@
       </section>
 
       <section class="admin-module" data-panel="orders">
-        <h2>הזמנות</h2>
-        <div class="empty-state"><b>עדיין אין מערכת הזמנות מחוברת</b><p>כאן יוצגו הזמנות אמיתיות לאחר חיבור Checkout ומסד נתונים.</p></div>
+        <div class="module-head">
+          <h2>הזמנות</h2>
+          <button class="btn secondary" id="ordersRefresh" type="button">רענן</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>מספר</th><th>תאריך</th><th>מוצר</th><th>לקוח</th><th>טלפון</th><th>מחיר</th><th>סטטוס</th><th>פעולות</th></tr></thead>
+            <tbody id="ordersRows"></tbody>
+          </table>
+        </div>
       </section>
 
       <section class="admin-module" data-panel="customers">
@@ -199,7 +207,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20260930-5"></script>
-  <script src="../admin.js?v=20260930-5"></script>
+  <script src="../data.js?v=20260930-6"></script>
+  <script src="../admin.js?v=20260930-6"></script>
 </body>
 </html>
