@@ -190,10 +190,10 @@ function bulk(){
  const changes=[];
  if(st)changes.push("סטטוס: "+statusLabel(st));
  if(cat)changes.push("קטגוריה: "+cat);
- if(price!=="")changes.push("מחיר: "+money(Number(price)));
+ if(price!=="")changes.push("מחיר חדש: "+money(Number(price))+" (מחליף את המחיר הקיים)");
  if(stock!=="")changes.push("מלאי: "+Number(stock));
  if(!confirm("לעדכן "+ids.length+" מוצרים?\n"+changes.join("\n")))return;
- const updated=getProducts().map(p=>ids.includes(p.id)?{...p,...(st?{status:st}:{}),...(cat?{category:cat}:{}),...(price!==""?{price:Number(price)}:{}),...(stock!==""?{stock:Number(stock)}:{})}:p);
+ const updated=getProducts().map(p=>ids.includes(p.id)?{...p,...(st?{status:st}:{}),...(cat?{category:cat}:{}),...(price!==""?{price:Number(price),salePrice:null}:{}),...(stock!==""?{stock:Number(stock)}:{})}:p);
  RomTechData.saveProducts(updated);
  renderAll();
  resetBulkFields();
