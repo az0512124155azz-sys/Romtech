@@ -1076,3 +1076,91 @@
   margin:0!important;
   align-self:start;
 }
+
+/* Public reviews page 20261001-47 */
+.reviews-page{padding-top:54px;padding-bottom:64px}
+.reviews-page-head{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:34px;
+  align-items:end;
+  padding-bottom:28px;
+  border-bottom:1px solid var(--line);
+}
+.reviews-page-head h1{margin:0 0 8px;font-size:clamp(38px,5vw,60px);line-height:1.05}
+.reviews-page-head p{margin:0;color:var(--muted);font-size:17px}
+.reviews-summary{
+  min-width:220px;
+  text-align:center;
+  padding:22px 26px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:18px;
+}
+.reviews-average-number{font-size:42px;font-weight:800;line-height:1}
+.reviews-average-stars{margin-top:7px;font-size:24px;letter-spacing:.08em;color:#a97831;direction:ltr}
+.reviews-count{margin-top:6px;color:var(--muted);font-size:14px}
+.all-reviews-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+  margin-top:30px;
+}
+.all-review-card{
+  padding:22px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:16px;
+}
+.all-review-card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:11px;
+}
+.all-review-card .review-stars{direction:ltr;color:#a97831;white-space:nowrap}
+.all-review-product{color:#8b6b3f;font-size:13px;font-weight:700;margin-top:3px}
+.all-review-card p{margin:0 0 14px;line-height:1.7}
+.review-date{font-size:13px;color:var(--muted)}
+.reviews-empty{
+  grid-column:1/-1;
+  padding:34px;
+  text-align:center;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  color:var(--muted);
+}
+.write-review-section{
+  margin-top:46px;
+  padding-top:36px;
+  border-top:1px solid var(--line);
+}
+.write-review-card{
+  max-width:760px;
+  margin:0 auto;
+  padding:28px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:18px;
+}
+.write-review-card h2{margin-top:0}
+.write-review-card .review-rating-input{
+  direction:ltr;
+}
+.review-page-link-card p{color:var(--muted)}
+.admin-page .danger-link{
+  border:1px solid #b96b63;
+  background:#fff;
+  color:#8e342c;
+  border-radius:8px;
+  padding:7px 12px;
+  cursor:pointer;
+}
+@media(max-width:760px){
+  .reviews-page{padding-top:30px}
+  .reviews-page-head{grid-template-columns:1fr;gap:18px}
+  .reviews-summary{width:100%;min-width:0}
+  .all-reviews-list{grid-template-columns:1fr}
+  .write-review-card{padding:20px 16px}
+}
