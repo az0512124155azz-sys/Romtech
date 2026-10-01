@@ -32,5 +32,6 @@ jobs:
           test -f contact.html
           test -f reviews.html
           test -f reviews.js
+          test -f 404.html
           test -f sitemap.xml
           test -f robots.txt
