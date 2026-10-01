@@ -1164,3 +1164,104 @@
   .all-reviews-list{grid-template-columns:1fr}
   .write-review-card{padding:20px 16px}
 }
+
+/* 404 page 20261001-48 */
+.not-found-main{
+  min-height:58vh;
+  display:flex;
+  align-items:center;
+  padding-top:54px;
+  padding-bottom:54px;
+}
+.not-found-card{
+  width:100%;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) minmax(260px,.56fr);
+  gap:44px;
+  align-items:center;
+  padding:42px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:24px;
+  box-shadow:0 18px 50px rgba(32,27,22,.07);
+}
+.not-found-code{
+  align-self:start;
+  color:#b68a4c;
+  font-size:clamp(70px,9vw,126px);
+  font-weight:800;
+  line-height:.85;
+  letter-spacing:-.06em;
+}
+.not-found-copy h1{
+  margin:8px 0 14px;
+  max-width:720px;
+  font-size:clamp(34px,4.4vw,58px);
+  line-height:1.08;
+}
+.not-found-copy>p{
+  max-width:680px;
+  margin:0;
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.7;
+}
+.not-found-actions{
+  align-items:center;
+  margin-top:24px;
+}
+.not-found-brand{
+  min-width:0;
+  padding-right:34px;
+  border-right:1px solid var(--line);
+}
+.not-found-brand img{
+  display:block;
+  width:100%;
+  max-width:330px;
+  height:auto;
+  margin:auto;
+}
+@media(max-width:760px){
+  .not-found-main{
+    min-height:auto;
+    padding-top:28px;
+    padding-bottom:34px;
+  }
+  .not-found-card{
+    grid-template-columns:1fr;
+    gap:20px;
+    padding:26px 20px;
+    border-radius:18px;
+  }
+  .not-found-code{
+    font-size:72px;
+  }
+  .not-found-copy h1{
+    font-size:36px;
+  }
+  .not-found-copy>p{
+    font-size:16px;
+  }
+  .not-found-actions{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+  .not-found-actions .btn,
+  .not-found-actions .text-link{
+    width:100%;
+    min-height:48px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .not-found-brand{
+    padding:20px 0 0;
+    border-right:0;
+    border-top:1px solid var(--line);
+  }
+  .not-found-brand img{
+    max-width:230px;
+  }
+}
