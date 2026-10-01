@@ -36,6 +36,7 @@ function updateBulkSelectionUI(){
  const checked=$(".pick:checked"),all=$(".pick"),count=$("#bulkSelectionCount"),apply=$("#bulkApply"),selectAll=$("#selectAllProducts");
  if(count)count.textContent=checked.length?checked.length+" מוצרים נבחרו":"לא נבחרו מוצרים";
  if(app)apply.disabled=checked.length===0;
+ all.forEach(box=>box.closest("tr")?.classList.toggle("selected",box.checked));
  if(selectAll){
   selectAll.checked=all.length>0&&checked.length===all.length;
   selectAll.indeterminate=checked.length>0&&checked.length<all.length
