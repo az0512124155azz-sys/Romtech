@@ -928,3 +928,11 @@
   .admin-page .bulk-toolbar{grid-template-columns:1fr}
   .admin-page .bulk-toolbar #bulkApply{grid-column:auto}
 }
+
+/* Bulk selection feedback 20261001-42 */
+.admin-page #adminRows tr.selected{
+  background:#fbf4e7;
+}
+.admin-page #adminRows tr.selected td{
+  border-bottom-color:#d8c6a7;
+}
