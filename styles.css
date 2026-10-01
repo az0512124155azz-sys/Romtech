@@ -1042,3 +1042,37 @@
     table-layout:fixed;
   }
 }
+
+/* Bulk editor alignment cleanup 20261001-46 */
+.admin-page .bulk-toolbar{
+  align-items:end!important;
+}
+.admin-page .bulk-toolbar label{
+  display:grid!important;
+  grid-template-rows:auto 48px!important;
+  align-content:end!important;
+  gap:6px!important;
+  margin:0!important;
+}
+.admin-page .bulk-toolbar label>input,
+.admin-page .bulk-toolbar label>select{
+  height:48px!important;
+  min-height:48px!important;
+  margin:0!important;
+}
+.admin-page .bulk-price-note{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+  text-align:right;
+}
+.admin-page .bulk-editor-head{
+  display:grid!important;
+  grid-template-columns:1fr auto!important;
+  gap:18px!important;
+}
+.admin-page .bulk-selection{
+  margin:0!important;
+  align-self:start;
+}
