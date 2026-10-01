@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20261001-42">
+  <link rel="stylesheet" href="../styles.css?v=20261001-44">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -104,7 +104,11 @@
           <div id="bulkMessage" class="notice success" hidden></div>
         </div>
         <div class="table-wrap">
-          <table>
+          <table class="products-table">
+            <colgroup>
+              <col class="col-pick"><col class="col-image"><col class="col-name"><col class="col-category">
+              <col class="col-price"><col class="col-stock"><col class="col-status"><col class="col-actions">
+            </colgroup>
             <thead><tr><th><label class="select-all-label"><input id="selectAllProducts" type="checkbox"> הכל</label></th><th>תמונה</th><th>שם</th><th>קטגוריה</th><th>מחיר</th><th>מלאי</th><th>סטטוס</th><th>פעולות</th></tr></thead>
             <tbody id="adminRows"></tbody>
           </table>
@@ -296,6 +300,6 @@
   </div>
 
   <script src="../data.js?v=20261001-41"></script>
-  <script src="../admin.js?v=20261001-43"></script>
+  <script src="../admin.js?v=20261001-44"></script>
 </body>
 </html>
