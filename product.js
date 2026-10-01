@@ -28,12 +28,12 @@ function bindSlider(){
 }
 
 function stars(value){return "★".repeat(Number(value||0))+"☆".repeat(Math.max(0,5-Number(value||0)))}
-function approvedReviews(productId){return (RomTechData.loadReviews?.()||[]).filter(r=>r.productId===productId&&r.status==="approved")}
+function productReviews(productId){return (RomTechData.loadReviews?.()||[]).filter(r=>r.productId===productId)}
 function reviewsHtml(product){
- const rows=approvedReviews(product.id);
- return '<section class="section reviews-section"><div class="reviews-head"><div><h2>ביקורות לקוחות</h2><p class="small">'+(rows.length?rows.length+" ביקורות מאושרות":"עדיין אין ביקורות מאושרות למוצר הזה")+'</p></div></div>'+
+ const rows=productReviews(product.id);
+ return '<section class="section reviews-section"><div class="reviews-head"><div><h2>ביקורות לקוחות</h2><p class="small">'+(rows.length?rows.length+" ביקורות":"עדיין אין ביקורות למוצר הזה")+'</p></div></div>'+
  '<div class="reviews-list">'+(rows.length?rows.map(r=>'<article class="review-card"><div class="review-card-head"><strong>'+esc(r.name||"לקוח")+'</strong><span class="review-stars" aria-label="'+Number(r.rating||0)+' מתוך 5">'+stars(r.rating)+'</span></div><p>'+esc(r.text||"")+'</p><div class="small">'+esc(r.createdAt?new Date(r.createdAt).toLocaleDateString("he-IL"):"")+'</div></article>').join(""):'')+'</div>'+
- '<div class="review-form-card"><h3>כתוב ביקורת</h3><form id="reviewForm"><div class="form-grid"><label>שם<input id="reviewName" required maxlength="60"></label><label>דירוג<select id="reviewRating" required><option value="5">5 — מצוין</option><option value="4">4 — טוב מאוד</option><option value="3">3 — טוב</option><option value="2">2 — בינוני</option><option value="1">1 — לא טוב</option></select></label><label class="full">הביקורת שלך<textarea id="reviewText" required rows="5" maxlength="1200" placeholder="ספר לנו על החוויה שלך"></textarea></label></div><button class="btn" type="submit">שלח ביקורת</button><div id="reviewMessage" class="notice success" hidden></div></form></div></section>'
+ '<div class="review-form-card review-page-link-card"><h3>רוצה לשתף את החוויה?</h3><p>כל הביקורות מרוכזות בעמוד אחד, ושם אפשר גם לכתוב ביקורת חדשה.</p><a class="btn" href="reviews.html#write-review">לכל הביקורות ולכתיבת ביקורת</a></div></section>'
 }
 function renderProduct(product){
  currentProduct=product;const root=$("#productView");if(!root)return;
@@ -49,10 +49,10 @@ function submitReview(e){
  const name=$("#reviewName").value.trim(),text=$("#reviewText").value.trim(),rating=Number($("#reviewRating").value||5);
  if(!name||!text)return;
  const reviews=RomTechData.loadReviews();
- reviews.unshift({id:"rev-"+Date.now(),productId:currentProduct.id,productName:currentProduct.name,name,rating,text,status:"pending",createdAt:new Date().toISOString()});
+ reviews.unshift({id:"rev-"+Date.now(),productId:currentProduct.id,productName:currentProduct.name,name,rating,text,status:"approved",createdAt:new Date().toISOString()});
  RomTechData.saveReviews(reviews);
  e.currentTarget.reset();
- const m=$("#reviewMessage");m.textContent="תודה! הביקורת נשלחה ותופיע באתר לאחר אישור.";m.hidden=false
+ const m=$("#reviewMessage");m.textContent="תודה! הביקורת פורסמה באתר.";m.hidden=false
 }
 function submitOrder(e){e.preventDefault();if(!currentProduct)return;const order={id:"ord-"+Date.now(),productId:currentProduct.id,productName:currentProduct.name,price:Number(currentProduct.salePrice||currentProduct.price||0),customerName:$("#orderName").value.trim(),phone:$("#orderPhone").value.trim(),email:$("#orderEmail").value.trim(),city:$("#orderCity").value.trim(),address:$("#orderAddress").value.trim(),notes:$("#orderNotes").value.trim(),status:"new",createdAt:new Date().toISOString()};const orders=RomTechData.loadOrders();orders.unshift(order);RomTechData.saveOrders(orders);const m=$("#orderMessage");m.textContent="ההזמנה התקבלה! מספר הזמנה: "+order.id+". נציג יחזור אליך לאישור.";m.hidden=false;$("#orderForm").reset();$("#orderProductId").value=currentProduct.id}
 
