@@ -854,3 +854,77 @@
     grid-template-columns:1fr;
   }
 }
+
+/* Admin bulk editor clarity 20261001-41 */
+.admin-page .bulk-editor{
+  margin-bottom:16px;
+  padding:14px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+.admin-page .bulk-editor-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:12px;
+}
+.admin-page .bulk-editor-head strong{font-size:18px}
+.admin-page .bulk-selection{
+  flex:0 0 auto;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#f1ede6;
+  color:#514a41;
+  font-size:13px;
+  font-weight:700;
+}
+.admin-page .bulk-toolbar{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(120px,1fr)) auto;
+  gap:10px;
+  align-items:end;
+  margin:0;
+  padding:0;
+  background:transparent;
+  border:0;
+}
+.admin-page .bulk-toolbar label{
+  display:grid;
+  gap:5px;
+  font-size:13px;
+  font-weight:700;
+}
+.admin-page .bulk-toolbar input,
+.admin-page .bulk-toolbar select{
+  width:100%;
+  min-width:0;
+}
+.admin-page #bulkApply:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.admin-page .select-all-label{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.admin-page .select-all-label input,
+.admin-page .pick{
+  width:18px;
+  height:18px;
+}
+.admin-page #bulkMessage{margin-top:10px}
+@media(max-width:1100px){
+  .admin-page .bulk-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-page .bulk-toolbar #bulkApply{grid-column:1/-1}
+}
+@media(max-width:650px){
+  .admin-page .bulk-editor-head{display:grid}
+  .admin-page .bulk-selection{width:max-content}
+  .admin-page .bulk-toolbar{grid-template-columns:1fr}
+  .admin-page .bulk-toolbar #bulkApply{grid-column:auto}
+}
