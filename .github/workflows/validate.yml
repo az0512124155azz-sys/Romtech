@@ -16,6 +16,7 @@ jobs:
           node --check data.js
           node --check app.js
           node --check admin.js
+          node --check reviews.js
       - name: Required files
         run: |
           test -f index.html
@@ -29,5 +30,7 @@ jobs:
           test -f cookies.html
           test -f faq.html
           test -f contact.html
+          test -f reviews.html
+          test -f reviews.js
           test -f sitemap.xml
           test -f robots.txt
