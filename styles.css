@@ -1337,3 +1337,45 @@
   outline:2px solid #8b6b3f!important;
   outline-offset:1px;
 }
+
+/* Mouse + touch draggable product gallery 20261001-50 */
+.product-slider{
+  display:block!important;
+  direction:ltr!important;
+  overflow:hidden!important;
+  scroll-snap-type:none!important;
+  scroll-behavior:auto!important;
+  touch-action:pan-y pinch-zoom;
+  cursor:grab;
+  user-select:none;
+}
+.product-slider.dragging{cursor:grabbing}
+.product-slider-track{
+  display:flex;
+  width:100%;
+  will-change:transform;
+  transform:translate3d(0,0,0);
+}
+.product-slider.dragging .product-slider-track{transition:none!important}
+.product-slide{
+  display:grid!important;
+  flex:0 0 100%!important;
+  width:100%;
+  min-width:100%;
+  grid-area:auto!important;
+  place-items:center;
+  scroll-snap-align:none!important;
+}
+.product-slide img{
+  display:block;
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:contain;
+  background:#fff;
+  user-select:none;
+  pointer-events:none;
+  -webkit-user-drag:none;
+}
+.product-dots{
+  direction:rtl!important;
+}
