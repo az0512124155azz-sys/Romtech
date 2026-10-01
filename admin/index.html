@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20261001-40">
+  <link rel="stylesheet" href="../styles.css?v=20261001-41">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -78,16 +78,34 @@
             <label class="btn secondary">ייבוא CSV<input id="importCsv" type="file" accept=".csv,text/csv" hidden></label>
           </div>
         </div>
-        <div class="toolbar">
-          <select id="bulkStatus"><option value="">סטטוס</option><option value="draft">טיוטה</option><option value="published">מפורסם</option><option value="hidden">מוסתר</option></select>
-          <select id="bulkCategory"><option value="">קטגוריה</option><option>קלאסי</option><option>מהודר</option><option>ספודיק</option><option>קולפיק</option></select>
-          <input id="bulkPrice" class="field" type="number" placeholder="מחיר חדש">
-          <input id="bulkStock" class="field" type="number" placeholder="מלאי חדש">
-          <button class="btn" id="bulkApply" type="button">החל עריכה המונית</button>
+        <div class="bulk-editor">
+          <div class="bulk-editor-head">
+            <div>
+              <strong>עדכון כמה מוצרים יחד</strong>
+              <div class="small">סמן מוצרים בטבלה, בחר רק את השדות שברצונך לשנות ולחץ על "עדכן מוצרים נבחרים".</div>
+            </div>
+            <div class="bulk-selection" id="bulkSelectionCount">לא נבחרו מוצרים</div>
+          </div>
+          <div class="toolbar bulk-toolbar">
+            <label>סטטוס
+              <select id="bulkStatus"><option value="">ללא שינוי</option><option value="draft">טיוטה</option><option value="published">מפורסם</option><option value="hidden">מוסתר</option></select>
+            </label>
+            <label>קטגוריה
+              <select id="bulkCategory"><option value="">ללא שינוי</option><option>קלאסי</option><option>מהודר</option><option>ספודיק</option><option>קולפיק</option></select>
+            </label>
+            <label>מחיר
+              <input id="bulkPrice" class="field" type="number" min="0" placeholder="ללא שינוי">
+            </label>
+            <label>מלאי
+              <input id="bulkStock" class="field" type="number" min="0" placeholder="ללא שינוי">
+            </label>
+            <button class="btn" id="bulkApply" type="button" disabled>עדכן מוצרים נבחרים</button>
+          </div>
+          <div id="bulkMessage" class="notice success" hidden></div>
         </div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th></th><th>תמונה</th><th>שם</th><th>קטגוריה</th><th>מחיר</th><th>מלאי</th><th>סטטוס</th><th>פעולות</th></tr></thead>
+            <thead><tr><th><label class="select-all-label"><input id="selectAllProducts" type="checkbox"> הכל</label></th><th>תמונה</th><th>שם</th><th>קטגוריה</th><th>מחיר</th><th>מלאי</th><th>סטטוס</th><th>פעולות</th></tr></thead>
             <tbody id="adminRows"></tbody>
           </table>
         </div>
@@ -277,7 +295,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20261001-32"></script>
-  <script src="../admin.js?v=20261001-32"></script>
+  <script src="../data.js?v=20261001-41"></script>
+  <script src="../admin.js?v=20261001-41"></script>
 </body>
 </html>
