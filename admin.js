@@ -35,7 +35,7 @@ function statusLabel(status){return status==="published"?"מפורסם":status==
 function updateBulkSelectionUI(){
  const checked=$$(".pick:checked"),all=$$(".pick"),count=$("#bulkSelectionCount"),apply=$("#bulkApply"),selectAll=$("#selectAllProducts");
  if(count)count.textContent=checked.length?checked.length+" מוצרים נבחרו":"לא נבחרו מוצרים";
- if(app)apply.disabled=checked.length===0;
+ if(apply){apply.disabled=checked.length===0;apply.textContent=checked.length?("עדכן "+checked.length+" מוצרים נבחרים"):"עדכן מוצרים נבחרים"}
  all.forEach(box=>box.closest("tr")?.classList.toggle("selected",box.checked));
  if(selectAll){
   selectAll.checked=all.length>0&&checked.length===all.length;
@@ -44,7 +44,7 @@ function updateBulkSelectionUI(){
 }
 function renderProducts(){
  const root=$("#adminRows");if(!root)return;
- root.innerHTML=getProducts().map(p=>'<tr><td><input type="checkbox" class="pick" value="'+esc(p.id)+'" aria-label="בחר '+esc(p.name)+'"></td><td>'+(p.images?.[0]?'<img class="admin-thumb" src="'+p.images[0]+'" alt="">':'<div class="admin-thumb empty"></div>')+'</td><td>'+esc(p.name)+'</td><td>'+esc(p.category)+'</td><td>'+money(p.salePrice||p.price)+'</td><td>'+Number(p.stock||0)+(Number(p.stock||0)<=Number(p.lowStock||3)?' <span class="tag">נמוך</span>':'')+'</td><td>'+esc(statusLabel(p.status))+'</td><td class="row-actions"><button type="button" data-row-action="edit" data-id="'+esc(p.id)+'">עריכה</button><button type="button" data-row-action="duplicate" data-id="'+esc(p.id)+'">שכפול</button><button type="button" data-row-action="delete" data-id="'+esc(p.id)+'">מחיקה</button></td></tr>').join("");
+ root.innerHTML=getProducts().map(p=>'<tr><td><input type="checkbox" class="pick" value="'+esc(p.id)+'" aria-label="בחר '+esc(p.name)+'"></td><td>'+(p.images?.[0]?'<img class="admin-thumb" src="'+p.images[0]+'" alt="">':'<div class="admin-thumb empty"></div>')+'</td><td>'+esc(p.name)+'</td><td>'+esc(p.category)+'</td><td>'+money(p.salePrice||p.price)+'</td><td>'+Number(p.stock||0)+(Number(p.stock||0)<=Number(p.lowStock||3)?' <span class="tag">נמוך</span>':'')+'</td><td>'+esc(statusLabel(p.status))+'</td><td><div class="row-actions"><button type="button" data-row-action="edit" data-id="'+esc(p.id)+'">עריכה</button><button type="button" data-row-action="duplicate" data-id="'+esc(p.id)+'">שכפול</button><button type="button" data-row-action="delete" data-id="'+esc(p.id)+'">מחיקה</button></div></td></tr>').join("");
  updateBulkSelectionUI()
 }
 function renderStats(){const ps=getProducts();if($("#count"))$("#count").textContent=ps.length;if($("#low"))$("#low").textContent=ps.filter(p=>Number(p.stock||0)<=Number(p.lowStock||3)).length;if($("#publishedCount"))$("#publishedCount").textContent=ps.filter(p=>p.status==="published").length}
