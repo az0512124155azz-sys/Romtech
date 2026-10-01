@@ -33,7 +33,7 @@ function reviewsHtml(product){
  const rows=productReviews(product.id);
  return '<section class="section reviews-section"><div class="reviews-head"><div><h2>ביקורות לקוחות</h2><p class="small">'+(rows.length?rows.length+" ביקורות":"עדיין אין ביקורות למוצר הזה")+'</p></div></div>'+
  '<div class="reviews-list">'+(rows.length?rows.map(r=>'<article class="review-card"><div class="review-card-head"><strong>'+esc(r.name||"לקוח")+'</strong><span class="review-stars" aria-label="'+Number(r.rating||0)+' מתוך 5">'+stars(r.rating)+'</span></div><p>'+esc(r.text||"")+'</p><div class="small">'+esc(r.createdAt?new Date(r.createdAt).toLocaleDateString("he-IL"):"")+'</div></article>').join(""):'')+'</div>'+
- '<div class="review-form-card review-page-link-card"><h3>רוצה לשתף את החוויה?</h3><p>כל הביקורות מרוכזות בעמוד אחד, ושם אפשר גם לכתוב ביקורת חדשה.</p><a class="btn" href="reviews.html#write-review">לכל הביקורות ולכתיבת ביקורת</a></div></section>'
+ '<div class="review-form-card review-page-link-card"><h3>רוצה לשתף את החוויה?</h3><p>כל הביקורות מרוכזות בעמוד אחד, ושם אפשר גם לכתוב ביקורת חדשה.</p><a class="btn" href="reviews.html?product='+encodeURIComponent(product.id)+'#write-review">לכל הביקורות ולכתיבת ביקורת</a></div></section>'
 }
 function renderProduct(product){
  currentProduct=product;const root=$("#productView");if(!root)return;
