@@ -33,7 +33,7 @@ function go(name){$$(".admin-module").forEach(p=>p.classList.toggle("active",p.d
 
 function statusLabel(status){return status==="published"?"מפורסם":status==="draft"?"טיוטה":status==="hidden"?"מוסתר":status||""}
 function updateBulkSelectionUI(){
- const checked=$(".pick:checked"),all=$(".pick"),count=$("#bulkSelectionCount"),apply=$("#bulkApply"),selectAll=$("#selectAllProducts");
+ const checked=$$(".pick:checked"),all=$$(".pick"),count=$("#bulkSelectionCount"),apply=$("#bulkApply"),selectAll=$("#selectAllProducts");
  if(count)count.textContent=checked.length?checked.length+" מוצרים נבחרו":"לא נבחרו מוצרים";
  if(app)apply.disabled=checked.length===0;
  all.forEach(box=>box.closest("tr")?.classList.toggle("selected",box.checked));
@@ -181,7 +181,7 @@ function resetBulkFields(){
  ["bulkStatus","bulkCategory","bulkPrice","bulkStock"].forEach(id=>{const n=$("#"+id);if(n)n.value=""})
 }
 function bulk(){
- const ids=$(".pick:checked").map(x=>x.value);
+ const ids=$$(".pick:checked").map(x=>x.value);
  if(!ids.length){alert("סמן לפחות מוצר אחד בטבלה.");return}
  const st=$("#bulkStatus").value,cat=$("#bulkCategory").value,price=$("#bulkPrice").value,stock=$("#bulkStock").value;
  if(!st&&!cat&&price===""&&stock===""){alert("בחר לפחות שינוי אחד: סטטוס, קטגוריה, מחיר או מלאי.");return}
