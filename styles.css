@@ -936,3 +936,109 @@
 .admin-page #adminRows tr.selected td{
   border-bottom-color:#d8c6a7;
 }
+
+/* Products admin alignment + working bulk controls 20261001-44 */
+.admin-page .bulk-editor{
+  padding:20px;
+  border-radius:16px;
+}
+.admin-page .bulk-editor-head{
+  direction:rtl;
+  align-items:center;
+  margin-bottom:18px;
+}
+.admin-page .bulk-editor-head>div:first-child{
+  min-width:0;
+}
+.admin-page .bulk-editor-head .small{
+  margin-top:5px;
+  line-height:1.55;
+  color:var(--muted);
+}
+.admin-page .bulk-selection{
+  margin-inline-start:auto;
+  white-space:nowrap;
+}
+.admin-page .bulk-toolbar{
+  direction:rtl;
+  grid-template-columns:repeat(4,minmax(150px,1fr)) minmax(190px,auto);
+  gap:12px;
+}
+.admin-page .bulk-toolbar label{
+  min-width:0;
+  text-align:right;
+}
+.admin-page .bulk-toolbar input,
+.admin-page .bulk-toolbar select{
+  min-height:48px;
+  padding-inline:12px;
+  border-radius:10px;
+}
+.admin-page #bulkApply{
+  min-height:48px;
+  padding-inline:18px;
+  white-space:nowrap;
+  align-self:end;
+}
+.admin-page #bulkApply:not(:disabled){
+  opacity:1;
+  cursor:pointer;
+}
+.admin-page .products-table{
+  width:100%;
+  table-layout:fixed;
+  border-collapse:collapse;
+}
+.admin-page .products-table .col-pick{width:72px}
+.admin-page .products-table .col-image{width:92px}
+.admin-page .products-table .col-name{width:27%}
+.admin-page .products-table .col-category{width:14%}
+.admin-page .products-table .col-price{width:12%}
+.admin-page .products-table .col-stock{width:10%}
+.admin-page .products-table .col-status{width:12%}
+.admin-page .products-table .col-actions{width:220px}
+.admin-page .products-table th,
+.admin-page .products-table td{
+  vertical-align:middle;
+  text-align:right;
+  padding:14px 12px;
+}
+.admin-page .products-table th:first-child,
+.admin-page .products-table td:first-child,
+.admin-page .products-table th:nth-child(2),
+.admin-page .products-table td:nth-child(2),
+.admin-page .products-table th:last-child,
+.admin-page .products-table td:last-child{
+  text-align:center;
+}
+.admin-page .products-table .admin-thumb{
+  margin-inline:auto;
+}
+.admin-page .products-table .row-actions{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:nowrap;
+}
+.admin-page .products-table .row-actions button{
+  min-height:36px;
+  padding:7px 11px;
+  white-space:nowrap;
+}
+.admin-page #adminRows tr.selected{
+  box-shadow:inset -3px 0 0 #9b753c;
+}
+@media(max-width:1250px){
+  .admin-page .bulk-toolbar{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .admin-page .bulk-toolbar #bulkApply{
+    grid-column:1/-1;
+    width:100%;
+  }
+  .admin-page .products-table{
+    min-width:1050px;
+    table-layout:fixed;
+  }
+}
