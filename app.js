@@ -1,6 +1,11 @@
 function el(q){return document.querySelector(q)}
 function esc(s=""){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
 function money(n){return new Intl.NumberFormat("he-IL",{style:"currency",currency:"ILS",maximumFractionDigits:0}).format(Number(n||0))}
+function ensureRuntimeFavicon(){
+ let link=document.querySelector('link[rel~="icon"]');
+ if(!link){link=document.createElement("link");link.rel="icon";document.head.appendChild(link)}
+ link.type="image/png";link.sizes="32x32";link.href="assets/favicon.png?v=20261001-53";
+}
 function siteSettings(){return window.RomTechData?.loadSiteSettings?.()||{phone:"+359 87 985 8846",whatsapp:"359879858846",email:"info@romtech.co.il",footerLabels:{}}}
 function whatsappLink(message=""){
  const settings=siteSettings();
@@ -78,4 +83,4 @@ function renderCatalog(){
  const rows=all.filter(p=>(!q||[p.name,p.short,p.court,p.category,p.fur].join(" ").includes(q))&&(!cat||p.category===cat)&&(!court||p.court===court));
  root.innerHTML=rows.map(p=>'<article class="card">'+(p.images?.[0]?'<img src="'+p.images[0]+'" alt="'+esc(p.name)+'">':'<div class="ph" role="img" aria-label="'+esc(p.name)+'"></div>')+'<div class="card-body"><div>'+((p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(""))+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.short)+'</p><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><div class="small">מלאי: '+p.stock+' · '+esc(p.fur)+' · '+p.height+' ס״מ</div><div class="actions"><a class="btn" href="product.html?id='+encodeURIComponent(p.id)+'">לצפייה והזמנה</a><a class="btn secondary" target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">שאל ב-WhatsApp</a></div></div></article>').join("")||'<p>לא נמצאו מוצרים.</p>'
 }
-document.addEventListener("DOMContentLoaded",()=>{applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();setupHomeReviewForm();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview);el("#openReviewModal")?.addEventListener("click",openHomeReviewModal);el("#closeHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#cancelHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#homeReviewModal")?.addEventListener("click",e=>{if(e.target.id==="homeReviewModal")closeHomeReviewModal()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHomeReviewModal()})});
+document.addEventListener("DOMContentLoaded",()=>{ensureRuntimeFavicon();applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();setupHomeReviewForm();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview);el("#openReviewModal")?.addEventListener("click",openHomeReviewModal);el("#closeHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#cancelHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#homeReviewModal")?.addEventListener("click",e=>{if(e.target.id==="homeReviewModal")closeHomeReviewModal()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHomeReviewModal()})});

@@ -1,4 +1,9 @@
 (() => {
+function ensureAdminFavicon(){
+ let link=document.querySelector('link[rel~="icon"]');
+ if(!link){link=document.createElement("link");link.rel="icon";document.head.appendChild(link)}
+ link.type="image/png";link.sizes="32x32";link.href="../assets/favicon.png?v=20261001-53";
+}
 "use strict";
 const CREDENTIALS_KEY="rt_admin_credentials_v2";
 const SESSION_KEY="rt_admin_ok";
@@ -246,7 +251,7 @@ function deleteOrder(id){if(confirm("למחוק את ההזמנה?")){RomTechDat
 
 document.addEventListener("mousedown",e=>{const b=e.target.closest("[data-rich-command],[data-rich-block]");if(!b)return;e.preventDefault();runRichEditorAction(b)});
 document.addEventListener("input",e=>{if(e.target.matches("#settingsContentEditor"))$("#settingsContentBody").value=e.target.innerHTML;if(e.target.matches("#contentEditor"))$("#contentBody").value=e.target.innerHTML});
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded",()=>{ensureAdminFavicon();
  $("#adminSubmit")?.addEventListener("click",enterAdmin);["adminCode","adminPassword"].forEach(id=>$("#"+id)?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();enterAdmin()}}));$("#logoutBtn")?.addEventListener("click",logout);
  $$(".side-link[data-module]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.module)));$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
  $("#newBtn")?.addEventListener("click",()=>openModal());$('[data-action="new-product"]')?.addEventListener("click",()=>{go("products");openModal()});$("#closeModal")?.addEventListener("click",closeModal);$("#cancelModal")?.addEventListener("click",closeModal);$("#productForm")?.addEventListener("submit",saveProduct);$("#productImages")?.addEventListener("change",async e=>{await addImages(e.target.files);e.target.value=""});$("#bulkApply")?.addEventListener("click",bulk);$("#selectAllProducts")?.addEventListener("change",e=>{$(".pick").forEach(x=>x.checked=e.target.checked);updateBulkSelectionUI()});$("#importCsv")?.addEventListener("change",async e=>{const file=e.target.files?.[0];if(file)await importCsvFile(file);e.target.value=""});$("#exportCsv")?.addEventListener("click",exportCsv);$("#inventoryRefresh")?.addEventListener("click",renderInventory);$("#ordersRefresh")?.addEventListener("click",renderOrders);$("#reviewsRefresh")?.addEventListener("click",renderReviews);
