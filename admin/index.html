@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../styles.css?v=20261001-44">
+  <link rel="stylesheet" href="../styles.css?v=20261001-46">
 </head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
@@ -95,13 +95,13 @@
             </label>
             <label>מחיר חדש
               <input id="bulkPrice" class="field" type="number" min="0" placeholder="ללא שינוי">
-              <span class="small">מחליף את המחיר הקיים. לא יוצר מחיר ישן/מחיר מבצע.</span>
             </label>
             <label>מלאי
               <input id="bulkStock" class="field" type="number" min="0" placeholder="ללא שינוי">
             </label>
             <button class="btn" id="bulkApply" type="button" disabled>עדכן מוצרים נבחרים</button>
           </div>
+          <div class="bulk-price-note">מחיר חדש מחליף את המחיר הקיים של המוצר. הוא לא יוצר מחיר מבצע ולא שומר מחיר קודם.</div>
           <div id="bulkMessage" class="notice success" hidden></div>
         </div>
         <div class="table-wrap">
