@@ -46,7 +46,7 @@ function bindContact(){
    "הודעה:",
    message
   ].filter(Boolean);
-  const href=RomTechData.buildWhatsAppLink(settings.whatsapp,lines.join("\n"));
+  const href=RomTechData.buildWhatsAppLink(settings.whatsapp,lines.join("\n"),settings.phone);
   const notice=$("#contactSent");
   if(!href){
    if(notice){notice.textContent="לא הוגדר מספר WhatsApp באתר. ניתן לפנות באמצעות פרטי הקשר שמופיעים למעלה.";notice.hidden=false}
