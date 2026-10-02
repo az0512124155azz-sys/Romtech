@@ -66,8 +66,9 @@ function renderAll(){renderProducts();renderStats();renderInventory();renderRepo
 function updateWhatsAppPreview(){
  const input=$("#settingWhatsapp"),link=$("#settingWhatsappLink"),box=$("#settingWhatsappGenerated");
  if(!input||!link)return;
- const digits=RomTechData.normalizeWhatsAppNumber?RomTechData.normalizeWhatsAppNumber(input.value):input.value.replace(/\D/g,"");
- const href=RomTechData.buildWhatsAppLink?RomTechData.buildWhatsAppLink(digits):(digits?"https://wa.me/"+digits:"");
+ const phone=$("#settingPhone")?.value||RomTechData.loadSiteSettings().phone||"";
+ const digits=RomTechData.normalizeWhatsAppNumber?RomTechData.normalizeWhatsAppNumber(input.value,phone):input.value.replace(/\D/g,"");
+ const href=RomTechData.buildWhatsAppLink?RomTechData.buildWhatsAppLink(digits,"",phone):(digits?"https://api.whatsapp.com/send?phone="+digits:"");
  link.textContent=href||"יש להזין מספר WhatsApp עם קידומת מדינה";
  if(href){
   link.href=href;
@@ -89,10 +90,11 @@ function loadSettingsForm(){
 }
 function saveSiteSettings(){
  const input=$("#settingWhatsapp");
- const digits=RomTechData.normalizeWhatsAppNumber?RomTechData.normalizeWhatsAppNumber(input?.value||""):(input?.value||"").replace(/\D/g,"");
+ const phone=$("#settingPhone")?.value.trim()||"";
+ const digits=RomTechData.normalizeWhatsAppNumber?RomTechData.normalizeWhatsAppNumber(input?.value||"",phone):(input?.value||"").replace(/\D/g,"");
  if(digits.length<8||digits.length>15){alert("מספר WhatsApp חייב לכלול קידומת מדינה ולהכיל 8–15 ספרות.");return}
  const s=RomTechData.loadSiteSettings();
- s.phone=$("#settingPhone").value.trim();
+ s.phone=phone;
  s.whatsapp=digits;
  s.email=$("#settingEmail").value.trim();
  const saved=RomTechData.saveSiteSettings(s);
