@@ -2,7 +2,7 @@
 function ensureAdminFavicon(){
  let link=document.querySelector('link[rel~="icon"]');
  if(!link){link=document.createElement("link");link.rel="icon";document.head.appendChild(link)}
- link.type="image/png";link.sizes="64x64";link.href="../assets/favicon.png?v=20261002-55";
+ link.type="image/svg+xml";link.removeAttribute("sizes");link.href="../assets/favicon.svg?v=20261002-56";
 }
 "use strict";
 const CREDENTIALS_KEY="rt_admin_credentials_v2";
