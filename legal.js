@@ -28,7 +28,36 @@ function bindCookies(){
 
 function bindContact(){
  const form=$("#contactForm");if(!form)return;
- form.addEventListener("submit",e=>{e.preventDefault();const m=$("#contactSent");m.hidden=false;form.reset();setTimeout(()=>m.hidden=true,3500)})
+ form.addEventListener("submit",e=>{
+  e.preventDefault();
+  const name=$("#contactName")?.value.trim()||"";
+  const phone=$("#contactPhone")?.value.trim()||"";
+  const email=$("#contactEmail")?.value.trim()||"";
+  const message=$("#contactMessage")?.value.trim()||"";
+  if(!name||!phone||!message)return;
+  const settings=RomTechData.loadSiteSettings();
+  const lines=[
+   "שלום, פנייה חדשה מאתר RomTech:",
+   "",
+   "שם: "+name,
+   "טלפון: "+phone,
+   email?"אימייל: "+email:"",
+   "",
+   "הודעה:",
+   message
+  ].filter(Boolean);
+  const href=RomTechData.buildWhatsAppLink(settings.whatsapp,lines.join("\n"));
+  const notice=$("#contactSent");
+  if(!href){
+   if(notice){notice.textContent="לא הוגדר מספר WhatsApp באתר. ניתן לפנות באמצעות פרטי הקשר שמופיעים למעלה.";notice.hidden=false}
+   return
+  }
+  if(notice){notice.textContent="פותח WhatsApp עם ההודעה שלך...";notice.hidden=false}
+  const win=window.open(href,"_blank","noopener");
+  if(!win)location.href=href;
+  form.reset();
+  setTimeout(()=>{if(notice)notice.hidden=true},3500)
+ })
 }
 
 document.addEventListener("DOMContentLoaded",()=>{renderManagedPage();bindCookies();bindContact()});
