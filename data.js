@@ -80,10 +80,12 @@ function normalizeWhatsAppNumber(value,referencePhone=""){
  if(digits.startsWith("9720"))digits="972"+digits.slice(4);
 
  const cc=inferWhatsAppCountryCode(referencePhone);
- if(digits.startsWith("0")){
-  if(cc)digits=cc+digits.slice(1);
-  else if(/^05\d{8}$/.test(digits))digits="972"+digits.slice(1);
-  else if(/^08\d{8}$/.test(digits))digits="359"+digits.slice(1)
+ if(/^05\d{8}$/.test(digits)){
+  digits="972"+digits.slice(1)
+ }else if(/^08\d{8}$/.test(digits)){
+  digits="359"+digits.slice(1)
+ }else if(digits.startsWith("0")){
+  if(cc)digits=cc+digits.slice(1)
  }else if(cc==="359"&&/^8\d{8}$/.test(digits)){
   digits="359"+digits
  }else if(cc==="972"&&/^5\d{8}$/.test(digits)){
@@ -94,9 +96,8 @@ function normalizeWhatsAppNumber(value,referencePhone=""){
 function buildWhatsAppLink(number,message="",referencePhone=""){
  const digits=normalizeWhatsAppNumber(number,referencePhone);
  if(!/^\d{8,15}$/.test(digits))return "";
- const params=new URLSearchParams({phone:digits});
- if(message)params.set("text",message);
- return "https://api.whatsapp.com/send?"+params.toString()
+ const base="https://wa.me/"+digits;
+ return message?base+"?text="+encodeURIComponent(message):base
 }
 function read(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return v??fallback}catch{return fallback}}
 function write(key,value){localStorage.setItem(key,JSON.stringify(value))}
