@@ -53,9 +53,8 @@ function bindContact(){
    return
   }
   if(notice){notice.textContent="פותח WhatsApp עם ההודעה שלך...";notice.hidden=false}
-  const win=window.open(href,"_blank","noopener");
-  if(!win)location.href=href;
   form.reset();
+  location.assign(href);
   setTimeout(()=>{if(notice)notice.hidden=true},3500)
  })
 }
