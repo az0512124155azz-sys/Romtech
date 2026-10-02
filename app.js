@@ -9,7 +9,7 @@ function ensureRuntimeFavicon(){
 function siteSettings(){return window.RomTechData?.loadSiteSettings?.()||{phone:"+359 87 985 8846",whatsapp:"359879858846",email:"info@romtech.co.il",footerLabels:{}}}
 function whatsappLink(message=""){
  const settings=siteSettings();
- if(window.RomTechData?.buildWhatsAppLink)return RomTechData.buildWhatsAppLink(settings.whatsapp,message);
+ if(window.RomTechData?.buildWhatsAppLink)return RomTechData.buildWhatsAppLink(settings.whatsapp,message,settings.phone);
  const digits=String(settings.whatsapp||"").replace(/\D/g,"");
  return digits?("https://wa.me/"+digits+(message?"?text="+encodeURIComponent(message):"")):""
 }
