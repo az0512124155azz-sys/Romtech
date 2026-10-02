@@ -55,16 +55,48 @@ const DEFAULT_LEGAL_CONTENT={
   }
 };
 
-function normalizeWhatsAppNumber(value){
- let digits=String(value||"").replace(/\D/g,"");
+function inferWhatsAppCountryCode(referencePhone=""){
+ const ref=String(referencePhone||"").trim();
+ const digits=ref.replace(/\D/g,"");
+ if(ref.startsWith("+359")||digits.startsWith("359"))return "359";
+ if(ref.startsWith("+972")||digits.startsWith("972"))return "972";
+ return ""
+}
+function normalizeWhatsAppNumber(value,referencePhone=""){
+ let raw=String(value||"").trim();
+ if(!raw)return "";
+ try{
+  if(/^https?:\/\//i.test(raw)){
+   const u=new URL(raw);
+   const q=u.searchParams.get("phone");
+   raw=q||u.pathname.split("/").filter(Boolean).pop()||raw
+  }
+ }catch{}
+ let digits=raw.replace(/\D/g,"");
  if(digits.startsWith("00"))digits=digits.slice(2);
+
+ // Fix common trunk-prefix mistakes after an international code.
+ if(digits.startsWith("3590"))digits="359"+digits.slice(4);
+ if(digits.startsWith("9720"))digits="972"+digits.slice(4);
+
+ const cc=inferWhatsAppCountryCode(referencePhone);
+ if(digits.startsWith("0")){
+  if(cc)digits=cc+digits.slice(1);
+  else if(/^05\d{8}$/.test(digits))digits="972"+digits.slice(1);
+  else if(/^08\d{8}$/.test(digits))digits="359"+digits.slice(1)
+ }else if(cc==="359"&&/^8\d{8}$/.test(digits)){
+  digits="359"+digits
+ }else if(cc==="972"&&/^5\d{8}$/.test(digits)){
+  digits="972"+digits
+ }
  return digits
 }
-function buildWhatsAppLink(number,message=""){
- const digits=normalizeWhatsAppNumber(number);
- if(!digits)return "";
- const base="https://wa.me/"+digits;
- return message?base+"?text="+encodeURIComponent(message):base
+function buildWhatsAppLink(number,message="",referencePhone=""){
+ const digits=normalizeWhatsAppNumber(number,referencePhone);
+ if(!/^\d{8,15}$/.test(digits))return "";
+ const params=new URLSearchParams({phone:digits});
+ if(message)params.set("text",message);
+ return "https://api.whatsapp.com/send?"+params.toString()
 }
 function read(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return v??fallback}catch{return fallback}}
 function write(key,value){localStorage.setItem(key,JSON.stringify(value))}
@@ -77,14 +109,14 @@ function saveReviews(items){write("romtech_reviews",items)}
 function loadSiteSettings(){
  const saved=read("romtech_site_settings",{});
  const merged={...DEFAULT_SITE_SETTINGS,...saved,footerLabels:{...DEFAULT_SITE_SETTINGS.footerLabels,...(saved.footerLabels||{})}};
- merged.whatsapp=normalizeWhatsAppNumber(merged.whatsapp);
- merged.whatsappUrl=buildWhatsAppLink(merged.whatsapp);
+ merged.whatsapp=normalizeWhatsAppNumber(merged.whatsapp,merged.phone);
+ merged.whatsappUrl=buildWhatsAppLink(merged.whatsapp,"",merged.phone);
  return merged
 }
 function saveSiteSettings(settings){
  const next={...DEFAULT_SITE_SETTINGS,...settings,footerLabels:{...DEFAULT_SITE_SETTINGS.footerLabels,...(settings.footerLabels||{})}};
- next.whatsapp=normalizeWhatsAppNumber(next.whatsapp);
- next.whatsappUrl=buildWhatsAppLink(next.whatsapp);
+ next.whatsapp=normalizeWhatsAppNumber(next.whatsapp,next.phone);
+ next.whatsappUrl=buildWhatsAppLink(next.whatsapp,"",next.phone);
  write("romtech_site_settings",next);
  return next
 }
