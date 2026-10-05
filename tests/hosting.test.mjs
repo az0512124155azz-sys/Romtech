@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { webHandler } from '../server/web-handler.mjs';
 import { createApp } from '../server/app.mjs';
+import { execFileSync } from 'node:child_process';
 test('web hosting adapter preserves origin, cookies, response and redirects',async()=>{
   const handler=webHandler(async(req,res)=>{
     assert.equal(req.headers.origin,'https://site.test');assert.equal(req.body.password,'secret');assert.equal(req.socket.remoteAddress,'1.2.3.4');
@@ -15,6 +16,10 @@ test('web hosting adapter preserves origin, cookies, response and redirects',asy
 });
 test('public output contains no backend, environment files or test credentials',async()=>{
   await import('../scripts/build.mjs');
+  // Match serverless runtimes that explicitly disable CommonJS require(esm).
+  execFileSync(process.execPath, ['--no-experimental-require-module', '--input-type=module', '-e',
+    "import handler from './api/romtech.js'; const headers={}; let body; const res={setHeader(k,v){headers[k]=v},end(v){body=v}}; await handler({url:'/api/romtech?action=config',method:'GET',headers:{},socket:{}},res); if(res.statusCode!==200 || JSON.parse(body).mode!=='local') throw new Error(body);"
+  ], { env: Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('ROMTECH_') && !key.startsWith('SUPABASE_') && !key.startsWith('UPSTASH_'))) });
   const files=await readdir('dist');
   for(const privateName of ['server','api','tests','scripts','node_modules','.env.example','.env.local','package.json','netlify','docs'])assert.ok(!files.includes(privateName),privateName);
   for(const name of files.filter(f=>/\.(js|html)$/.test(f))) {

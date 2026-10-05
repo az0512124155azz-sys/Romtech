@@ -1,7 +1,7 @@
 let handler;
 export default async function romtech(req, res) {
   try {
-    handler ||= import('../server/app.mjs').then(module => module.createApp());
+    handler ||= import('../server/runtime.mjs').then(module => module.createApp());
     await (await handler)(req, res);
   } catch (error) {
     handler = undefined;
