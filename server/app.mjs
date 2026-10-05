@@ -7,6 +7,11 @@ import { patch, clean, text, id } from './validation.mjs';
 const REQUIRED = ['ROMTECH_ORIGIN','ROMTECH_STORE_PREFIX','UPSTASH_REDIS_REST_URL','UPSTASH_REDIS_REST_TOKEN','ROMTECH_ENCRYPTION_KEY','ROMTECH_OWNER_PASSWORD_HASH'];
 const OAUTH = ['SUPABASE_OAUTH_CLIENT_ID','SUPABASE_OAUTH_CLIENT_SECRET'];
 export function createApp({ env = process.env, store: injectedStore, supabase = provider() } = {}) {
+  env = {
+    ...env,
+    UPSTASH_REDIS_REST_URL: env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL,
+    UPSTASH_REDIS_REST_TOKEN: env.UPSTASH_REDIS_REST_TOKEN || env.KV_REST_API_TOKEN
+  };
   let cachedStore;
   const ready = () => REQUIRED.every(k => !!env[k]);
   const oauthReady = () => OAUTH.every(k => !!env[k]);

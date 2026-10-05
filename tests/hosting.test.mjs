@@ -27,3 +27,15 @@ test('public output contains no backend, environment files or test credentials',
     assert.ok(!/sb_secret_|management-private-test|oauth-private-test|ROMTECH_ENCRYPTION_KEY/.test(text),name);
   }
 });
+test('Vercel Upstash integration variable names are accepted automatically',async()=>{
+  const app=createApp({store:{get:async()=>null},env:{
+    ROMTECH_ORIGIN:'https://site.test',ROMTECH_STORE_PREFIX:'alias-test',
+    KV_REST_API_URL:'https://store.invalid',KV_REST_API_TOKEN:'token',
+    ROMTECH_ENCRYPTION_KEY:Buffer.alloc(32,7).toString('base64'),
+    ROMTECH_OWNER_PASSWORD_HASH:'salt:'+''.padEnd(128,'0')
+  }});
+  const req={url:'/api/romtech?action=config',method:'GET',headers:{},socket:{}};
+  let body='';const res={statusCode:200,setHeader(){},end(value){body=value}};
+  await app(req,res);
+  assert.equal(JSON.parse(body).serverReady,true);
+});

@@ -26,8 +26,8 @@
    |---|---|
    | `ROMTECH_ORIGIN` | מקור HTTPS הקבוע של האתר, ללא נתיב |
    | `ROMTECH_STORE_PREFIX` | מזהה ייחודי להתקנה ולסביבה, למשל `romtech-production` |
-   | `UPSTASH_REDIS_REST_URL` | כתובת REST של Redis |
-   | `UPSTASH_REDIS_REST_TOKEN` | סוד הגישה ל־Redis |
+   | `UPSTASH_REDIS_REST_URL` | כתובת REST של Redis; אופציונלי אם Vercel יצר `KV_REST_API_URL` |
+   | `UPSTASH_REDIS_REST_TOKEN` | סוד הגישה ל־Redis; אופציונלי אם Vercel יצר `KV_REST_API_TOKEN` |
    | `ROMTECH_ENCRYPTION_KEY` | מפתח ההצפנה |
    | `ROMTECH_OWNER_PASSWORD_HASH` | תוצאת הכלי ליצירת סיסמה |
    | `SUPABASE_OAUTH_CLIENT_ID` | מזהה אפליקציית OAuth |
