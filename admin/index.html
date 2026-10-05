@@ -135,8 +135,14 @@
       </section>
 
       <section class="admin-module" data-panel="customers">
-        <h2>לקוחות</h2>
-        <div class="empty-state"><b>עדיין אין מסד לקוחות מחובר</b><p>המודול מוכן למידע אמיתי לאחר חיבור Backend.</p></div>
+        <div class="module-head">
+          <div>
+            <h2>לקוחות</h2>
+            <div class="small">הרשימה נוצרת אוטומטית מהזמנות שבוצעו באתר.</div>
+          </div>
+          <button class="btn secondary" id="customersRefresh" type="button">רענן</button>
+        </div>
+        <div id="customersList" class="customers-list"></div>
       </section>
 
       <section class="admin-module" data-panel="content">
