@@ -1,0 +1,17 @@
+.cloud-notice{position:sticky;top:0;z-index:1000;background:#fff3d6;color:#49380d;padding:12px 20px;text-align:center;border-bottom:1px solid #d7bc6b;font:500 15px/1.6 Arial,sans-serif}
+.cloud-notice[hidden]{display:none}
+.connection-card{max-width:850px;display:grid;gap:18px}
+.connection-card h2,.connection-card h3,.connection-card p{margin:0}
+.connection-card label{display:grid;gap:7px}
+.connection-card label.consent{display:flex;align-items:flex-start;gap:10px}
+.connection-card label.consent input{width:auto;margin-top:5px}
+.connection-card button:disabled{opacity:.55;cursor:not-allowed}
+.connection-card .connection-status{padding:16px;background:#f1f6f2;border:1px solid #cfdfd3;border-radius:10px;line-height:1.7;min-height:58px}
+.connection-card .connection-status.error-text{background:#fff1f0;border-color:#e7b9b5;color:#862921}
+.connection-card .connection-project{font-weight:700;overflow-wrap:anywhere}
+.connection-card .connection-steps{display:flex;gap:18px;flex-wrap:wrap;padding:0;list-style-position:inside;color:#53665b}
+.connection-card details{border:1px solid #ddd;border-radius:10px;padding:14px}
+.connection-card details[open] summary{margin-bottom:14px}
+.connection-card .connection-section{display:grid;gap:14px;border-top:1px solid #ddd;padding-top:18px}
+.connection-card [hidden]{display:none!important}
+.connection-card .muted{color:#666;font-size:14px;line-height:1.7}

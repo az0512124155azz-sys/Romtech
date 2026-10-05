@@ -6,7 +6,7 @@
   <title>פאנל ניהול | RomTech</title>
   <link rel="icon" href="../assets/favicon.svg?v=20261002-56" type="image/svg+xml">
   <link rel="stylesheet" href="../styles.css?v=20261005-57">
-</head>
+<link rel="stylesheet" href="../connection.css?v=20261005-cloud-1"></head>
 <body class="admin-page">
   <div id="adminGate" class="admin-gate">
     <div class="login-card admin-login-simple">
@@ -14,8 +14,8 @@
       <h1>כניסה לניהול</h1>
       <p id="adminGateText">הזן קוד מנהל כדי להיכנס.</p>
       <div class="admin-login-fields">
-        <input id="adminCode" type="text" autocomplete="username" placeholder="קוד מנהל" value="1234">
-        <input id="adminPassword" type="password" autocomplete="current-password" placeholder="סיסמה" value="1234">
+        <input id="adminCode" type="text" autocomplete="username" placeholder="קוד מנהל">
+        <input id="adminPassword" type="password" autocomplete="current-password" placeholder="סיסמה">
         <button class="btn" id="adminSubmit" type="button">כניסה</button>
         <button class="admin-reset-link" id="resetLocalPassword" type="button" hidden>איפוס הקוד בדפדפן הזה</button>
         <p id="loginError" class="error-text" hidden></p>
@@ -38,7 +38,7 @@
         <button class="side-link" data-module="reviews">ביקורות</button>
         
         <button class="side-link" data-module="reports">דוחות</button>
-        <button class="side-link" data-module="settings">הגדרות</button>
+        <button class="side-link" data-module="settings">הגדרות</button><button class="side-link" data-module="connection">חבר Supabase</button>
       </nav>
       <hr>
       <a href="../index.html">חזרה לאתר</a>
@@ -244,7 +244,7 @@
             <div class="notice success" id="siteSettingsSaved" hidden>פרטי הקשר נשמרו.</div>
           </div><div class="card card-body settings-card settings-credentials-card">
             <h3>קוד וסיסמת ניהול</h3>
-            <label>קוד חדש<input id="settingAdminCode" autocomplete="off"></label>
+            <label id="credentialCodeLabel">קוד מקומי חדש<input id="settingAdminCode" autocomplete="off"></label><label id="currentPasswordLabel" hidden>סיסמה נוכחית<input id="settingCurrentPassword" type="password" autocomplete="current-password"></label>
             <label>סיסמה חדשה<input id="settingAdminPassword" type="password" autocomplete="new-password"></label>
             <label>אימות סיסמה חדשה<input id="settingAdminPasswordConfirm" type="password" autocomplete="new-password"></label>
             <button class="btn" id="saveAdminCredentials" type="button">שמור קוד וסיסמה</button>
@@ -253,6 +253,36 @@
           
           
           
+        </div>
+      </section>
+
+      <section class="admin-module" data-panel="connection" id="connectionPanel">
+        <div class="card card-body connection-card">
+          <h2>חיבור Supabase</h2>
+          <p>חבר את חשבון Supabase שלך כדי לנהל נתונים ותמונות משותפים לכל המכשירים.</p>
+          <ol class="connection-steps"><li>התחברות לחשבון</li><li>בחירת פרויקט</li><li>הגדרה ובדיקה</li><li>הפעלת החיבור</li></ol>
+          <p class="connection-project" id="connectionProject">טוען מצב חיבור…</p>
+          <div id="connectionStatus" class="connection-status" role="status" aria-live="polite">החיבור יכין אוטומטית את מסד הנתונים, ההרשאות ואחסון התמונות של RomTech.</div>
+          <p id="connectionSetupHelp" class="muted">החיבור עדיין אינו זמין. בעל האתר צריך להשלים פעם אחת את הגדרת השרת ואפליקציית OAuth לפי מדריך ההתקנה המצורף לפרויקט. לאחר מכן הלקוחות יתחברו כאן לחשבון שלהם.</p>
+          <div class="actions"><button type="button" class="btn" id="connectSupabase" disabled>חבר Supabase</button></div>
+          <div id="projectChooser" class="connection-section" hidden>
+            <label>פרויקט קיים<select id="supabaseProject"></select></label>
+            <div class="actions"><button type="button" class="btn" id="setupProject">הכן את הפרויקט</button><button type="button" class="btn secondary" id="refreshProjects">רענן פרויקטים</button></div>
+            <details><summary>יצירת פרויקט חדש</summary>
+              <label>ארגון<select id="supabaseOrganization"></select></label>
+              <label>שם הפרויקט<input id="newProjectName" value="RomTech" maxlength="80"></label>
+              <p class="muted">הפרויקט יוקם באזור אירופה / המזרח התיכון בהתאם לזמינות. המכסה והחיוב נקבעים לפי תוכנית הארגון שלך ב־Supabase. לא יושהה או יימחק פרויקט אחר.</p>
+              <label class="consent"><input type="checkbox" id="projectCostConsent">אני מאשר יצירת פרויקט לפי תנאי ומכסת החשבון שלי.</label>
+              <button type="button" class="btn secondary" id="createProject">צור פרויקט</button>
+            </details>
+          </div>
+          <button type="button" class="btn" id="activateProject" hidden>הפעל חיבור לפרויקט שנבדק</button>
+          <div id="connectionActions" class="connection-section" hidden>
+            <div class="actions"><button type="button" class="btn secondary" id="checkConnection">בדוק תקינות</button><button type="button" class="btn secondary" id="disconnectSupabase">נתק פרויקט</button></div>
+            <h3>העברה ראשונית מהדפדפן</h3><p id="migrationSummary" class="muted"></p>
+            <p class="muted">הפעל את ההעברה במכשיר שבו נשמרו הנתונים המקוריים. גם התמונות יועברו לאחסון. סיסמאות מקומיות והעדפות גלישה אינן מועברות. אם ההעברה נעצרת, אפשר להפעיל אותה שוב.</p>
+            <button type="button" class="btn secondary" id="migrateLocal">העבר נתונים מקומיים</button>
+          </div>
         </div>
       </section>
     </main>
@@ -306,7 +336,7 @@
     </div>
   </div>
 
-  <script src="../data.js?v=20261002-56"></script>
-  <script src="../admin.js?v=20261005-58"></script>
+  <script src="../data.js?v=20261002-56"></script><script src="../cloud.js?v=20261005-cloud-1"></script>
+  <script src="../admin.js?v=20261005-cloud-1"></script><script src="../connection.js?v=20261005-cloud-1"></script>
 </body>
 </html>

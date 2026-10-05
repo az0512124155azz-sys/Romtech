@@ -105,22 +105,22 @@ function closeHomeReviewModal(){
  modal?.classList.remove("open");
  modal?.setAttribute("aria-hidden","true")
 }
-function submitHomeReview(event){
+async function submitHomeReview(event){
+ const form=event.currentTarget;
  event.preventDefault();
  const productId=el("#homeReviewProduct").value,product=RomTechData.loadProducts().find(p=>p.id===productId);
  if(!product)return;
- const review={id:"rev-"+Date.now(),productId,productName:product.name,name:el("#homeReviewName").value.trim(),rating:Number(el("#homeReviewRating").value||5),text:el("#homeReviewText").value.trim(),status:"pending",createdAt:new Date().toISOString()};
+ const review={id:form.dataset.requestId||(form.dataset.requestId=RomTechData.newId('rev')),productId,productName:product.name,name:el("#homeReviewName").value.trim(),rating:Number(el("#homeReviewRating").value||5),text:el("#homeReviewText").value.trim(),status:"pending",createdAt:new Date().toISOString()};
  if(!review.name||!review.text)return;
- const rows=RomTechData.loadReviews?.()||[];
- rows.unshift(review);
- RomTechData.saveReviews(rows);
- event.currentTarget.reset();
- const m=el("#homeReviewMessage");if(m){m.textContent="תודה! הביקורת נשלחה לאישור.";m.hidden=false}setTimeout(closeHomeReviewModal,1200)
+ await RomTechData.submitReview({...review,status:"approved"});
+ form.reset();delete form.dataset.requestId;
+ const m=el("#homeReviewMessage");if(m){m.textContent="תודה! הביקורת פורסמה באתר.";m.hidden=false}setTimeout(closeHomeReviewModal,1200)
 }
 function renderCatalog(){
  const root=el("#catalog");if(!root)return;
  const all=RomTechData.loadProducts().filter(x=>x.status==="published"),q=(el("#search")?.value||"").trim(),cat=el("#category")?.value||"",court=el("#court")?.value||"";
  const rows=all.filter(p=>(!q||[p.name,p.short,p.court,p.category,p.fur].join(" ").includes(q))&&(!cat||p.category===cat)&&(!court||p.court===court));
- root.innerHTML=rows.map(p=>'<article class="card">'+(p.images?.[0]?'<img src="'+p.images[0]+'" alt="'+esc(p.name)+'">':'<div class="ph" role="img" aria-label="'+esc(p.name)+'"></div>')+'<div class="card-body"><div>'+((p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(""))+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.short)+'</p><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><div class="small">מלאי: '+p.stock+' · '+esc(p.fur)+' · '+p.height+' ס״מ</div><div class="actions"><a class="btn" href="product.html?id='+encodeURIComponent(p.id)+'">לצפייה והזמנה</a><a class="btn secondary" target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">שאל ב-WhatsApp</a></div></div></article>').join("")||'<p>לא נמצאו מוצרים.</p>'
+ root.innerHTML=rows.map(p=>'<article class="card">'+(p.images?.[0]?'<img src="'+esc(p.images[0])+'" alt="'+esc(p.name)+'">':'<div class="ph" role="img" aria-label="'+esc(p.name)+'"></div>')+'<div class="card-body"><div>'+((p.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join(""))+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.short)+'</p><div class="price">'+money(p.salePrice||p.price)+(p.salePrice?'<span class="old">'+money(p.price)+'</span>':"")+'</div><div class="small">מלאי: '+p.stock+' · '+esc(p.fur)+' · '+p.height+' ס״מ</div><div class="actions"><a class="btn" href="product.html?id='+encodeURIComponent(p.id)+'">לצפייה והזמנה</a><a class="btn secondary" target="_blank" rel="noopener" href="'+esc(whatsappLink("שלום, אשמח לפרטים על "+p.name))+'">שאל ב-WhatsApp</a></div></div></article>').join("")||'<p>לא נמצאו מוצרים.</p>'
 }
-document.addEventListener("DOMContentLoaded",()=>{ensureRuntimeFavicon();applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();setupHomeReviewForm();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview);el("#openReviewModal")?.addEventListener("click",openHomeReviewModal);el("#closeHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#cancelHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#homeReviewModal")?.addEventListener("click",e=>{if(e.target.id==="homeReviewModal")closeHomeReviewModal()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHomeReviewModal()})});
+document.addEventListener("DOMContentLoaded",async ()=>{await RomTechData.ready;ensureRuntimeFavicon();applySiteSettings();injectGlobal();["search","category","court"].forEach(id=>el("#"+id)?.addEventListener("input",renderCatalog));renderCatalog();setupHomeReviewForm();el("#homeReviewSubmit")?.addEventListener("submit",submitHomeReview);el("#openReviewModal")?.addEventListener("click",openHomeReviewModal);el("#closeHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#cancelHomeReviewModal")?.addEventListener("click",closeHomeReviewModal);el("#homeReviewModal")?.addEventListener("click",e=>{if(e.target.id==="homeReviewModal")closeHomeReviewModal()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeHomeReviewModal()})});
+window.addEventListener("romtech-data-changed",()=>{applySiteSettings();renderCatalog()});

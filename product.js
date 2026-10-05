@@ -7,7 +7,7 @@ const imagesOf=p=>Array.isArray(p.images)?p.images.filter(Boolean):[];
 function renderGallery(product){
  const images=imagesOf(product);
  if(!images.length)return '<div class="product-gallery"><div class="ph product-main-image" role="img" aria-label="'+esc(product.name)+'"></div></div>';
- const slides=images.map((src,i)=>'<div class="product-slide" data-slide-index="'+i+'"><img src="'+src+'" draggable="false" alt="'+esc(product.name)+' — תמונה '+(i+1)+'"></div>').join("");
+ const slides=images.map((src,i)=>'<div class="product-slide" data-slide-index="'+i+'"><img src="'+esc(src)+'" draggable="false" alt="'+esc(product.name)+' — תמונה '+(i+1)+'"></div>').join("");
  const dots=images.length>1?'<div class="product-dots" dir="rtl" aria-label="בחירת תמונה">'+images.map((_,i)=>'<button class="product-dot '+(i===0?"active":"")+'" type="button" data-gallery-index="'+i+'" aria-label="תמונה '+(i+1)+'" aria-current="'+(i===0?"true":"false")+'"></button>').join("")+'</div>':"";
  return '<div class="product-gallery"><div class="product-slider" id="productSlider" tabindex="0" aria-label="גלריית תמונות מוצר"><div class="product-slider-track" id="productSliderTrack">'+slides+'</div></div>'+dots+'</div>'
 }
@@ -90,24 +90,24 @@ function renderProduct(product){
 }
 function openOrder(){if(!currentProduct)return;$("#orderProductId").value=currentProduct.id;$("#orderProductTitle").textContent="הזמנת "+currentProduct.name;$("#orderSummary").innerHTML='<strong>'+esc(currentProduct.name)+'</strong><span>'+money(currentProduct.salePrice||currentProduct.price)+'</span>';$("#orderMessage").hidden=true;$("#orderModal").classList.add("open");$("#orderModal").setAttribute("aria-hidden","false");setTimeout(()=>$("#orderName")?.focus(),0)}
 function closeOrder(){$("#orderModal")?.classList.remove("open");$("#orderModal")?.setAttribute("aria-hidden","true")}
-function submitReview(e){
+async function submitOrder(e){
  e.preventDefault();if(!currentProduct)return;
- const name=$("#reviewName").value.trim(),text=$("#reviewText").value.trim(),rating=Number($("#reviewRating").value||5);
- if(!name||!text)return;
- const reviews=RomTechData.loadReviews();
- reviews.unshift({id:"rev-"+Date.now(),productId:currentProduct.id,productName:currentProduct.name,name,rating,text,status:"approved",createdAt:new Date().toISOString()});
- RomTechData.saveReviews(reviews);
- e.currentTarget.reset();
- const m=$("#reviewMessage");m.textContent="תודה! הביקורת פורסמה באתר.";m.hidden=false
+ const form=e.currentTarget;if(form.dataset.saving)return;form.dataset.saving='1';
+ const button=form.querySelector('button[type="submit"]');if(button)button.disabled=true;
+ const order={id:form.dataset.requestId||(form.dataset.requestId=RomTechData.newId('ord')),productId:currentProduct.id,customerName:$("#orderName").value.trim(),phone:$("#orderPhone").value.trim(),email:$("#orderEmail").value.trim(),city:$("#orderCity").value.trim(),address:$("#orderAddress").value.trim(),notes:$("#orderNotes").value.trim(),privacyConsent:$("#orderPrivacy").checked};
+ try{await RomTechData.submitOrder(order);const m=$("#orderMessage");m.textContent="ההזמנה התקבלה! מספר הזמנה: "+order.id+". נציג יחזור אליך לאישור.";m.hidden=false;form.reset();delete form.dataset.requestId;$("#orderProductId").value=currentProduct.id}
+ catch(error){const m=$("#orderMessage");m.textContent=error.message;m.hidden=false}
+ finally{delete form.dataset.saving;if(button)button.disabled=false}
 }
-function submitOrder(e){e.preventDefault();if(!currentProduct)return;const order={id:"ord-"+Date.now(),productId:currentProduct.id,productName:currentProduct.name,price:Number(currentProduct.salePrice||currentProduct.price||0),customerName:$("#orderName").value.trim(),phone:$("#orderPhone").value.trim(),email:$("#orderEmail").value.trim(),city:$("#orderCity").value.trim(),address:$("#orderAddress").value.trim(),notes:$("#orderNotes").value.trim(),status:"new",createdAt:new Date().toISOString()};const orders=RomTechData.loadOrders();orders.unshift(order);RomTechData.saveOrders(orders);const m=$("#orderMessage");m.textContent="ההזמנה התקבלה! מספר הזמנה: "+order.id+". נציג יחזור אליך לאישור.";m.hidden=false;$("#orderForm").reset();$("#orderProductId").value=currentProduct.id}
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded",async ()=>{await RomTechData.ready;
  const id=new URLSearchParams(location.search).get("id"),product=RomTechData.loadProducts().find(x=>x.id===id);
  if(!product){$("#productView").innerHTML="<h1>המוצר לא נמצא</h1>";return}
+ if(product.status!=='published'){$("#productView").textContent='המוצר לא נמצא';return}
  renderProduct(product);
+ window.addEventListener('romtech-data-changed',()=>{const fresh=RomTechData.loadProducts().find(x=>x.id===id&&x.status==='published');if(fresh)renderProduct(fresh);else{$("#productView").textContent='המוצר אינו זמין';currentProduct=null;closeOrder()}});
  document.addEventListener("click",e=>{const dot=e.target.closest("[data-gallery-index]");if(dot){setImage(Number(dot.dataset.galleryIndex));return}if(e.target.closest("#buyNow"))openOrder()});
- $("#reviewForm")?.addEventListener("submit",submitReview);$("#closeOrderModal")?.addEventListener("click",closeOrder);$("#cancelOrder")?.addEventListener("click",closeOrder);$("#orderForm")?.addEventListener("submit",submitOrder);$("#orderModal")?.addEventListener("click",e=>{if(e.target.id==="orderModal")closeOrder()});
+ $("#closeOrderModal")?.addEventListener("click",closeOrder);$("#cancelOrder")?.addEventListener("click",closeOrder);$("#orderForm")?.addEventListener("submit",submitOrder);$("#orderModal")?.addEventListener("click",e=>{if(e.target.id==="orderModal")closeOrder()});
  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeOrder()})
 });
 })();

@@ -34,7 +34,8 @@ function fillProducts(){
  const requested=new URLSearchParams(location.search).get("product");
  if(requested&&products.some(p=>p.id===requested))select.value=requested
 }
-function submitReview(e){
+async function submitReview(e){
+ const form=e.currentTarget;
  e.preventDefault();
  const productId=$("#publicReviewProduct").value;
  const product=RomTechData.loadProducts().find(p=>p.id===productId);
@@ -42,9 +43,8 @@ function submitReview(e){
  const text=$("#publicReviewText").value.trim();
  const rating=Number($("#publicReviewRating").value||5);
  if(!product||!name||!text)return;
- const rows=RomTechData.loadReviews?.()||[];
- rows.unshift({
-  id:"rev-"+Date.now(),
+ const record={
+  id:form.dataset.requestId||(form.dataset.requestId=RomTechData.newId('rev')),
   productId:product.id,
   productName:product.name,
   name,
@@ -52,16 +52,17 @@ function submitReview(e){
   text,
   status:"approved",
   createdAt:new Date().toISOString()
- });
- RomTechData.saveReviews(rows);
- e.currentTarget.reset();
+ };
+ await RomTechData.submitReview(record);
+ form.reset();delete form.dataset.requestId;
  fillProducts();
  renderReviews();
  const message=$("#publicReviewMessage");
  if(message){message.textContent="תודה! הביקורת פורסמה באתר.";message.hidden=false}
  document.querySelector("#allReviewsTitle")?.scrollIntoView({behavior:"smooth",block:"start"})
 }
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded",async ()=>{await RomTechData.ready;
+ window.addEventListener('romtech-data-changed',()=>{renderReviews()});
  fillProducts();
  renderReviews();
  $("#publicReviewForm")?.addEventListener("submit",submitReview)

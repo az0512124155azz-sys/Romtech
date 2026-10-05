@@ -16,14 +16,30 @@ const enc=v=>{try{return btoa(unescape(encodeURIComponent(v)))}catch{return v}};
 const pageFiles={accessibility:"accessibility.html",privacy:"privacy.html",terms:"terms.html",returns:"returns.html",shipping:"shipping.html",cookies:"cookies.html",faq:"faq.html",contact:"contact.html"};
 
 function getProducts(){return RomTechData.loadProducts()}
-function saveProducts(v){RomTechData.saveProducts(v);renderAll()}
+async function saveProducts(v){await RomTechData.saveProducts(v);renderAll()}
 function getCredentials(){try{return JSON.parse(localStorage.getItem(CREDENTIALS_KEY))||null}catch{return null}}
 function setCredentials(code,password){localStorage.setItem(CREDENTIALS_KEY,JSON.stringify({code:enc(code),password:enc(password)}))}
 function validCredentials(code,password){const c=getCredentials();return !!c&&c.code===enc(code)&&c.password===enc(password)}
-function refreshGate(){const text=$("#adminGateText");if(text)text.textContent=getCredentials()?"הזן קוד מנהל וסיסמה.":"בכניסה הראשונה הקוד והסיסמה שתבחר יישמרו בדפדפן הזה."}
+function refreshGate(){
+ if(RomTechData.config?.serverReady){
+  $("#adminGateText").textContent="הזן את סיסמת בעל האתר. החיבור מאומת בשרת.";
+  $("#adminCode").hidden=true;$("#adminPassword").placeholder="סיסמת בעל האתר";
+  $("#credentialCodeLabel").hidden=true;$("#currentPasswordLabel").hidden=false;
+  return;
+ }
+const text=$("#adminGateText");if(text)text.textContent=getCredentials()?"הזן קוד מנהל וסיסמה.":"בכניסה הראשונה הקוד והסיסמה שתבחר יישמרו בדפדפן הזה."}
 function showAdmin(){if($("#adminGate")){$("#adminGate").hidden=true;$("#adminGate").style.display="none"}if($("#adminApp")){$("#adminApp").hidden=false;$("#adminApp").style.display="grid"}renderAll();loadSettingsForm();loadContentEditor()}
 function showGate(){if($("#adminApp")){$("#adminApp").hidden=true;$("#adminApp").style.display="none"}if($("#adminGate")){$("#adminGate").hidden=false;$("#adminGate").style.display="grid"}refreshGate();setTimeout(()=>$("#adminCode")?.focus(),0)}
-function enterAdmin(){
+async function enterAdmin(){
+ if(RomTechData.config?.mode==='error'){RomTechData.notice('לא ניתן לבדוק את מצב השרת. רענן ונסה שוב.');return}
+ if(RomTechData.config?.serverReady){
+  const button=$("#adminSubmit");button.disabled=true;
+  try{await RomTechData.api('login',{password:$("#adminPassword").value});$("#adminPassword").value='';await RomTechData.refresh();showAdmin();window.dispatchEvent(new Event('romtech-data-changed'));}
+  catch(error){$("#loginError").textContent=error.message;$("#loginError").hidden=false;}
+  finally{button.disabled=false;}
+  return;
+ }
+
  const code=$("#adminCode")?.value.trim()||"",password=$("#adminPassword")?.value||"",err=$("#loginError");
  if(err)err.hidden=true;
  if(code.length<2||password.length<4){if(err){err.textContent="יש להזין קוד וסיסמה של לפחות 4 תווים.";err.hidden=false}return}
@@ -31,9 +47,9 @@ function enterAdmin(){
  if(!validCredentials(code,password)){if(err){err.textContent="הקוד או הסיסמה שגויים.";err.hidden=false}return}
  sessionStorage.setItem(SESSION_KEY,"1");showAdmin()
 }
-function logout(){sessionStorage.removeItem(SESSION_KEY);showGate()}
+async function logout(){if(RomTechData.config?.serverReady){await RomTechData.api('logout',{});await RomTechData.refresh()}sessionStorage.removeItem(SESSION_KEY);showGate()}
 
-const titles={dashboard:"Dashboard",orders:"הזמנות",products:"מוצרים",inventory:"מלאי",customers:"לקוחות",content:"תוכן",reviews:"ביקורות",reports:"דוחות",settings:"הגדרות"};
+const titles={dashboard:"Dashboard",orders:"הזמנות",products:"מוצרים",inventory:"מלאי",customers:"לקוחות",content:"תוכן",reviews:"ביקורות",reports:"דוחות",settings:"הגדרות",connection:"חיבור Supabase"};
 function go(name){$$(".admin-module").forEach(p=>p.classList.toggle("active",p.dataset.panel===name));$$(".side-link[data-module]").forEach(b=>b.classList.toggle("active",b.dataset.module===name));if($("#moduleTitle"))$("#moduleTitle").textContent=titles[name]||name;if(name==="orders")renderOrders();if(name==="inventory")renderInventory();if(name==="customers")renderCustomers();if(name==="reviews")renderReviews();if(name==="reports")renderReports();if(name==="settings")loadSettingsForm();if(name==="content")loadContentEditor()}
 
 function statusLabel(status){return status==="published"?"מפורסם":status==="draft"?"טיוטה":status==="hidden"?"מוסתר":status||""}
@@ -49,7 +65,7 @@ function updateBulkSelectionUI(){
 }
 function renderProducts(){
  const root=$("#adminRows");if(!root)return;
- root.innerHTML=getProducts().map(p=>'<tr><td><input type="checkbox" class="pick" value="'+esc(p.id)+'" aria-label="בחר '+esc(p.name)+'"></td><td>'+(p.images?.[0]?'<img class="admin-thumb" src="'+p.images[0]+'" alt="">':'<div class="admin-thumb empty"></div>')+'</td><td>'+esc(p.name)+'</td><td>'+esc(p.category)+'</td><td>'+money(p.salePrice||p.price)+'</td><td>'+Number(p.stock||0)+(Number(p.stock||0)<=Number(p.lowStock||3)?' <span class="tag">נמוך</span>':'')+'</td><td>'+esc(statusLabel(p.status))+'</td><td><div class="row-actions"><button type="button" data-row-action="edit" data-id="'+esc(p.id)+'">עריכה</button><button type="button" data-row-action="duplicate" data-id="'+esc(p.id)+'">שכפול</button><button type="button" data-row-action="delete" data-id="'+esc(p.id)+'">מחיקה</button></div></td></tr>').join("");
+ root.innerHTML=getProducts().map(p=>'<tr><td><input type="checkbox" class="pick" value="'+esc(p.id)+'" aria-label="בחר '+esc(p.name)+'"></td><td>'+(p.images?.[0]?'<img class="admin-thumb" src="'+esc(p.images[0])+'" alt="">':'<div class="admin-thumb empty"></div>')+'</td><td>'+esc(p.name)+'</td><td>'+esc(p.category)+'</td><td>'+money(p.salePrice||p.price)+'</td><td>'+Number(p.stock||0)+(Number(p.stock||0)<=Number(p.lowStock||3)?' <span class="tag">נמוך</span>':'')+'</td><td>'+esc(statusLabel(p.status))+'</td><td><div class="row-actions"><button type="button" data-row-action="edit" data-id="'+esc(p.id)+'">עריכה</button><button type="button" data-row-action="duplicate" data-id="'+esc(p.id)+'">שכפול</button><button type="button" data-row-action="delete" data-id="'+esc(p.id)+'">מחיקה</button></div></td></tr>').join("");
  updateBulkSelectionUI()
 }
 function renderStats(){const ps=getProducts();if($("#count"))$("#count").textContent=ps.length;if($("#low"))$("#low").textContent=ps.filter(p=>Number(p.stock||0)<=Number(p.lowStock||3)).length;if($("#publishedCount"))$("#publishedCount").textContent=ps.filter(p=>p.status==="published").length}
@@ -86,7 +102,7 @@ function renderReviews(){
  const root=$("#reviewsRows");if(!root)return;const rows=RomTechData.loadReviews?.()||[];
  root.innerHTML=rows.map(r=>'<tr><td>'+esc(r.createdAt?new Date(r.createdAt).toLocaleString("he-IL"):"")+'</td><td>'+esc(r.productName||"")+'</td><td>'+esc(r.name||"")+'</td><td><span class="review-stars">'+("★".repeat(Number(r.rating||0)))+'</span></td><td class="review-text-cell">'+esc(r.text||"")+'</td><td><button type="button" class="danger-link" data-review-action="delete" data-id="'+esc(r.id)+'">מחק</button></td></tr>').join("")||'<tr><td colspan="6"><div class="empty-state">עדיין לא נשלחו ביקורות.</div></td></tr>'
 }
-function deleteReview(id){if(!confirm("למחוק את הביקורת?"))return;RomTechData.saveReviews(RomTechData.loadReviews().filter(x=>x.id!==id));renderReviews()}
+async function deleteReview(id){if(!confirm("למחוק את הביקורת?"))return;await RomTechData.saveReviews(RomTechData.loadReviews().filter(x=>x.id!==id));renderReviews()}
 function renderAll(){renderProducts();renderStats();renderInventory();renderReports();renderOrders();renderCustomers();renderReviews()}
 
 function updateWhatsAppPreview(){
@@ -114,7 +130,7 @@ function loadSettingsForm(){
  updateWhatsAppPreview();
  loadSettingsContentEditor()
 }
-function saveSiteSettings(){
+async function saveSiteSettings(){
  const input=$("#settingWhatsapp");
  const phone=$("#settingPhone")?.value.trim()||"";
  const digits=RomTechData.normalizeWhatsAppNumber?RomTechData.normalizeWhatsAppNumber(input?.value||"",phone):(input?.value||"").replace(/\D/g,"");
@@ -123,7 +139,7 @@ function saveSiteSettings(){
  s.phone=phone;
  s.whatsapp=digits;
  s.email=$("#settingEmail").value.trim();
- const saved=RomTechData.saveSiteSettings(s);
+ const saved=await RomTechData.saveSiteSettings(s);
  if(input)input.value=saved.whatsapp;
  updateWhatsAppPreview();
  const notice=$("#siteSettingsSaved");
@@ -172,12 +188,18 @@ function loadSettingsContentEditor(){
  setRichEditor("#settingsContentEditor","#settingsContentBody",item.body||"");
  $("#previewSettingsContent").href="../"+pageFiles[key]
 }
-function saveSettingsContent(){
+async function saveSettingsContent(){
  const key=$("#settingsContentPage").value,all=RomTechData.loadLegalContent();
  all[key]={title:$("#settingsContentTitle").value.trim(),body:readRichEditor("#settingsContentEditor","#settingsContentBody")};
- RomTechData.saveLegalContent(all);showSaved("#settingsContentSaved")
+ await RomTechData.saveLegalContent(all);showSaved("#settingsContentSaved")
 }
-function saveAdminCredentials(){
+async function saveAdminCredentials(){
+ if(RomTechData.config?.serverReady){
+  if($("#settingAdminPassword").value!==$("#settingAdminPasswordConfirm").value)throw new Error('הסיסמאות אינן תואמות.');
+  await RomTechData.api('password',{currentPassword:$("#settingCurrentPassword").value,password:$("#settingAdminPassword").value});
+  $("#settingCurrentPassword").value='';$("#settingAdminPassword").value='';$("#settingAdminPasswordConfirm").value='';showSaved('#credentialsSaved');return;
+ }
+
  const code=$("#settingAdminCode").value.trim(),pass=$("#settingAdminPassword").value,confirmPass=$("#settingAdminPasswordConfirm").value;
  if(code.length<2||pass.length<4){alert("יש להזין קוד וסיסמה חדשה של לפחות 4 תווים.");return}
  if(pass!==confirmPass){alert("הסיסמאות אינן תואמות.");return}
@@ -192,25 +214,25 @@ function loadContentEditor(){
  if($("#contentFooterLabel"))$("#contentFooterLabel").value=settings.footerLabels?.[key]||"";
  if($("#previewContentPage"))$("#previewContentPage").href="../"+pageFiles[key]
 }
-function saveContent(){
+async function saveContent(){
  const key=$("#contentPageSelect").value,all=RomTechData.loadLegalContent(),settings=RomTechData.loadSiteSettings();
  all[key]={title:$("#contentTitle").value.trim(),body:readRichEditor("#contentEditor","#contentBody")};
  settings.footerLabels={...(settings.footerLabels||{}),[key]:$("#contentFooterLabel").value.trim()};
- RomTechData.saveLegalContent(all);RomTechData.saveSiteSettings(settings);showSaved("#contentSaved")
+ await RomTechData.saveLegalContent(all);await RomTechData.saveSiteSettings(settings);showSaved("#contentSaved")
 }
 
 function openModal(product=null){const m=$("#productModal"),f=$("#productForm");if(!m||!f)return;f.reset();$("#pid").value="";stagedImages=[];if(product){$("#modalTitle").textContent="עריכת מוצר";Object.entries(product).forEach(([k,v])=>{const field=f.elements.namedItem(k);if(!field)return;if(field.type==="checkbox")field.checked=!!v;else if(Array.isArray(v))field.value=v.join(", ");else field.value=v??""});$("#pid").value=product.id;stagedImages=[...(product.images||[])]}else $("#modalTitle").textContent="הוסף שטריימל חדש";renderPreview();m.classList.add("open")}
 function closeModal(){$("#productModal")?.classList.remove("open")}
-function renderPreview(){const r=$("#imagePreview");if(r)r.innerHTML=stagedImages.map((x,i)=>'<div class="preview-item"><img src="'+x+'" alt=""><button type="button" data-remove-image="'+i+'">✕</button></div>').join("")}
+function renderPreview(){const r=$("#imagePreview");if(r)r.innerHTML=stagedImages.map((x,i)=>'<div class="preview-item"><img src="'+esc(x)+'" alt=""><button type="button" data-remove-image="'+i+'">✕</button></div>').join("")}
 function compressImage(file){return new Promise((resolve,reject)=>{const img=new Image(),u=URL.createObjectURL(file);img.onload=()=>{const max=1000,k=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);resolve(c.toDataURL("image/webp",.78))};img.onerror=reject;img.src=u})}
 async function addImages(files){for(const f of Array.from(files).slice(0,Math.max(0,10-stagedImages.length)))stagedImages.push(await compressImage(f));renderPreview()}
-function saveProduct(e){e.preventDefault();const f=e.currentTarget,fd=new FormData(f),o=Object.fromEntries(fd.entries());["price","salePrice","cost","stock","lowStock","height","teeth","embroideryPrice"].forEach(k=>o[k]=o[k]===""?null:Number(o[k]));o.embroidery=!!f.elements.namedItem("embroidery").checked;o.tags=String(o.tags||"").split(",").map(x=>x.trim()).filter(Boolean);o.images=[...stagedImages];o.id=$("#pid").value||"rt-"+Date.now();if(!o.slug)o.slug=String(o.name||"").toLowerCase().replace(/[^a-z0-9\u0590-\u05ff]+/g,"-").replace(/^-|-$/g,"");const ps=getProducts(),i=ps.findIndex(x=>x.id===o.id);if(i>=0)ps[i]={...ps[i],...o};else ps.push(o);saveProducts(ps);closeModal()}
-function duplicateProduct(id){const p=getProducts().find(x=>x.id===id);if(p)saveProducts([...getProducts(),{...p,id:"rt-"+Date.now(),name:p.name+" — עותק",status:"draft",images:[...(p.images||[])]}])}
-function deleteProduct(id){const p=getProducts().find(x=>x.id===id);if(p&&confirm('למחוק את "'+p.name+'"?'))saveProducts(getProducts().filter(x=>x.id!==id))}
+async function saveProduct(e){e.preventDefault();const f=e.currentTarget,fd=new FormData(f),o=Object.fromEntries(fd.entries());["price","salePrice","cost","stock","lowStock","height","teeth","embroideryPrice"].forEach(k=>o[k]=o[k]===""?null:Number(o[k]));o.embroidery=!!f.elements.namedItem("embroidery").checked;o.tags=String(o.tags||"").split(",").map(x=>x.trim()).filter(Boolean);o.images=[...stagedImages];o.id=$("#pid").value||"rt-"+Date.now();if(!o.slug)o.slug=String(o.name||"").toLowerCase().replace(/[^a-z0-9\u0590-\u05ff]+/g,"-").replace(/^-|-$/g,"");const ps=getProducts(),i=ps.findIndex(x=>x.id===o.id);if(i>=0)ps[i]={...ps[i],...o};else ps.push(o);await saveProducts(ps);closeModal()}
+async function duplicateProduct(id){const p=getProducts().find(x=>x.id===id);if(p)await saveProducts([...getProducts(),{...p,id:"rt-"+Date.now(),name:p.name+" — עותק",status:"draft",images:[...(p.images||[])]}])}
+async function deleteProduct(id){const p=getProducts().find(x=>x.id===id);if(p&&confirm('למחוק את "'+p.name+'"?'))await saveProducts(getProducts().filter(x=>x.id!==id))}
 function resetBulkFields(){
  ["bulkStatus","bulkCategory","bulkPrice","bulkStock"].forEach(id=>{const n=$("#"+id);if(n)n.value=""})
 }
-function bulk(){
+async function bulk(){
  const ids=$$(".pick:checked").map(x=>x.value);
  if(!ids.length){alert("סמן לפחות מוצר אחד בטבלה.");return}
  const st=$("#bulkStatus").value,cat=$("#bulkCategory").value,price=$("#bulkPrice").value,stock=$("#bulkStock").value;
@@ -224,7 +246,7 @@ function bulk(){
  if(stock!=="")changes.push("מלאי: "+Number(stock));
  if(!confirm("לעדכן "+ids.length+" מוצרים?\n"+changes.join("\n")))return;
  const updated=getProducts().map(p=>ids.includes(p.id)?{...p,...(st?{status:st}:{}),...(cat?{category:cat}:{}),...(price!==""?{price:Number(price),salePrice:null}:{}),...(stock!==""?{stock:Number(stock)}:{})}:p);
- RomTechData.saveProducts(updated);
+ await RomTechData.saveProducts(updated);
  renderAll();
  resetBulkFields();
  const m=$("#bulkMessage");
@@ -269,24 +291,29 @@ async function importCsvFile(file){
  }
  if(!imported){alert("לא נמצאו מוצרים תקינים לייבוא.");return}
  if(!confirm("לייבא ולעדכן "+imported+" מוצרים מהקובץ?"))return;
- RomTechData.saveProducts(Array.from(existing.values()));
+ await RomTechData.saveProducts(Array.from(existing.values()));
  renderAll();
  alert(imported+" מוצרים יובאו בהצלחה.")
 }
 function exportCsv(){const cols=["id","name","short","full","court","category","price","salePrice","cost","stock","lowStock","sku","barcode","height","teeth","fur","lining","box","embroidery","embroideryPrice","tags","status","seoTitle","seoDescription","slug"],ps=getProducts(),cell=v=>'"'+String(v??"").replace(/"/g,'""')+'"',csv=[cols.join(","),...ps.map(p=>cols.map(k=>cell(Array.isArray(p[k])?p[k].join("|"):p[k])).join(","))].join("\n"),u=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"})),a=document.createElement("a");a.href=u;a.download="romtech-products.csv";a.click();URL.revokeObjectURL(u)}
-function updateOrderStatus(id,status){const os=RomTechData.loadOrders(),o=os.find(x=>x.id===id);if(o){o.status=status;RomTechData.saveOrders(os);renderOrders()}}
-function deleteOrder(id){if(confirm("למחוק את ההזמנה?")){RomTechData.saveOrders(RomTechData.loadOrders().filter(x=>x.id!==id));renderOrders()}}
+async function updateOrderStatus(id,status){const os=RomTechData.loadOrders(),o=os.find(x=>x.id===id);if(o){o.status=status;await RomTechData.saveOrders(os);renderOrders()}}
+async function deleteOrder(id){if(confirm("למחוק את ההזמנה?")){await RomTechData.saveOrders(RomTechData.loadOrders().filter(x=>x.id!==id));renderOrders()}}
 
 document.addEventListener("mousedown",e=>{const b=e.target.closest("[data-rich-command],[data-rich-block]");if(!b)return;e.preventDefault();runRichEditorAction(b)});
 document.addEventListener("input",e=>{if(e.target.matches("#settingsContentEditor"))$("#settingsContentBody").value=e.target.innerHTML;if(e.target.matches("#contentEditor"))$("#contentBody").value=e.target.innerHTML});
-document.addEventListener("DOMContentLoaded",()=>{ensureAdminFavicon();
+document.addEventListener("DOMContentLoaded",async ()=>{await RomTechData.ready;ensureAdminFavicon();
  $("#adminSubmit")?.addEventListener("click",enterAdmin);["adminCode","adminPassword"].forEach(id=>$("#"+id)?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();enterAdmin()}}));$("#logoutBtn")?.addEventListener("click",logout);
- $(".side-link[data-module]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.module)));$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
+ $$(".side-link[data-module]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.module)));$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
  $("#newBtn")?.addEventListener("click",()=>openModal());$('[data-action="new-product"]')?.addEventListener("click",()=>{go("products");openModal()});$("#closeModal")?.addEventListener("click",closeModal);$("#cancelModal")?.addEventListener("click",closeModal);$("#productForm")?.addEventListener("submit",saveProduct);$("#productImages")?.addEventListener("change",async e=>{await addImages(e.target.files);e.target.value=""});$("#bulkApply")?.addEventListener("click",bulk);$("#selectAllProducts")?.addEventListener("change",e=>{$$(".pick").forEach(x=>x.checked=e.target.checked);updateBulkSelectionUI()});$("#importCsv")?.addEventListener("change",async e=>{const file=e.target.files?.[0];if(file)await importCsvFile(file);e.target.value=""});$("#exportCsv")?.addEventListener("click",exportCsv);$("#inventoryRefresh")?.addEventListener("click",renderInventory);$("#ordersRefresh")?.addEventListener("click",renderOrders);$("#customersRefresh")?.addEventListener("click",renderCustomers);$("#reviewsRefresh")?.addEventListener("click",renderReviews);
  $("#saveSiteSettings")?.addEventListener("click",saveSiteSettings);$("#settingWhatsapp")?.addEventListener("input",updateWhatsAppPreview);$("#saveAdminCredentials")?.addEventListener("click",saveAdminCredentials);$("#settingsContentPage")?.addEventListener("change",loadSettingsContentEditor);$("#saveSettingsContent")?.addEventListener("click",saveSettingsContent);$("#contentPageSelect")?.addEventListener("change",loadContentEditor);$("#saveContent")?.addEventListener("click",saveContent);
  document.addEventListener("click",e=>{const a=e.target.closest("[data-row-action]");if(a){const id=a.dataset.id;if(a.dataset.rowAction==="edit"){const p=getProducts().find(x=>x.id===id);if(p)openModal(p)}if(a.dataset.rowAction==="duplicate")duplicateProduct(id);if(a.dataset.rowAction==="delete")deleteProduct(id)}const rm=e.target.closest("[data-remove-image]");if(rm){stagedImages.splice(Number(rm.dataset.removeImage),1);renderPreview()}const d=e.target.closest("[data-delete-order]");if(d)deleteOrder(d.dataset.deleteOrder);const ra=e.target.closest("[data-review-action]");if(ra&&ra.dataset.reviewAction==="delete")deleteReview(ra.dataset.id)});
  document.addEventListener("change",e=>{const s=e.target.closest("[data-order-status]");if(s)updateOrderStatus(s.dataset.orderStatus,s.value);if(e.target.matches(".pick"))updateBulkSelectionUI()});
  $("#reviewModal")?.addEventListener("click",e=>{if(e.target.id==="reviewModal")closeReviewModal()});
- refreshGate();if(sessionStorage.getItem(SESSION_KEY)==="1"&&getCredentials())showAdmin();else showGate()
+ refreshGate();if(RomTechData.config?.serverReady?RomTechData.config.authenticated:(RomTechData.config?.mode==='local'&&sessionStorage.getItem(SESSION_KEY)==="1"&&getCredentials()))showAdmin();else showGate();
+ window.addEventListener('romtech-data-changed',renderAll);
+ window.addEventListener('romtech-session-expired',showGate);
+ for(const selector of ['#inventoryRefresh','#ordersRefresh','#customersRefresh','#reviewsRefresh']){
+  $(selector)?.addEventListener('click',async ()=>{await RomTechData.refresh();renderAll()});
+ }
 });
 })();
