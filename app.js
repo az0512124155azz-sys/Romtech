@@ -32,122 +32,54 @@ function injectGlobal(){
  }
  if(!el(".wa")&&!body.classList.contains("admin-page")){
   const wa=whatsappLink();
-  body.insertAdjacentHTML("beforeend",
-   '<a class="wa" aria-label="פתיחת WhatsApp" href="'+esc(wa)+'" target="_blank" rel="noopener">WhatsApp</a>'+
-   '<div class="access">'+
-    '<button class="btn" id="accBtn" type="button" aria-expanded="false" aria-controls="accPanel">נגישות</button>'+
-    '<div class="access-panel" id="accPanel" role="dialog" aria-label="אפשרויות נגישות">'+
-     '<button type="button" data-a="font" aria-pressed="false">גודל טקסט: 100%</button>'+
-     '<button type="button" data-a="contrast" aria-pressed="false">ניגודיות גבוהה</button>'+
-     '<button type="button" data-a="readable" aria-pressed="false">גופן קריא</button>'+
-     '<button type="button" data-a="motion" aria-pressed="false">עצירת אנימציות</button>'+
-     '<button type="button" data-a="links" aria-pressed="false">הדגשת קישורים</button>'+
-     '<button type="button" data-a="reset">איפוס הגדרות</button>'+
-    '</div>'+
-   '</div>')
+  body.insertAdjacentHTML("beforeend",'<a class="wa" aria-label="פתיחת WhatsApp" href="'+esc(wa)+'" target="_blank" rel="noopener">WhatsApp</a><div class="access"><button class="btn" id="accBtn" type="button" aria-expanded="false" aria-controls="accPanel">נגישות</button><div class="access-panel" id="accPanel" role="dialog" aria-label="אפשרויות נגישות"><button type="button" data-a="font">גודל טקסט: 100%</button><button type="button" data-a="contrast">ניגודיות גבוהה</button><button type="button" data-a="readable">גופן קריא</button><button type="button" data-a="motion">עצירת אנימציות</button><button type="button" data-a="links">הדגשת קישורים</button><button type="button" data-a="reset">איפוס הגדרות</button></div></div>')
  }
-
  const btn=el("#accBtn"),panel=el("#accPanel");
- const textSelector="h1,h2,h3,h4,h5,h6,p,a,button,label,input,select,textarea,li,td,th,small,strong,.small,.lead,.price,.eyebrow,.tag,.review-stars,.footer-tagline";
+ const map={contrast:"high-contrast",readable:"readable",motion:"no-motion",links:"links-highlight"};
  let fs=Math.max(100,Math.min(130,Number(localStorage.rt_font||100)||100));
-
- function restoreOriginalFont(node){
-  if(!node?.hasAttribute?.("data-rt-a11y-font"))return;
-  const original=node.getAttribute("data-rt-a11y-font");
-  if(original)node.style.fontSize=original;else node.style.removeProperty("font-size");
-  node.removeAttribute("data-rt-a11y-font")
- }
- function scaleTextNode(node){
-  if(fs===100){restoreOriginalFont(node);return}
-  if(!node?.matches?.(textSelector))return;
-  if(!node.hasAttribute("data-rt-a11y-font"))node.setAttribute("data-rt-a11y-font",node.style.fontSize||"");
-  const original=node.getAttribute("data-rt-a11y-font");
-  if(original)node.style.fontSize=original;else node.style.removeProperty("font-size");
-  const base=parseFloat(getComputedStyle(node).fontSize);
-  if(Number.isFinite(base)&&base>0)node.style.fontSize=(base*fs/100).toFixed(2)+"px"
- }
- function applyFontScale(){
-  document.querySelectorAll(textSelector).forEach(scaleTextNode);
-  document.documentElement.dataset.a11yFont=String(fs)
- }
- function syncA11yButtons(){
-  const map={contrast:"high-contrast",readable:"readable",motion:"no-motion",links:"links-highlight"};
-  panel?.querySelectorAll("button[data-a]").forEach(b=>{
-   const k=b.dataset.a;
-   if(k==="font"){
-    b.textContent="גודל טקסט: "+fs+"%";
-    b.setAttribute("aria-pressed",fs>100?"true":"false");
-    b.classList.toggle("active",fs>100);
-    return
+ const textSelector="h1,h2,h3,h4,h5,h6,p,a,button,label,input,select,textarea,li,td,th,small,strong,.small,.lead,.price,.eyebrow,.tag,.review-stars,.footer-tagline";
+ function setFontScale(){
+  document.querySelectorAll(textSelector).forEach(n=>{
+   if(!n.hasAttribute("data-a11y-original-font"))n.setAttribute("data-a11y-original-font",n.style.fontSize||"");
+   const original=n.getAttribute("data-a11y-original-font");
+   if(original)n.style.fontSize=original;else n.style.removeProperty("font-size");
+   if(fs>100){
+    const base=parseFloat(getComputedStyle(n).fontSize);
+    if(Number.isFinite(base)&&base>0)n.style.fontSize=(base*fs/100).toFixed(2)+"px"
    }
-   if(k==="reset")return;
-   const on=body.classList.contains(map[k]);
-   b.setAttribute("aria-pressed",on?"true":"false");
-   b.classList.toggle("active",on)
+  });
+  const b=panel?.querySelector('[data-a="font"]');
+  if(b){b.textContent="גודל טקסט: "+fs+"%";b.classList.toggle("active",fs>100);b.setAttribute("aria-pressed",fs>100?"true":"false")}
+ }
+ function syncButtons(){
+  Object.entries(map).forEach(([k,cls])=>{
+   const b=panel?.querySelector('[data-a="'+k+'"]'),on=body.classList.contains(cls);
+   if(b){b.classList.toggle("active",on);b.setAttribute("aria-pressed",on?"true":"false")}
   })
  }
-
  btn?.addEventListener("click",()=>{
   const open=!panel.classList.contains("open");
-  panel.classList.toggle("open",open);
-  btn.setAttribute("aria-expanded",open?"true":"false");
+  panel.classList.toggle("open",open);btn.setAttribute("aria-expanded",open?"true":"false");
   if(open)panel.querySelector("button")?.focus()
  });
-
- ["contrast","readable","motion","links"].forEach(k=>{
-  if(localStorage["rt_"+k]==="1"){
-   body.classList.add(k==="contrast"?"high-contrast":k==="motion"?"no-motion":k==="links"?"links-highlight":"readable")
-  }
- });
- applyFontScale();
- syncA11yButtons();
-
+ Object.entries(map).forEach(([k,cls])=>{if(localStorage["rt_"+k]==="1")body.classList.add(cls)});
+ setFontScale();syncButtons();
  panel?.addEventListener("click",e=>{
   const control=e.target.closest("button[data-a]");if(!control)return;
   const k=control.dataset.a;
-  if(k==="font"){
-   fs=fs>=130?100:fs+10;
-   localStorage.rt_font=String(fs);
-   applyFontScale();
-   syncA11yButtons();
-   return
-  }
+  if(k==="font"){fs=fs>=130?100:fs+10;localStorage.rt_font=String(fs);setFontScale();return}
   if(k==="reset"){
    ["rt_contrast","rt_readable","rt_motion","rt_links","rt_font"].forEach(x=>localStorage.removeItem(x));
-   ["high-contrast","readable","no-motion","links-highlight"].forEach(cls=>body.classList.remove(cls));
-   fs=100;applyFontScale();syncA11yButtons();
-   return
+   Object.values(map).forEach(cls=>body.classList.remove(cls));fs=100;setFontScale();syncButtons();return
   }
-  const cls=k==="contrast"?"high-contrast":k==="motion"?"no-motion":k==="links"?"links-highlight":"readable";
-  body.classList.toggle(cls);
-  localStorage["rt_"+k]=body.classList.contains(cls)?"1":"0";
-  syncA11yButtons()
+  const cls=map[k];if(!cls)return;
+  body.classList.toggle(cls);localStorage["rt_"+k]=body.classList.contains(cls)?"1":"0";syncButtons()
  });
-
- document.addEventListener("click",e=>{
-  if(!panel?.classList.contains("open"))return;
-  if(e.target.closest(".access"))return;
-  panel.classList.remove("open");btn?.setAttribute("aria-expanded","false")
- });
- document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"&&panel?.classList.contains("open")){
-   panel.classList.remove("open");btn?.setAttribute("aria-expanded","false");btn?.focus()
-  }
- });
-
- let resizeTimer;
- window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(applyFontScale,120)});
-
- const observer=new MutationObserver(mutations=>{
-  if(fs===100)return;
-  mutations.forEach(m=>m.addedNodes.forEach(node=>{
-   if(node.nodeType!==1)return;
-   scaleTextNode(node);
-   node.querySelectorAll?.(textSelector).forEach(scaleTextNode)
-  }))
- });
+ document.addEventListener("click",e=>{if(panel?.classList.contains("open")&&!e.target.closest(".access")){panel.classList.remove("open");btn?.setAttribute("aria-expanded","false")}});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&panel?.classList.contains("open")){panel.classList.remove("open");btn?.setAttribute("aria-expanded","false");btn?.focus()}});
+ window.addEventListener("resize",()=>{if(fs>100)setFontScale()});
+ const observer=new MutationObserver(ms=>{if(fs===100)return;ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType!==1)return;if(n.matches?.(textSelector)){const original=n.style.fontSize||"";n.setAttribute("data-a11y-original-font",original);const base=parseFloat(getComputedStyle(n).fontSize);if(Number.isFinite(base))n.style.fontSize=(base*fs/100).toFixed(2)+"px"}n.querySelectorAll?.(textSelector).forEach(x=>{if(!x.hasAttribute("data-a11y-original-font"))x.setAttribute("data-a11y-original-font",x.style.fontSize||"");const original=x.getAttribute("data-a11y-original-font");if(original)x.style.fontSize=original;else x.style.removeProperty("font-size");const base=parseFloat(getComputedStyle(x).fontSize);if(Number.isFinite(base))x.style.fontSize=(base*fs/100).toFixed(2)+"px"})}))});
  observer.observe(body,{childList:true,subtree:true});
-
  if(!localStorage.rt_cookie&&!body.classList.contains("admin-page")&&!body.classList.contains("cookie-page")){
   body.insertAdjacentHTML("beforeend",'<div class="cookie" id="cookie"><strong>העדפות עוגיות</strong><div>אנחנו משתמשים בעוגיות כדי לשפר את חוויית הגלישה שלך.</div><div class="actions"><button class="btn" data-c="all">אשר הכל</button><button class="btn secondary" data-c="essential">דחה לא הכרחיות</button><a class="btn secondary" href="cookies.html">הגדרות</a></div></div>')
  }
