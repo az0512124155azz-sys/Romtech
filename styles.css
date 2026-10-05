@@ -1379,3 +1379,145 @@
 .product-dots{
   direction:rtl!important;
 }
+
+
+/* Accessibility reliability + mobile controls 20261005-57 */
+.access-panel button.active{
+  background:#1f1b17;
+  color:#fff;
+  border-color:#1f1b17;
+}
+body.high-contrast{
+  --bg:#000!important;
+  --surface:#111!important;
+  --text:#fff!important;
+  --muted:#ffe66a!important;
+  --line:#fff!important;
+  --brand:#ffe66a!important;
+  --accent:#ffe66a!important;
+  background:#000!important;
+  color:#fff!important;
+}
+body.high-contrast .site-header,
+body.high-contrast .footer,
+body.high-contrast .card,
+body.high-contrast .hero-card,
+body.high-contrast .spec,
+body.high-contrast .modal-card,
+body.high-contrast .review-form-card,
+body.high-contrast .all-review-card,
+body.high-contrast .write-review-card,
+body.high-contrast .reviews-summary,
+body.high-contrast .access-panel,
+body.high-contrast .legal,
+body.high-contrast .cookie{
+  background:#000!important;
+  color:#fff!important;
+  border-color:#fff!important;
+  box-shadow:none!important;
+}
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea{
+  background:#000!important;
+  color:#fff!important;
+  border:2px solid #fff!important;
+}
+body.high-contrast a:not(.btn){color:#ffe66a!important}
+body.high-contrast .btn,
+body.high-contrast .access-panel button{
+  background:#ffe66a!important;
+  color:#000!important;
+  border-color:#ffe66a!important;
+}
+body.high-contrast .access-panel button.active{
+  background:#fff!important;
+  color:#000!important;
+}
+body.readable,
+body.readable *:not(code):not(pre){
+  font-family:Arial,Helvetica,sans-serif!important;
+}
+body.links-highlight a{
+  text-decoration:underline!important;
+  text-decoration-thickness:3px!important;
+  text-underline-offset:3px!important;
+}
+body.links-highlight a:focus,
+body.links-highlight a:hover{
+  outline:2px solid currentColor!important;
+  outline-offset:3px!important;
+}
+body.no-motion,
+body.no-motion *{
+  animation:none!important;
+  transition:none!important;
+  scroll-behavior:auto!important;
+}
+@media(max-width:760px){
+  body:not(.admin-page) .access{
+    position:fixed!important;
+    right:12px!important;
+    left:auto!important;
+    bottom:12px!important;
+    z-index:220!important;
+  }
+  body:not(.admin-page) .access-panel{
+    position:fixed!important;
+    right:12px!important;
+    left:12px!important;
+    bottom:64px!important;
+    width:auto!important;
+    max-height:calc(100dvh - 92px)!important;
+    overflow:auto!important;
+    padding:12px!important;
+    border-radius:14px!important;
+  }
+  body:not(.admin-page) .access-panel button{
+    min-height:48px!important;
+    margin:4px 0!important;
+    font-size:16px!important;
+    touch-action:manipulation;
+  }
+  body:not(.admin-page) #accBtn{
+    min-height:46px!important;
+    min-width:84px!important;
+    touch-action:manipulation;
+  }
+}
+
+/* Customers module without backend placeholder 20261005-57 */
+.admin-page .customers-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.admin-page .customer-card{
+  display:grid;
+  gap:12px;
+  padding:18px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+.admin-page .customer-main{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.admin-page .customer-main strong{font-size:18px}
+.admin-page .customer-main span,
+.admin-page .customer-last{
+  color:var(--muted);
+  font-size:13px;
+}
+.admin-page .customer-details{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 16px;
+}
+.admin-page .customer-details a{color:var(--text)}
+@media(max-width:760px){
+  .admin-page .customers-list{grid-template-columns:1fr}
+}
