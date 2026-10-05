@@ -34,7 +34,7 @@ function enterAdmin(){
 function logout(){sessionStorage.removeItem(SESSION_KEY);showGate()}
 
 const titles={dashboard:"Dashboard",orders:"הזמנות",products:"מוצרים",inventory:"מלאי",customers:"לקוחות",content:"תוכן",reviews:"ביקורות",reports:"דוחות",settings:"הגדרות"};
-function go(name){$$(".admin-module").forEach(p=>p.classList.toggle("active",p.dataset.panel===name));$$(".side-link[data-module]").forEach(b=>b.classList.toggle("active",b.dataset.module===name));if($("#moduleTitle"))$("#moduleTitle").textContent=titles[name]||name;if(name==="orders")renderOrders();if(name==="inventory")renderInventory();if(name==="reviews")renderReviews();if(name==="reports")renderReports();if(name==="settings")loadSettingsForm();if(name==="content")loadContentEditor()}
+function go(name){$(".admin-module").forEach(p=>p.classList.toggle("active",p.dataset.panel===name));$(".side-link[data-module]").forEach(b=>b.classList.toggle("active",b.dataset.module===name));if($("#moduleTitle"))$("#moduleTitle").textContent=titles[name]||name;if(name==="orders")renderOrders();if(name==="inventory")renderInventory();if(name==="customers")renderCustomers();if(name==="reviews")renderReviews();if(name==="reports")renderReports();if(name==="settings")loadSettingsForm();if(name==="content")loadContentEditor()}
 
 function statusLabel(status){return status==="published"?"מפורסם":status==="draft"?"טיוטה":status==="hidden"?"מוסתר":status||""}
 function updateBulkSelectionUI(){
@@ -56,12 +56,38 @@ function renderStats(){const ps=getProducts();if($("#count"))$("#count").textCon
 function renderInventory(){const r=$("#inventoryList");if(!r)return;r.innerHTML=[...getProducts()].sort((a,b)=>Number(a.stock||0)-Number(b.stock||0)).map(p=>'<div class="admin-action-card"><b>'+esc(p.name)+'</b><span>מלאי: '+Number(p.stock||0)+'</span><span>'+(Number(p.stock||0)<=Number(p.lowStock||3)?"⚠ מלאי נמוך":"תקין")+'</span></div>').join("")||'<div class="empty-state">אין מוצרים.</div>'}
 function renderReports(){const r=$("#reportCards"),ps=getProducts();if(!r)return;r.innerHTML='<div class="card card-body"><div class="small">שווי מלאי לפי עלות</div><div class="price">'+money(ps.reduce((s,p)=>s+Number(p.stock||0)*Number(p.cost||0),0))+'</div></div><div class="card card-body"><div class="small">יחידות במלאי</div><div class="price">'+ps.reduce((s,p)=>s+Number(p.stock||0),0)+'</div></div><div class="card card-body"><div class="small">טיוטות</div><div class="price">'+ps.filter(p=>p.status==="draft").length+'</div></div>'}
 function renderOrders(){const r=$("#ordersRows");if(!r)return;const os=RomTechData.loadOrders();r.innerHTML=os.map(o=>'<tr><td>'+esc(o.id)+'</td><td>'+esc(o.createdAt?new Date(o.createdAt).toLocaleString("he-IL"):"")+'</td><td>'+esc(o.productName||"")+'</td><td>'+esc(o.customerName||"")+'</td><td><a href="tel:'+esc(o.phone||"")+'">'+esc(o.phone||"")+'</a></td><td>'+money(o.price||0)+'</td><td><select data-order-status="'+esc(o.id)+'"><option value="new"'+(o.status==="new"?" selected":"")+'>חדש</option><option value="contacted"'+(o.status==="contacted"?" selected":"")+'>נוצר קשר</option><option value="confirmed"'+(o.status==="confirmed"?" selected":"")+'>אושר</option><option value="completed"'+(o.status==="completed"?" selected":"")+'>הושלם</option><option value="cancelled"'+(o.status==="cancelled"?" selected":"")+'>בוטל</option></select></td><td><button type="button" data-delete-order="'+esc(o.id)+'">מחיקה</button></td></tr>').join("")||'<tr><td colspan="8"><div class="empty-state">עדיין אין הזמנות.</div></td></tr>'}
+function renderCustomers(){
+ const root=$("#customersList");if(!root)return;
+ const orders=RomTechData.loadOrders?.()||[];
+ const map=new Map();
+ orders.forEach(o=>{
+  const phone=String(o.phone||"").trim(),email=String(o.email||"").trim(),name=String(o.customerName||"").trim();
+  const key=(phone.replace(/\D/g,"")||email.toLowerCase()||name.toLowerCase()||o.id);
+  if(!map.has(key))map.set(key,{name:name||"לקוח",phone,email,city:o.city||"",orders:0,total:0,last:o.createdAt||""});
+  const c=map.get(key);
+  if(name)c.name=name;if(phone)c.phone=phone;if(email)c.email=email;if(o.city)c.city=o.city;
+  c.orders+=1;c.total+=Number(o.price||0);
+  if(!c.last||String(o.createdAt||"")>String(c.last||""))c.last=o.createdAt||c.last
+ });
+ const rows=[...map.values()].sort((a,b)=>String(b.last||"").localeCompare(String(a.last||"")));
+ root.innerHTML=rows.length?rows.map(c=>
+  '<article class="customer-card">'+
+   '<div class="customer-main"><strong>'+esc(c.name)+'</strong><span>'+c.orders+' הזמנות · '+money(c.total)+'</span></div>'+
+   '<div class="customer-details">'+
+    (c.phone?'<a href="tel:'+esc(c.phone)+'">'+esc(c.phone)+'</a>':'<span>ללא טלפון</span>')+
+    (c.email?'<a href="mailto:'+esc(c.email)+'">'+esc(c.email)+'</a>':'')+
+    (c.city?'<span>'+esc(c.city)+'</span>':'')+
+   '</div>'+
+   '<div class="customer-last">'+(c.last?'הזמנה אחרונה: '+esc(new Date(c.last).toLocaleDateString("he-IL")):'')+'</div>'+
+  '</article>'
+ ).join(""):'<div class="empty-state"><b>עדיין אין לקוחות.</b><p>לקוח יופיע כאן אוטומטית לאחר ביצוע הזמנה באתר.</p></div>'
+}
 function renderReviews(){
  const root=$("#reviewsRows");if(!root)return;const rows=RomTechData.loadReviews?.()||[];
  root.innerHTML=rows.map(r=>'<tr><td>'+esc(r.createdAt?new Date(r.createdAt).toLocaleString("he-IL"):"")+'</td><td>'+esc(r.productName||"")+'</td><td>'+esc(r.name||"")+'</td><td><span class="review-stars">'+("★".repeat(Number(r.rating||0)))+'</span></td><td class="review-text-cell">'+esc(r.text||"")+'</td><td><button type="button" class="danger-link" data-review-action="delete" data-id="'+esc(r.id)+'">מחק</button></td></tr>').join("")||'<tr><td colspan="6"><div class="empty-state">עדיין לא נשלחו ביקורות.</div></td></tr>'
 }
 function deleteReview(id){if(!confirm("למחוק את הביקורת?"))return;RomTechData.saveReviews(RomTechData.loadReviews().filter(x=>x.id!==id));renderReviews()}
-function renderAll(){renderProducts();renderStats();renderInventory();renderReports();renderOrders();renderReviews()}
+function renderAll(){renderProducts();renderStats();renderInventory();renderReports();renderOrders();renderCustomers();renderReviews()}
 
 function updateWhatsAppPreview(){
  const input=$("#settingWhatsapp"),link=$("#settingWhatsappLink"),box=$("#settingWhatsappGenerated");
@@ -256,7 +282,7 @@ document.addEventListener("input",e=>{if(e.target.matches("#settingsContentEdito
 document.addEventListener("DOMContentLoaded",()=>{ensureAdminFavicon();
  $("#adminSubmit")?.addEventListener("click",enterAdmin);["adminCode","adminPassword"].forEach(id=>$("#"+id)?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();enterAdmin()}}));$("#logoutBtn")?.addEventListener("click",logout);
  $$(".side-link[data-module]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.module)));$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
- $("#newBtn")?.addEventListener("click",()=>openModal());$('[data-action="new-product"]')?.addEventListener("click",()=>{go("products");openModal()});$("#closeModal")?.addEventListener("click",closeModal);$("#cancelModal")?.addEventListener("click",closeModal);$("#productForm")?.addEventListener("submit",saveProduct);$("#productImages")?.addEventListener("change",async e=>{await addImages(e.target.files);e.target.value=""});$("#bulkApply")?.addEventListener("click",bulk);$("#selectAllProducts")?.addEventListener("change",e=>{$(".pick").forEach(x=>x.checked=e.target.checked);updateBulkSelectionUI()});$("#importCsv")?.addEventListener("change",async e=>{const file=e.target.files?.[0];if(file)await importCsvFile(file);e.target.value=""});$("#exportCsv")?.addEventListener("click",exportCsv);$("#inventoryRefresh")?.addEventListener("click",renderInventory);$("#ordersRefresh")?.addEventListener("click",renderOrders);$("#reviewsRefresh")?.addEventListener("click",renderReviews);
+ $("#newBtn")?.addEventListener("click",()=>openModal());$('[data-action="new-product"]')?.addEventListener("click",()=>{go("products");openModal()});$("#closeModal")?.addEventListener("click",closeModal);$("#cancelModal")?.addEventListener("click",closeModal);$("#productForm")?.addEventListener("submit",saveProduct);$("#productImages")?.addEventListener("change",async e=>{await addImages(e.target.files);e.target.value=""});$("#bulkApply")?.addEventListener("click",bulk);$("#selectAllProducts")?.addEventListener("change",e=>{$(".pick").forEach(x=>x.checked=e.target.checked);updateBulkSelectionUI()});$("#importCsv")?.addEventListener("change",async e=>{const file=e.target.files?.[0];if(file)await importCsvFile(file);e.target.value=""});$("#exportCsv")?.addEventListener("click",exportCsv);$("#inventoryRefresh")?.addEventListener("click",renderInventory);$("#ordersRefresh")?.addEventListener("click",renderOrders);$("#customersRefresh")?.addEventListener("click",renderCustomers);$("#reviewsRefresh")?.addEventListener("click",renderReviews);
  $("#saveSiteSettings")?.addEventListener("click",saveSiteSettings);$("#settingWhatsapp")?.addEventListener("input",updateWhatsAppPreview);$("#saveAdminCredentials")?.addEventListener("click",saveAdminCredentials);$("#settingsContentPage")?.addEventListener("change",loadSettingsContentEditor);$("#saveSettingsContent")?.addEventListener("click",saveSettingsContent);$("#contentPageSelect")?.addEventListener("change",loadContentEditor);$("#saveContent")?.addEventListener("click",saveContent);
  document.addEventListener("click",e=>{const a=e.target.closest("[data-row-action]");if(a){const id=a.dataset.id;if(a.dataset.rowAction==="edit"){const p=getProducts().find(x=>x.id===id);if(p)openModal(p)}if(a.dataset.rowAction==="duplicate")duplicateProduct(id);if(a.dataset.rowAction==="delete")deleteProduct(id)}const rm=e.target.closest("[data-remove-image]");if(rm){stagedImages.splice(Number(rm.dataset.removeImage),1);renderPreview()}const d=e.target.closest("[data-delete-order]");if(d)deleteOrder(d.dataset.deleteOrder);const ra=e.target.closest("[data-review-action]");if(ra&&ra.dataset.reviewAction==="delete")deleteReview(ra.dataset.id)});
  document.addEventListener("change",e=>{const s=e.target.closest("[data-order-status]");if(s)updateOrderStatus(s.dataset.orderStatus,s.value);if(e.target.matches(".pick"))updateBulkSelectionUI()});
