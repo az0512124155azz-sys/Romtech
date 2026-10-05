@@ -7,6 +7,7 @@
     "node": "22.x"
   },
   "scripts": {
+    "pretest": "node scripts/generate-schema.mjs",
     "build": "node scripts/build.mjs",
     "dev": "node --env-file-if-exists=.env.local scripts/dev.mjs",
     "test": "node --test tests/*.test.mjs",

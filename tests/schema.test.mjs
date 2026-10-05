@@ -1,8 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { database } from './helpers.mjs';
 import { schemaSQL } from '../server/supabase.mjs';
 test('real Postgres schema: RLS, private costs/orders, anonymous writes, conflicts and retry-safe migration',async()=>{
+  assert.equal(schemaSQL,await readFile(new URL('../server/schema.sql',import.meta.url),'utf8'));
   const db=await database();
   try{
     await db.exec(schemaSQL);await db.exec(schemaSQL);

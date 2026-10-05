@@ -1,11 +1,9 @@
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { AppError } from './security.mjs';
+import { schemaSQL } from './schema-source.mjs';
+export { schemaSQL };
 
 export const BUCKET = 'romtech-images';
 export const ENTITIES = ['products', 'orders', 'reviews', 'settings', 'content'];
-const sourceSchema = new URL('./schema.sql', import.meta.url);
-export const schemaSQL = readFileSync(existsSync(sourceSchema) ? sourceSchema : resolve(process.cwd(), 'server/schema.sql'), 'utf8');
 const API = 'https://api.supabase.com/v1';
 export function validRef(ref) {
   if (!/^[a-z]{20}$/.test(ref || '')) throw new AppError(400, 'invalid_project', 'בחר פרויקט תקין מהרשימה.');
