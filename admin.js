@@ -5,7 +5,7 @@ function ensureAdminFavicon(){
  link.type="image/svg+xml";link.removeAttribute("sizes");link.href="../assets/favicon.svg?v=20261002-56";
 }
 "use strict";
-const CREDENTIALS_KEY="rt_admin_credentials_v2";
+const CREDENTIALS_KEY="rt_admin_credentials_v3";
 const SESSION_KEY="rt_admin_ok";
 let stagedImages=[];
 const $=q=>document.querySelector(q);
