@@ -30,6 +30,13 @@ test('dev server visual check: loads, meaningful content, navigation and no scri
   await page.locator('#newBtn').click();
   await expect(page.locator('#productForm [name="status"]')).toHaveValue('published');
   await expect(page.locator('#productModal')).toContainText('רק מוצר במצב “מפורסם” מופיע באתר הראשי.');
+  await page.locator('#closeModal').click();
+  await page.locator('[data-module="connection"]').click();
+  await expect(page.locator('#vercelTransferStatus')).toContainText('הכול מוכן');
+  await page.locator('#vercelTransferConsent').check();
+  await expect(page.locator('#createVercelClaim')).toBeEnabled();
+  await page.locator('#createVercelClaim').click();
+  await expect(page.locator('#vercelClaimLink')).toHaveAttribute('href',/vercel\.com\/claim-deployment/);
   expect(errors).toEqual([]);
 });
 test('buyer connects account, chooses project, provisions, activates and migrates local data/images',async({page,browser})=>{

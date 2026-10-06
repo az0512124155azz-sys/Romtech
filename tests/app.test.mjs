@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { createApp } from '../server/app.mjs';
 import { encryption, digest, passwordMatches, passwordHash } from '../server/security.mjs';
 import { createStore } from '../server/store.mjs';
-import { memoryStore, mockProvider, testEnv, invoke, PASSWORD, REF, REF2, product } from './helpers.mjs';
+import { memoryStore, mockProvider, mockHosting, testEnv, invoke, PASSWORD, REF, REF2, product } from './helpers.mjs';
 async function fixture() {
-  const store=memoryStore(),p=await mockProvider(),app=createApp({env:testEnv,store,supabase:p});
+  const store=memoryStore(),p=await mockProvider(),hosting=mockHosting(),app=createApp({env:testEnv,store,supabase:p,hosting});
   const login=await invoke(app,'login',{body:{password:PASSWORD}});
   const session=login.headers['set-cookie'].split(';')[0],sid=digest(session.split('=')[1]);
   async function authorize(){
@@ -15,7 +15,7 @@ async function fixture() {
     assert.equal(response.status,303);assert.equal(response.headers.location,'/admin/?supabase=connected');return authorize;
   }
   async function connect(ref=REF){await authorize();const setup=await invoke(app,'provision',{session,body:{ref}});assert.equal(setup.status,200,setup.text);const activate=await invoke(app,'activate',{session,body:{generation:setup.body.connection.generation}});assert.equal(activate.status,200);return activate.body.connection}
-  return {store,p,app,session,sid,authorize,connect};
+  return {store,p,hosting,app,session,sid,authorize,connect};
 }
 test('secure owner login, origin validation, cookie, encrypted durable store and rate limit',async()=>{
   const f=await fixture();
@@ -49,6 +49,20 @@ test('OAuth state/PKCE is single-use, session-bound and cancellable; secrets nev
     const exchange=f.p.calls.find(x=>x.url?.endsWith('/oauth/token'));
     assert.ok(new URLSearchParams(exchange.options.body).get('code_verifier'));
     assert.ok(!JSON.stringify(await f.store.get(`oauth:${f.sid}`)).includes('refresh-private-test'));
+  }finally{await f.p.close()}
+});
+test('Vercel ownership transfer creates one temporary claim link for the authenticated owner',async()=>{
+  const f=await fixture();
+  try{
+    const config=await invoke(f.app,'config');
+    assert.deepEqual(config.body.hosting,{provider:'vercel',transferReady:true});
+    assert.equal((await invoke(f.app,'vercel-claim',{body:{confirmTransfer:true}})).status,401);
+    assert.equal((await invoke(f.app,'vercel-claim',{session:f.session,body:{confirmTransfer:false}})).status,400);
+    const first=await invoke(f.app,'vercel-claim',{session:f.session,body:{confirmTransfer:true}});
+    assert.equal(first.status,200,first.text);assert.match(first.body.url,/^https:\/\/vercel\.com\/claim-deployment\?/);
+    assert.equal(f.hosting.calls.length,1);assert.ok(!first.text.includes('vercel-private-test'));
+    const repeat=await invoke(f.app,'vercel-claim',{session:f.session,body:{confirmTransfer:true}});
+    assert.deepEqual(repeat.body,first.body);assert.equal(f.hosting.calls.length,1);
   }finally{await f.p.close()}
 });
 test('full backend flow: provision, health, activation, migration, public orders/reviews, private admin and replacement',async()=>{

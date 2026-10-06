@@ -3,10 +3,11 @@ import { AppError, randomId, digest, passwordHash, passwordMatches, cookie, sess
 import { createStore } from './store.mjs';
 import { provider, publicConnection, validRef, ENTITIES, BUCKET, schemaSQL } from './supabase.mjs';
 import { patch, clean, text, id } from './validation.mjs';
+import { vercelHosting } from './vercel.mjs';
 
 const REQUIRED = ['ROMTECH_ORIGIN','ROMTECH_STORE_PREFIX','UPSTASH_REDIS_REST_URL','UPSTASH_REDIS_REST_TOKEN','ROMTECH_ENCRYPTION_KEY','ROMTECH_OWNER_PASSWORD_HASH'];
 const OAUTH = ['SUPABASE_OAUTH_CLIENT_ID','SUPABASE_OAUTH_CLIENT_SECRET'];
-export function createApp({ env = process.env, store: injectedStore, supabase = provider() } = {}) {
+export function createApp({ env = process.env, store: injectedStore, supabase = provider(), hosting: injectedHosting } = {}) {
   env = {
     ...env,
     UPSTASH_REDIS_REST_URL: env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL,
@@ -15,6 +16,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
   let cachedStore;
   const ready = () => REQUIRED.every(k => !!env[k]);
   const oauthReady = () => OAUTH.every(k => !!env[k]);
+  const hosting = injectedHosting || vercelHosting(env);
   const store = () => injectedStore || (cachedStore ||= createStore(env));
   const origin = () => new URL(env.ROMTECH_ORIGIN).origin;
   const callbackURL = () => `${origin()}/api/romtech?action=oauth-callback`;
@@ -68,7 +70,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
       if (action === 'config') {
         if (!ready()) return send(200, { mode: 'local', serverReady: false, oauthReady: false, authenticated: false, connection: null });
         const c = await store().get('connection'), authenticated = !!await owner(req, false);
-        return send(200, { mode: c?.active ? 'cloud' : c ? 'disconnected' : 'local', serverReady: true, oauthReady: oauthReady(), authenticated, connection: c?.active ? publicConnection(c) : null });
+        return send(200, { mode: c?.active ? 'cloud' : c ? 'disconnected' : 'local', serverReady: true, oauthReady: oauthReady(), authenticated, connection: c?.active ? publicConnection(c) : null, hosting: { provider: env.VERCEL ? 'vercel' : 'other', transferReady: hosting.ready() } });
       }
       if (!ready()) throw new AppError(503, 'setup_required', 'בעל האתר צריך להשלים את הגדרת השרת לפי מדריך ההתקנה.');
       if (req.method === 'POST') verifyOrigin(req, origin());
@@ -112,6 +114,16 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
       }
       const sid = await owner(req);
       if (action === 'session') return send(200, { authenticated: true });
+      if (action === 'vercel-claim') {
+        if (body.confirmTransfer !== true) throw new AppError(400, 'transfer_confirmation_required', 'יש לאשר את יצירת קישור העברת הבעלות.');
+        return await store().lock('vercel-transfer', async () => {
+          const existing = await store().get('vercel-transfer');
+          if (existing?.url && existing.expiresAt > new Date().toISOString()) return send(200, existing);
+          const claim = await hosting.createClaim(`${origin()}/admin/?vercel=returned`);
+          await store().set('vercel-transfer', claim, 86400);
+          return send(200, claim);
+        });
+      }
       if (action === 'logout') {
         await store().del(`session:${sid}`); await store().del(`oauth:${sid}`); await store().del(`pending:${sid}`);
         res.setHeader('Set-Cookie', sessionCookie('', origin(), 0));

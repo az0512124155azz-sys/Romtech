@@ -7,8 +7,12 @@ export const PASSWORD = 'test-owner-password-123';
 export const testEnv = {
   ROMTECH_ORIGIN:'http://127.0.0.1:4173',ROMTECH_STORE_PREFIX:'test',UPSTASH_REDIS_REST_URL:'https://store.invalid',
   UPSTASH_REDIS_REST_TOKEN:'redis-private-test',ROMTECH_ENCRYPTION_KEY:Buffer.alloc(32,17).toString('base64'),
-  ROMTECH_OWNER_PASSWORD_HASH:passwordHash(PASSWORD),SUPABASE_OAUTH_CLIENT_ID:'oauth-client-test',SUPABASE_OAUTH_CLIENT_SECRET:'oauth-private-test'
+  ROMTECH_OWNER_PASSWORD_HASH:passwordHash(PASSWORD),SUPABASE_OAUTH_CLIENT_ID:'oauth-client-test',SUPABASE_OAUTH_CLIENT_SECRET:'oauth-private-test',VERCEL:'1',VERCEL_PROJECT_ID:'prj_test',VERCEL_ACCESS_TOKEN:'vercel-private-test'
 };
+export function mockHosting() {
+  const calls=[];
+  return { calls, ready:()=>true, async createClaim(returnUrl) { calls.push({returnUrl}); return {url:`https://vercel.com/claim-deployment?code=claim-code-test&returnUrl=${encodeURIComponent(returnUrl)}`,expiresAt:'2030-01-01T00:00:00.000Z'}; } };
+}
 export function memoryStore() {
   const items=new Map(),locks=new Set(),rates=new Map();
   const get=name=>{const v=items.get(name);if(v?.expires<Date.now()){items.delete(name);return null}return v?structuredClone(v.value):null};

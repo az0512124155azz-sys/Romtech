@@ -283,6 +283,14 @@
             <p class="muted">הפעל את ההעברה במכשיר שבו נשמרו הנתונים המקוריים. גם התמונות יועברו לאחסון. סיסמאות מקומיות והעדפות גלישה אינן מועברות. אם ההעברה נעצרת, אפשר להפעיל אותה שוב.</p>
             <button type="button" class="btn secondary" id="migrateLocal">העבר נתונים מקומיים</button>
           </div>
+          <div class="connection-section" id="vercelTransfer">
+            <h3>העבר את האתר לחשבון Vercel של הלקוח</h3>
+            <p id="vercelTransferStatus" class="muted">בודק את אפשרות ההעברה…</p>
+            <p class="muted">ייווצר קישור חד־פעמי ל־24 שעות. הלקוח ייכנס לחשבון Vercel שלו, יבחר את החשבון או הצוות שלו, ורק אז תושלם העברת הבעלות.</p>
+            <label class="consent"><input type="checkbox" id="vercelTransferConsent">אני מבין שלאחר שהלקוח יאשר את ההעברה, לא תהיה לי יותר שליטה בפרויקט הזה ב־Vercel.</label>
+            <div class="actions"><button type="button" class="btn secondary" id="createVercelClaim" disabled>צור קישור העברת בעלות</button><a id="vercelClaimLink" class="btn" target="_blank" rel="noopener" hidden>פתח את קישור הלקוח</a></div>
+            <p class="muted">לאחר ההעברה הלקוח צריך לחבר מחדש את Upstash לחשבון שלו. החיבור ל־Supabase נשאר בפרויקט הנתונים של הלקוח.</p>
+          </div>
         </div>
       </section>
     </main>

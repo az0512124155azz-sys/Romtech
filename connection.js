@@ -21,6 +21,14 @@
     $('#connectionActions').hidden = c.mode !== 'cloud';
     $('#activateProject').hidden = !pending;
     $('#connectSupabase').textContent = c.mode === 'cloud' ? 'החלף פרויקט Supabase' : 'חבר Supabase';
+    const hosting = c.hosting || {};
+    const transferReady = hosting.provider === 'vercel' && hosting.transferReady;
+    $('#vercelTransferStatus').textContent = transferReady
+      ? 'הכול מוכן ליצירת קישור העברת בעלות ללקוח.'
+      : hosting.provider === 'vercel'
+        ? 'בעל האתר צריך להוסיף מפתח Vercel מאובטח פעם אחת לפני שאפשר ליצור קישור העברה.'
+        : 'האתר אינו רץ כעת ב־Vercel, לכן העברת בעלות אוטומטית אינה זמינה.';
+    $('#createVercelClaim').disabled = !transferReady || !c.authenticated || !$('#vercelTransferConsent').checked;
     const counts = D.migrationSummary();
     $('#migrationSummary').textContent = `נתונים מקומיים להעברה: ${counts.products} מוצרים, ${counts.orders} הזמנות, ${counts.reviews} ביקורות, הגדרות ותוכן. רשומות בעלות אותו מזהה שכבר קיימות בפרויקט יישארו ללא שינוי.`;
   }
@@ -77,6 +85,15 @@
       await D.api('disconnect', { generation:D.config.connection.generation }); await D.refresh();
       window.dispatchEvent(new Event('romtech-data-changed')); status('האתר נותק. נתוני הפרויקט נשמרו ב־Supabase. ניתן לחבר אותו שוב או לבחור פרויקט אחר.');
     }));
+    $('#vercelTransferConsent').addEventListener('change', update);
+    $('#createVercelClaim').addEventListener('click', e => busy(e.currentTarget, async () => {
+      if (!$('#vercelTransferConsent').checked) throw new Error('יש לאשר את העברת הבעלות לפני יצירת הקישור.');
+      status('יוצר קישור מאובטח להעברת הבעלות ב־Vercel…');
+      const claim = await D.api('vercel-claim', { confirmTransfer: true });
+      const link = $('#vercelClaimLink'); link.href = claim.url; link.hidden = false;
+      $('#vercelTransferStatus').textContent = `קישור ההעברה מוכן עד ${new Date(claim.expiresAt).toLocaleString('he-IL')}. פתח אותו במכשיר של הלקוח.`;
+      status('קישור ההעברה נוצר. העברת הבעלות תתבצע רק לאחר אישור הלקוח ב־Vercel.');
+    }));
     $('#migrateLocal').addEventListener('click', e => busy(e.currentTarget, async () => {
       if (!confirm($('#migrationSummary').textContent + '\nלהעביר כעת? הגיבוי המקומי יישמר.')) return;
       const labels = {products:'מוצרים',orders:'הזמנות',reviews:'ביקורות',settings:'הגדרות',content:'עמודי תוכן'};
@@ -91,6 +108,11 @@
       history.replaceState(null,'',location.pathname);
       if (result === 'connected') await busy(null, listProjects);
       else status('החיבור בוטל, פג או לא הושלם. לחץ שוב על חבר Supabase.', true);
+    }
+    if (new URLSearchParams(location.search).get('vercel') === 'returned') {
+      document.querySelector('[data-module="connection"]')?.click();
+      history.replaceState(null,'',location.pathname);
+      status('חזרת מ־Vercel. בדוק בחשבון הלקוח שהעברת הבעלות הושלמה וחבר את Upstash שלו.', false);
     }
   });
 })();
