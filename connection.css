@@ -15,3 +15,11 @@
 .connection-card .connection-section{display:grid;gap:14px;border-top:1px solid #ddd;padding-top:18px}
 .connection-card [hidden]{display:none!important}
 .connection-card .muted{color:#666;font-size:14px;line-height:1.7}
+.connection-card #vercelTransfer{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;gap:12px;max-width:850px;box-shadow:0 6px 20px #00000008}
+.connection-card #vercelTransfer h3{font-size:22px;line-height:1.25}
+.connection-card #vercelTransfer .actions{align-items:center;justify-content:flex-start;margin-top:4px}
+.connection-card #vercelTransfer .actions .muted{margin-inline-start:4px}
+.connection-card #vercelTransfer .consent{padding:12px 14px;background:#faf8f4;border:1px solid var(--line);border-radius:10px;line-height:1.55}
+.connection-card #vercelTransfer .consent input{flex:0 0 auto}
+.connection-card #vercelTransfer #vercelTransferStatus{padding:10px 12px;border-radius:9px;background:#f4f7f5;color:#315a43}
+.connection-card #vercelTransfer #vercelClaimLink{min-height:44px}
