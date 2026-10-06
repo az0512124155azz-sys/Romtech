@@ -15,7 +15,7 @@ export function vercelHosting(env, request = fetch) {
     authorizeUrl(redirectUri, state, codeChallenge) {
       if (!ready()) fail(503, 'vercel_setup_required', 'יש להשלים את הגדרת אפליקציית OAuth של Vercel לפני החיבור.');
       const url = new URL(authorize);
-      url.search = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: 'code', state, code_challenge: codeChallenge, code_challenge_method: 'S256' }).toString();
+      url.search = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: 'code', scope: 'openid email profile', state, code_challenge: codeChallenge, code_challenge_method: 'S256' }).toString();
       return url.href;
     },
     async exchange(code, redirectUri, codeVerifier) {
