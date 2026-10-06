@@ -129,16 +129,16 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
       const sid = await owner(req);
       if (action === 'session') return send(200, { authenticated: true });
       if (action === 'vercel-oauth-start') {
-        const state = randomId();
-        await store().set(`vercel-state:${digest(state)}`, { state, sid }, 600);
-        return send(200, { url: hosting.authorizeUrl(`${origin()}/api/romtech`, state) });
+        const state = randomId(), verifier = randomId(), challenge = createHash('sha256').update(verifier).digest('base64url');
+        await store().set(`vercel-state:${digest(state)}`, { state, sid, verifier }, 600);
+        return send(200, { url: hosting.authorizeUrl(`${origin()}/api/romtech`, state, challenge) });
       }
       if (action === 'vercel-oauth-callback') {
         const state = url.searchParams.get('state') || '', saved = await store().take(`vercel-state:${sid}`);
         if (!saved || saved.state !== state || url.searchParams.has('error')) throw new AppError(400, 'vercel_oauth_state', 'החיבור ל־Vercel בוטל או פג. נסה שוב.');
         const code = text(url.searchParams.get('code'), 4000, true);
         if (!code) throw new AppError(400, 'vercel_oauth_code', 'Vercel לא החזיר קוד הרשאה. נסה שוב.');
-        const token = await hosting.exchange(code, `${origin()}/api/romtech`);
+        const token = await hosting.exchange(code, `${origin()}/api/romtech`, saved.verifier);
         await store().set(`vercel-oauth:${sid}`, token, Math.ceil((token.expiresAt - Date.now()) / 1000));
         return redirect('/admin/?vercel=authorized');
       }

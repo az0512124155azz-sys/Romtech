@@ -12,16 +12,16 @@ export function vercelHosting(env, request = fetch) {
   const fail = (status, code, message) => { throw new AppError(status, code, message); };
   return {
     ready,
-    authorizeUrl(redirectUri, state) {
+    authorizeUrl(redirectUri, state, codeChallenge) {
       if (!ready()) fail(503, 'vercel_setup_required', 'יש להשלים את הגדרת אפליקציית OAuth של Vercel לפני החיבור.');
       const url = new URL(authorize);
-      url.search = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: 'code', state }).toString();
+      url.search = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: 'code', state, code_challenge: codeChallenge, code_challenge_method: 'S256' }).toString();
       return url.href;
     },
-    async exchange(code, redirectUri) {
+    async exchange(code, redirectUri, codeVerifier) {
       let response;
       try {
-        response = await request(`${api}/login/oauth/token`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'authorization_code', client_id: clientId, client_secret: clientSecret, code, redirect_uri: redirectUri }) });
+        response = await request(`${api}/login/oauth/token`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'authorization_code', client_id: clientId, client_secret: clientSecret, code, code_verifier: codeVerifier, redirect_uri: redirectUri }) });
       } catch { fail(503, 'vercel_unavailable', 'לא ניתן להגיע ל־Vercel כרגע. נסה שוב בעוד רגע.'); }
       let body = {}; try { body = await response.json(); } catch {}
       if (!response.ok || typeof body.access_token !== 'string') fail(response.status === 401 ? 401 : 502, 'vercel_oauth_failed', 'Vercel לא אישר את החיבור. נסה שוב.');
