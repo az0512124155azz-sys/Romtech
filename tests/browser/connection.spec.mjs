@@ -27,6 +27,9 @@ test('dev server visual check: loads, meaningful content, navigation and no scri
     await page.locator(`[data-module="${module}"]`).click();
     await expect(page.locator(`[data-panel="${module}"]`)).toBeVisible();
   }
+  await page.locator('#newBtn').click();
+  await expect(page.locator('#productForm [name="status"]')).toHaveValue('published');
+  await expect(page.locator('#productModal')).toContainText('רק מוצר במצב “מפורסם” מופיע באתר הראשי.');
   expect(errors).toEqual([]);
 });
 test('buyer connects account, chooses project, provisions, activates and migrates local data/images',async({page,browser})=>{

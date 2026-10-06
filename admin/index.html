@@ -322,7 +322,7 @@
           <label>אפשרות רקמת שם <input type="checkbox" name="embroidery" class="inline-check"></label>
           <label>תוספת לרקמה<input type="number" name="embroideryPrice" value="150"></label>
           <label>תגיות<input name="tags" placeholder="חדש, מבצע, נדיר"></label>
-          <label>סטטוס<select required name="status"><option value="draft">טיוטה</option><option value="published">מפורסם</option><option value="hidden">מוסתר</option></select></label>
+          <label>סטטוס<select required name="status"><option value="published" selected>מפורסם — מוצג באתר</option><option value="draft">טיוטה — רק באזור הניהול</option><option value="hidden">מוסתר — רק באזור הניהול</option></select><small class="small">רק מוצר במצב “מפורסם” מופיע באתר הראשי.</small></label>
           <label>SEO — כותרת<input required maxlength="60" name="seoTitle"></label>
           <label>SEO — תיאור<input required maxlength="160" name="seoDescription"></label>
           <label>SEO — Slug<input name="slug"></label>
