@@ -130,7 +130,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
       if (action === 'session') return send(200, { authenticated: true });
       if (action === 'vercel-oauth-start') {
         const state = randomId();
-        await store().set(`vercel-state:${sid}`, { state }, 600);
+        await store().set(`vercel-state:${digest(state)}`, { state, sid }, 600);
         return send(200, { url: hosting.authorizeUrl(`${origin()}/api/romtech`, state) });
       }
       if (action === 'vercel-oauth-callback') {
