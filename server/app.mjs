@@ -115,6 +115,17 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         await supabase.rest(c, 'rpc/romtech_apply_patch', true, { p_entity: entity, p_changes: [{ id: rowId, ...record }], p_deletes: [], p_import: true });
         return send(200, { ok: true, id: rowId });
       }
+      // OAuth may return in a fresh browser context without the admin cookie.
+      // The one-time high-entropy state still binds the callback to the owner session.
+      if (action === 'vercel-oauth-callback') {
+        const state = url.searchParams.get('state') || '', saved = await store().take(`vercel-state:${digest(state)}`);
+        if (!saved || saved.state !== state || url.searchParams.has('error')) throw new AppError(400, 'vercel_oauth_state', 'החיבור ל־Vercel בוטל או פג. נסה שוב.');
+        const code = text(url.searchParams.get('code'), 4000, true);
+        if (!code) throw new AppError(400, 'vercel_oauth_code', 'Vercel לא החזיר קוד הרשאה. נסה שוב.');
+        const token = await hosting.exchange(code, `${origin()}/api/romtech`);
+        await store().set(`vercel-oauth:${saved.sid}`, token, Math.ceil((token.expiresAt - Date.now()) / 1000));
+        return redirect('/admin/?vercel=authorized');
+      }
       const sid = await owner(req);
       if (action === 'session') return send(200, { authenticated: true });
       if (action === 'vercel-oauth-start') {
