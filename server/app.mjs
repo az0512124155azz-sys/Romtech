@@ -63,7 +63,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
     let action;
     try {
       const url = new URL(req.url, 'https://romtech.invalid');
-      action = url.searchParams.get('action') || 'config';
+      action = url.searchParams.get('action') || (url.searchParams.has('code') || url.searchParams.has('error') ? 'vercel-oauth-callback' : 'config');
       if (!['GET','POST'].includes(req.method)) throw new AppError(405, 'method_not_allowed', 'הפעולה אינה נתמכת.');
       const gets = ['config','session','projects','snapshot','health','oauth-callback','vercel-oauth-callback'];
       if ((gets.includes(action) ? 'GET' : 'POST') !== req.method) throw new AppError(405, 'method_not_allowed', 'הפעולה אינה נתמכת.');
@@ -120,14 +120,14 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
       if (action === 'vercel-oauth-start') {
         const state = randomId();
         await store().set(`vercel-state:${sid}`, { state }, 600);
-        return send(200, { url: hosting.authorizeUrl(`${origin()}/api/romtech?action=vercel-oauth-callback`, state) });
+        return send(200, { url: hosting.authorizeUrl(`${origin()}/api/romtech`, state) });
       }
       if (action === 'vercel-oauth-callback') {
         const state = url.searchParams.get('state') || '', saved = await store().take(`vercel-state:${sid}`);
         if (!saved || saved.state !== state || url.searchParams.has('error')) throw new AppError(400, 'vercel_oauth_state', 'החיבור ל־Vercel בוטל או פג. נסה שוב.');
         const code = text(url.searchParams.get('code'), 4000, true);
         if (!code) throw new AppError(400, 'vercel_oauth_code', 'Vercel לא החזיר קוד הרשאה. נסה שוב.');
-        const token = await hosting.exchange(code, `${origin()}/api/romtech?action=vercel-oauth-callback`);
+        const token = await hosting.exchange(code, `${origin()}/api/romtech`);
         await store().set(`vercel-oauth:${sid}`, token, Math.ceil((token.expiresAt - Date.now()) / 1000));
         return redirect('/admin/?vercel=authorized');
       }
