@@ -23,10 +23,12 @@
     $('#connectSupabase').textContent = c.mode === 'cloud' ? 'החלף פרויקט Supabase' : 'חבר Supabase';
     const hosting = c.hosting || {};
     const transferReady = hosting.provider === 'vercel' && hosting.transferReady;
+    $('#authorizeVercel').disabled = !c.authenticated || !hosting.authorizeReady;
+    $('#vercelAuthorizeStatus').textContent = hosting.authorized ? 'Vercel מחובר' : hosting.authorizeReady ? 'נדרש אישור חד־פעמי' : 'נדרשת הגדרת OAuth בשרת';
     $('#vercelTransferStatus').textContent = transferReady
       ? 'הכול מוכן ליצירת קישור העברת בעלות ללקוח.'
       : hosting.provider === 'vercel'
-        ? 'בעל האתר צריך להוסיף מפתח Vercel מאובטח פעם אחת לפני שאפשר ליצור קישור העברה.'
+        ? 'לחץ על Authorize Vercel כדי לאשר את החשבון שלך. אין צורך להעתיק טוקן.'
         : 'האתר אינו רץ כעת ב־Vercel, לכן העברת בעלות אוטומטית אינה זמינה.';
     $('#createVercelClaim').disabled = !transferReady || !c.authenticated || !$('#vercelTransferConsent').checked;
     const counts = D.migrationSummary();
@@ -86,6 +88,10 @@
       window.dispatchEvent(new Event('romtech-data-changed')); status('האתר נותק. נתוני הפרויקט נשמרו ב־Supabase. ניתן לחבר אותו שוב או לבחור פרויקט אחר.');
     }));
     $('#vercelTransferConsent').addEventListener('change', update);
+    $('#authorizeVercel').addEventListener('click', e => busy(e.currentTarget, async () => {
+      status('מעביר אותך לאישור המאובטח של Vercel…');
+      location.assign((await D.api('vercel-oauth-start', {})).url);
+    }));
     $('#createVercelClaim').addEventListener('click', e => busy(e.currentTarget, async () => {
       if (!$('#vercelTransferConsent').checked) throw new Error('יש לאשר את העברת הבעלות לפני יצירת הקישור.');
       status('יוצר קישור מאובטח להעברת הבעלות ב־Vercel…');
@@ -113,6 +119,11 @@
       document.querySelector('[data-module="connection"]')?.click();
       history.replaceState(null,'',location.pathname);
       status('חזרת מ־Vercel. בדוק בחשבון הלקוח שהעברת הבעלות הושלמה וחבר את Upstash שלו.', false);
+    }
+    if (new URLSearchParams(location.search).get('vercel') === 'authorized') {
+      document.querySelector('[data-module="connection"]')?.click();
+      history.replaceState(null,'',location.pathname);
+      status('חשבון Vercel אושר. אפשר ליצור עכשיו קישור להעברת הבעלות.', false);
     }
   });
 })();

@@ -65,12 +65,15 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
       const url = new URL(req.url, 'https://romtech.invalid');
       action = url.searchParams.get('action') || 'config';
       if (!['GET','POST'].includes(req.method)) throw new AppError(405, 'method_not_allowed', 'הפעולה אינה נתמכת.');
-      const gets = ['config','session','projects','snapshot','health','oauth-callback'];
+      const gets = ['config','session','projects','snapshot','health','oauth-callback','vercel-oauth-callback'];
       if ((gets.includes(action) ? 'GET' : 'POST') !== req.method) throw new AppError(405, 'method_not_allowed', 'הפעולה אינה נתמכת.');
       if (action === 'config') {
         if (!ready()) return send(200, { mode: 'local', serverReady: false, oauthReady: false, authenticated: false, connection: null });
         const c = await store().get('connection'), authenticated = !!await owner(req, false);
-        return send(200, { mode: c?.active ? 'cloud' : c ? 'disconnected' : 'local', serverReady: true, oauthReady: oauthReady(), authenticated, connection: c?.active ? publicConnection(c) : null, hosting: { provider: env.VERCEL ? 'vercel' : 'other', transferReady: hosting.ready() } });
+        const vercelAuth = authenticated && await store().get(`vercel-oauth:${digest(cookie(req))}`);
+        const hostingStatus = { provider: env.VERCEL ? 'vercel' : 'other', transferReady: hosting.ready() && (injectedHosting ? true : !!vercelAuth) };
+        if (!injectedHosting) Object.assign(hostingStatus, { authorizeReady: hosting.ready(), authorized: !!vercelAuth });
+        return send(200, { mode: c?.active ? 'cloud' : c ? 'disconnected' : 'local', serverReady: true, oauthReady: oauthReady(), authenticated, connection: c?.active ? publicConnection(c) : null, hosting: hostingStatus });
       }
       if (!ready()) throw new AppError(503, 'setup_required', 'בעל האתר צריך להשלים את הגדרת השרת לפי מדריך ההתקנה.');
       if (req.method === 'POST') verifyOrigin(req, origin());
@@ -114,12 +117,27 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
       }
       const sid = await owner(req);
       if (action === 'session') return send(200, { authenticated: true });
+      if (action === 'vercel-oauth-start') {
+        const state = randomId();
+        await store().set(`vercel-state:${sid}`, { state }, 600);
+        return send(200, { url: hosting.authorizeUrl(`${origin()}/api/romtech?action=vercel-oauth-callback`, state) });
+      }
+      if (action === 'vercel-oauth-callback') {
+        const state = url.searchParams.get('state') || '', saved = await store().take(`vercel-state:${sid}`);
+        if (!saved || saved.state !== state || url.searchParams.has('error')) throw new AppError(400, 'vercel_oauth_state', 'החיבור ל־Vercel בוטל או פג. נסה שוב.');
+        const code = text(url.searchParams.get('code'), 4000, true);
+        if (!code) throw new AppError(400, 'vercel_oauth_code', 'Vercel לא החזיר קוד הרשאה. נסה שוב.');
+        const token = await hosting.exchange(code, `${origin()}/api/romtech?action=vercel-oauth-callback`);
+        await store().set(`vercel-oauth:${sid}`, token, Math.ceil((token.expiresAt - Date.now()) / 1000));
+        return redirect('/admin/?vercel=authorized');
+      }
       if (action === 'vercel-claim') {
         if (body.confirmTransfer !== true) throw new AppError(400, 'transfer_confirmation_required', 'יש לאשר את יצירת קישור העברת הבעלות.');
         return await store().lock('vercel-transfer', async () => {
           const existing = await store().get('vercel-transfer');
           if (existing?.url && existing.expiresAt > new Date().toISOString()) return send(200, existing);
-          const claim = await hosting.createClaim(`${origin()}/admin/?vercel=returned`);
+          const auth = await store().get(`vercel-oauth:${sid}`);
+          const claim = await hosting.createClaim(`${origin()}/admin/?vercel=returned`, auth?.expiresAt > Date.now() ? auth.accessToken : null);
           await store().set('vercel-transfer', claim, 86400);
           return send(200, claim);
         });
