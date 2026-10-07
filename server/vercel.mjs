@@ -41,13 +41,23 @@ export function vercelHosting(env, request = fetch) {
     async createClaim(returnUrl, authorization) {
       if (!ready()) fail(503, 'vercel_setup_required', 'יש להשלים את הגדרת אפליקציית OAuth של Vercel לפני יצירת קישור ללקוח.');
       if (!authorization?.accessToken) fail(401, 'vercel_authorize_required', 'יש ללחוץ קודם על Authorize Vercel.');
-      const endpoint = new URL(`${api}/projects/${encodeURIComponent(projectId)}/transfer-request`);
-      if (authorization.teamId || teamId) endpoint.searchParams.set('teamId', authorization.teamId || teamId);
+      const sourceTeamId = authorization.teamId || teamId || null;
+      const transferRequest = async scopedTeamId => {
+        const endpoint = new URL(`${api}/projects/${encodeURIComponent(projectId)}/transfer-request`);
+        if (scopedTeamId) endpoint.searchParams.set('teamId', scopedTeamId);
+        return request(endpoint, { method: 'POST', headers: { Authorization: `Bearer ${authorization.accessToken}`, 'Content-Type': 'application/json' }, body: '{}' });
+      };
       let response;
-      try { response = await request(endpoint, { method: 'POST', headers: { Authorization: `Bearer ${authorization.accessToken}`, 'Content-Type': 'application/json' }, body: '{}' }); }
+      try {
+        response = await transferRequest(sourceTeamId);
+        // Personal Vercel accounts do not always accept the installation team id.
+        // A failed request has no side effect, so retry the documented unscoped form.
+        if (!response.ok && sourceTeamId && (response.status === 400 || response.status === 404)) response = await transferRequest(null);
+      }
       catch { fail(503, 'vercel_unavailable', 'לא ניתן להגיע ל־Vercel כרגע. נסה שוב בעוד רגע.'); }
       let body = {}; try { body = await response.json(); } catch {}
       if (!response.ok || typeof body.code !== 'string' || !/^[A-Za-z0-9_-]{8,512}$/.test(body.code)) {
+        console.error('Vercel transfer request failed', { status: response.status, scoped: Boolean(sourceTeamId) });
         const message = response.status === 401 || response.status === 403 ? 'ההרשאה ל־Vercel פגה או אינה מספיקה. לחץ שוב על Authorize Vercel.' : response.status === 409 ? 'כבר נוצר קישור העברת בעלות פעיל. השתמש בקישור הקיים או נסה שוב לאחר שפג.' : 'Vercel לא הצליח ליצור קישור העברת בעלות. נסה שוב.';
         fail(response.status === 401 || response.status === 403 ? 403 : 502, 'vercel_transfer_failed', message);
       }

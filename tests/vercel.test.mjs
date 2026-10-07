@@ -21,3 +21,17 @@ test('Vercel Integration install exchanges server-side credentials and creates a
   assert.equal(calls[1].options.headers.Authorization, 'Bearer vca_private');
   assert.match(claim.url, /^https:\/\/vercel\.com\/claim-deployment\?/);
 });
+
+test('Vercel retries an unscoped transfer request for a personal account', async () => {
+  const calls = [];
+  const request = async url => {
+    calls.push(String(url));
+    return calls.length === 1
+      ? new Response(JSON.stringify({ error: { code: 'not_found' } }), { status: 404 })
+      : new Response(JSON.stringify({ code: 'claim-code-valid' }), { status: 200 });
+  };
+  const hosting = vercelHosting({ VERCEL_PROJECT_ID:'prj_test', VERCEL_INTEGRATION_SLUG:'romtech', VERCEL_OAUTH_CLIENT_ID:'oac_test', VERCEL_OAUTH_CLIENT_SECRET:'private' }, request);
+  await hosting.createClaim('https://romtech.example/admin/', { accessToken:'vca_private', teamId:'team_personal' });
+  assert.match(calls[0], /teamId=team_personal/);
+  assert.doesNotMatch(calls[1], /teamId=/);
+});
