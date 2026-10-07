@@ -116,12 +116,12 @@
     if (new URLSearchParams(location.search).get('vercel') === 'returned') {
       document.querySelector('[data-module="connection"]')?.click();
       history.replaceState(null,'',location.pathname);
-      status('חזרת מ־Vercel. בדוק בחשבון הלקוח שהעברת הבעלות הושלמה וחבר את Upstash שלו.', false);
+      status('חזרת מ־Vercel. העותק החדש נפרס בחשבון שאושר.', false);
     }
     if (new URLSearchParams(location.search).get('vercel') === 'authorized') {
       document.querySelector('[data-module="connection"]')?.click();
       history.replaceState(null,'',location.pathname);
-      status('חשבון Vercel אושר. אפשר ליצור עכשיו קישור להעברת הבעלות.', false);
+      status('חשבון Vercel אושר. אפשר לפרסם עכשיו עותק חדש.', false);
     }
     if (new URLSearchParams(location.search).get('vercel') === 'error') {
       document.querySelector('[data-module="connection"]')?.click();
