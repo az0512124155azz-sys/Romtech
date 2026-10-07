@@ -62,7 +62,7 @@ export function vercelHosting(env, request = fetch) {
       let body = {}; try { body = await response.json(); } catch {}
       if (!response.ok || typeof body.code !== 'string' || !/^[A-Za-z0-9_-]{8,512}$/.test(body.code)) {
         console.error('Vercel transfer request failed', { status: response.status, scoped: Boolean(sourceTeamId), hasProjectName: Boolean(projectName) });
-        const message = response.status === 401 || response.status === 403 ? 'ההרשאה ל־Vercel פגה או אינה מספיקה. לחץ שוב על Authorize Vercel.' : response.status === 409 ? 'כבר נוצר קישור העברת בעלות פעיל. השתמש בקישור הקיים או נסה שוב לאחר שפג.' : 'Vercel לא הצליח ליצור קישור העברת בעלות. נסה שוב.';
+        const message = response.status === 401 || response.status === 403 ? 'ההרשאה ל־Vercel פגה או אינה מספיקה. לחץ שוב על Authorize Vercel.' : response.status === 404 ? 'לחשבון Vercel המחובר אין בעלות על הפרויקט. התחבר לחשבון בעל הפרויקט או בקש מבעליו להעביר אותו לחשבון שלך.' : response.status === 409 ? 'כבר נוצר קישור העברת בעלות פעיל. השתמש בקישור הקיים או נסה שוב לאחר שפג.' : 'Vercel לא הצליח ליצור קישור העברת בעלות. נסה שוב.';
         fail(response.status === 401 || response.status === 403 ? 403 : 502, 'vercel_transfer_failed', message);
       }
       const claim = new URL('https://vercel.com/claim-deployment');
