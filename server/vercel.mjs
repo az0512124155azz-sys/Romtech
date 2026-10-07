@@ -1,4 +1,5 @@
 import { AppError } from './security.mjs';
+import { templateFiles } from './template-source.mjs';
 
 const api = 'https://api.vercel.com';
 const authorize = 'https://vercel.com/oauth/authorize';
@@ -68,6 +69,17 @@ export function vercelHosting(env, request = fetch) {
       const claim = new URL('https://vercel.com/claim-deployment');
       claim.search = new URLSearchParams({ code: body.code, returnUrl }).toString();
       return { url: claim.href, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() };
+    },
+    async deployCopy(name, authorization) {
+      if (!authorization?.accessToken) fail(401, 'vercel_authorize_required', 'יש ללחוץ קודם על Authorize Vercel.');
+      const project = String(name || '').trim().toLowerCase();
+      if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(project)) fail(400, 'vercel_project_name', 'בחר שם קצר באנגלית לפרויקט החדש.');
+      let response;
+      try { response = await request(`${api}/v13/deployments`, { method:'POST', headers:{ Authorization:`Bearer ${authorization.accessToken}`, 'Content-Type':'application/json' }, body:JSON.stringify({ name:project, target:'production', files:templateFiles, projectSettings:{ framework:null, installCommand:'npm ci', buildCommand:'npm run build', outputDirectory:'dist', nodeVersion:'22.x' } }) }); }
+      catch { fail(503, 'vercel_unavailable', 'לא ניתן להגיע ל־Vercel כרגע. נסה שוב בעוד רגע.'); }
+      let body = {}; try { body = await response.json(); } catch {}
+      if (!response.ok || typeof body.url !== 'string') fail(response.status === 401 || response.status === 403 ? 403 : 502, 'vercel_deploy_failed', response.status === 409 ? 'שם הפרויקט כבר קיים בחשבון Vercel.' : 'Vercel לא הצליח לפרסם את העותק. נסה שוב.');
+      return { project:body.name || project, url:`https://${body.url}`, readyState:body.readyState || 'BUILDING' };
     }
   };
 }

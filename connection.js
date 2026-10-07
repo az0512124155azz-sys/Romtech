@@ -26,11 +26,11 @@
     $('#authorizeVercel').disabled = !c.authenticated || !hosting.authorizeReady;
     $('#vercelAuthorizeStatus').textContent = hosting.authorized ? 'Vercel מחובר' : hosting.authorizeReady ? 'נדרש אישור חד־פעמי' : 'נדרשת הגדרת OAuth בשרת';
     $('#vercelTransferStatus').textContent = transferReady
-      ? 'הכול מוכן ליצירת קישור העברת בעלות ללקוח.'
+      ? 'הכול מוכן לפרסום עותק עצמאי בחשבון Vercel של הלקוח.'
       : hosting.provider === 'vercel'
         ? 'לחץ על Authorize Vercel כדי לאשר את החשבון שלך. אין צורך להעתיק טוקן.'
-        : 'האתר אינו רץ כעת ב־Vercel, לכן העברת בעלות אוטומטית אינה זמינה.';
-    $('#createVercelClaim').disabled = !transferReady || !c.authenticated || !$('#vercelTransferConsent').checked;
+        : 'האתר אינו רץ כעת ב־Vercel, לכן פרסום עותק אוטומטי אינו זמין.';
+    $('#createVercelClaim').disabled = !transferReady || !c.authenticated;
     const counts = D.migrationSummary();
     $('#migrationSummary').textContent = `נתונים מקומיים להעברה: ${counts.products} מוצרים, ${counts.orders} הזמנות, ${counts.reviews} ביקורות, הגדרות ותוכן. רשומות בעלות אותו מזהה שכבר קיימות בפרויקט יישארו ללא שינוי.`;
   }
@@ -87,18 +87,16 @@
       await D.api('disconnect', { generation:D.config.connection.generation }); await D.refresh();
       window.dispatchEvent(new Event('romtech-data-changed')); status('האתר נותק. נתוני הפרויקט נשמרו ב־Supabase. ניתן לחבר אותו שוב או לבחור פרויקט אחר.');
     }));
-    $('#vercelTransferConsent').addEventListener('change', update);
     $('#authorizeVercel').addEventListener('click', e => busy(e.currentTarget, async () => {
       status('מעביר אותך לאישור המאובטח של Vercel…');
       location.assign((await D.api('vercel-oauth-start', {})).url);
     }));
     $('#createVercelClaim').addEventListener('click', e => busy(e.currentTarget, async () => {
-      if (!$('#vercelTransferConsent').checked) throw new Error('יש לאשר את העברת הבעלות לפני יצירת הקישור.');
-      status('יוצר קישור מאובטח להעברת הבעלות ב־Vercel…');
-      const claim = await D.api('vercel-claim', { confirmTransfer: true });
+      status('מפרסם עותק חדש בחשבון Vercel שאושר…');
+      const claim = await D.api('vercel-deploy-copy', { name: $('#vercelCopyName').value });
       const link = $('#vercelClaimLink'); link.href = claim.url; link.hidden = false;
-      $('#vercelTransferStatus').textContent = `קישור ההעברה מוכן עד ${new Date(claim.expiresAt).toLocaleString('he-IL')}. פתח אותו במכשיר של הלקוח.`;
-      status('קישור ההעברה נוצר. העברת הבעלות תתבצע רק לאחר אישור הלקוח ב־Vercel.');
+      $('#vercelTransferStatus').textContent = `העותק ${claim.project} נשלח לפרסום. פתח את האתר החדש לאחר שהבנייה מסתיימת.`;
+      status('העותק נוצר בחשבון Vercel שאושר.');
     }));
     $('#migrateLocal').addEventListener('click', e => busy(e.currentTarget, async () => {
       if (!confirm($('#migrationSummary').textContent + '\nלהעביר כעת? הגיבוי המקומי יישמר.')) return;

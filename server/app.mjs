@@ -155,6 +155,10 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
           return send(200, claim);
         });
       }
+      if (action === 'vercel-deploy-copy') {
+        const auth = await store().get(`vercel-oauth:${sid}`);
+        return send(200, await hosting.deployCopy(text(body.name,64,true), auth?.expiresAt > Date.now() ? auth : null));
+      }
       if (action === 'logout') {
         await store().del(`session:${sid}`); await store().del(`oauth:${sid}`); await store().del(`pending:${sid}`);
         res.setHeader('Set-Cookie', sessionCookie('', origin(), 0));
