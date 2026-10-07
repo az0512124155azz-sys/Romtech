@@ -11,6 +11,8 @@ export function vercelHosting(env, request = fetch) {
   const clientId = String(env.VERCEL_OAUTH_CLIENT_ID || '').trim();
   const clientSecret = String(env.VERCEL_OAUTH_CLIENT_SECRET || '').trim();
   const integrationSlug = String(env.VERCEL_INTEGRATION_SLUG || '').trim();
+  const templateRepository = String(env.ROMTECH_TEMPLATE_GITHUB_REPO_ID || '1397509289').trim();
+  const templateSha = String(env.VERCEL_GIT_COMMIT_SHA || env.ROMTECH_TEMPLATE_GIT_SHA || '').trim();
   const integrationMode = !!integrationSlug;
   const ready = () => !!((projectId || projectName) && clientId && clientSecret && (!integrationMode || /^[a-z0-9-]{1,64}$/.test(integrationSlug)));
   const fail = (status, code, message) => { throw new AppError(status, code, message); };
@@ -75,7 +77,10 @@ export function vercelHosting(env, request = fetch) {
       const project = String(name || '').trim().toLowerCase();
       if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(project)) fail(400, 'vercel_project_name', 'בחר שם קצר באנגלית לפרויקט החדש.');
       let response;
-      try { response = await request(`${api}/v13/deployments`, { method:'POST', headers:{ Authorization:`Bearer ${authorization.accessToken}`, 'Content-Type':'application/json' }, body:JSON.stringify({ name:project, target:'production', files:templateFiles, projectSettings:{ framework:null, installCommand:'npm ci', buildCommand:'npm run build', outputDirectory:'dist', nodeVersion:'22.x' } }) }); }
+      const source = /^\d+$/.test(templateRepository) && /^[a-f0-9]{7,64}$/i.test(templateSha)
+        ? { gitSource:{ type:'github', repoId:Number(templateRepository), ref:'main', sha:templateSha } }
+        : { files:templateFiles };
+      try { response = await request(`${api}/v13/deployments`, { method:'POST', headers:{ Authorization:`Bearer ${authorization.accessToken}`, 'Content-Type':'application/json' }, body:JSON.stringify({ name:project, target:'production', ...source, projectSettings:{ framework:null, installCommand:'npm ci', buildCommand:'npm run build', outputDirectory:'dist', nodeVersion:'22.x' } }) }); }
       catch { fail(503, 'vercel_unavailable', 'לא ניתן להגיע ל־Vercel כרגע. נסה שוב בעוד רגע.'); }
       let body = {}; try { body = await response.json(); } catch {}
       if (!response.ok || typeof body.url !== 'string') fail(response.status === 401 || response.status === 403 ? 403 : 502, 'vercel_deploy_failed', response.status === 409 ? 'שם הפרויקט כבר קיים בחשבון Vercel.' : 'Vercel לא הצליח לפרסם את העותק. נסה שוב.');
