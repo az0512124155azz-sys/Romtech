@@ -5,7 +5,7 @@ import { provider, publicConnection, validRef, ENTITIES, BUCKET, schemaSQL } fro
 import { patch, clean, text, id } from './validation.mjs';
 import { vercelHosting } from './vercel.mjs';
 
-const REQUIRED = ['ROMTECH_ORIGIN','ROMTECH_STORE_PREFIX','UPSTASH_REDIS_REST_URL','UPSTASH_REDIS_REST_TOKEN','ROMTECH_ENCRYPTION_KEY','ROMTECH_OWNER_PASSWORD_HASH'];
+const REQUIRED = ['ROMTECH_STORE_PREFIX','UPSTASH_REDIS_REST_URL','UPSTASH_REDIS_REST_TOKEN','ROMTECH_ENCRYPTION_KEY','ROMTECH_OWNER_PASSWORD_HASH'];
 const OAUTH = ['SUPABASE_OAUTH_CLIENT_ID','SUPABASE_OAUTH_CLIENT_SECRET'];
 export function createApp({ env = process.env, store: injectedStore, supabase = provider(), hosting: injectedHosting } = {}) {
   env = {
@@ -18,8 +18,12 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
   const oauthReady = () => OAUTH.every(k => !!env[k]);
   const hosting = injectedHosting || vercelHosting(env);
   const store = () => injectedStore || (cachedStore ||= createStore(env));
-  const origin = () => new URL(env.ROMTECH_ORIGIN).origin;
-  const callbackURL = () => `${origin()}/api/romtech?action=oauth-callback`;
+  const origin = req => {
+    const host = String(req?.headers?.host || '').toLowerCase();
+    if (env.VERCEL && /^[a-z0-9-]+\.vercel\.app$/.test(host)) return `https://${host}`;
+    return new URL(env.ROMTECH_ORIGIN).origin;
+  };
+  const callbackURL = req => `${origin(req)}/api/romtech?action=oauth-callback`;
   async function owner(req, required = true) {
     const sid = cookie(req);
     const session = /^[A-Za-z0-9_-]{43}$/.test(sid) ? await store().get(`session:${digest(sid)}`) : null;
@@ -76,7 +80,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         return send(200, { mode: c?.active ? 'cloud' : c ? 'disconnected' : 'local', serverReady: true, oauthReady: oauthReady(), authenticated, connection: c?.active ? publicConnection(c) : null, hosting: hostingStatus });
       }
       if (!ready()) throw new AppError(503, 'setup_required', 'בעל האתר צריך להשלים את הגדרת השרת לפי מדריך ההתקנה.');
-      if (req.method === 'POST') verifyOrigin(req, origin());
+      if (req.method === 'POST') verifyOrigin(req, origin(req));
       const body = req.body || {};
       if (JSON.stringify(body).length > 3000000) throw new AppError(413, 'too_large', 'הבקשה גדולה מדי. פצל את הייבוא או בחר תמונה קטנה יותר.');
       // Vercel overwrites this header. Other hosts must use the TCP peer, not user-supplied X-Forwarded-For.
@@ -123,7 +127,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         if (!saved || saved.state !== state || url.searchParams.has('error')) throw new AppError(400, 'vercel_oauth_state', 'החיבור ל־Vercel בוטל או פג. נסה שוב.');
         const code = text(url.searchParams.get('code'), 4000, true);
         if (!code) throw new AppError(400, 'vercel_oauth_code', 'Vercel לא החזיר קוד הרשאה. נסה שוב.');
-        const token = await hosting.exchange(code, `${origin()}/api/romtech`, saved.verifier);
+        const token = await hosting.exchange(code, `${origin(req)}/api/romtech`, saved.verifier);
         await store().set(`vercel-oauth:${saved.sid}`, token, Math.ceil((token.expiresAt - Date.now()) / 1000));
         await store().del(stateKey);
         return redirect('/admin/?vercel=authorized');
@@ -140,7 +144,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         if (!saved || saved.state !== state || url.searchParams.has('error')) throw new AppError(400, 'vercel_oauth_state', 'החיבור ל־Vercel בוטל או פג. נסה שוב.');
         const code = text(url.searchParams.get('code'), 4000, true);
         if (!code) throw new AppError(400, 'vercel_oauth_code', 'Vercel לא החזיר קוד הרשאה. נסה שוב.');
-        const token = await hosting.exchange(code, `${origin()}/api/romtech`, saved.verifier);
+        const token = await hosting.exchange(code, `${origin(req)}/api/romtech`, saved.verifier);
         await store().set(`vercel-oauth:${sid}`, token, Math.ceil((token.expiresAt - Date.now()) / 1000));
         return redirect('/admin/?vercel=authorized');
       }
@@ -150,7 +154,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
           const existing = await store().get('vercel-transfer');
           if (existing?.url && existing.expiresAt > new Date().toISOString()) return send(200, existing);
           const auth = await store().get(`vercel-oauth:${sid}`);
-          const claim = await hosting.createClaim(`${origin()}/admin/?vercel=returned`, auth?.expiresAt > Date.now() ? auth : null);
+          const claim = await hosting.createClaim(`${origin(req)}/admin/?vercel=returned`, auth?.expiresAt > Date.now() ? auth : null);
           await store().set('vercel-transfer', claim, 86400);
           return send(200, claim);
         });
@@ -179,7 +183,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         const state = randomId(), verifier = randomId();
         await store().set(`state:${digest(state)}`, { sid, verifier }, 600);
         const authorize = new URL('https://api.supabase.com/v1/oauth/authorize');
-        authorize.search = new URLSearchParams({ client_id: env.SUPABASE_OAUTH_CLIENT_ID, redirect_uri: callbackURL(), response_type: 'code', state,
+        authorize.search = new URLSearchParams({ client_id: env.SUPABASE_OAUTH_CLIENT_ID, redirect_uri: callbackURL(req), response_type: 'code', state,
           code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256' });
         return send(200, { url: authorize.href });
       }
@@ -191,7 +195,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         const code = text(url.searchParams.get('code'), 4000, true);
         const tokens = await supabase.request('https://api.supabase.com/v1/oauth/token', {
           method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${Buffer.from(`${env.SUPABASE_OAUTH_CLIENT_ID}:${env.SUPABASE_OAUTH_CLIENT_SECRET}`).toString('base64')}` },
-          body: new URLSearchParams({ grant_type: 'authorization_code', code, redirect_uri: callbackURL(), code_verifier: saved.verifier }).toString()
+          body: new URLSearchParams({ grant_type: 'authorization_code', code, redirect_uri: callbackURL(req), code_verifier: saved.verifier }).toString()
         });
         if (!tokens?.access_token) throw new AppError(502, 'oauth_invalid', 'לא התקבלה הרשאה תקינה מ־Supabase.');
         // Only needed during setup. Do not retain the refresh token or long-lived management access.
