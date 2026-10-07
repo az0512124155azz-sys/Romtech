@@ -150,7 +150,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
           const existing = await store().get('vercel-transfer');
           if (existing?.url && existing.expiresAt > new Date().toISOString()) return send(200, existing);
           const auth = await store().get(`vercel-oauth:${sid}`);
-          const claim = await hosting.createClaim(`${origin()}/admin/?vercel=returned`, auth?.expiresAt > Date.now() ? auth.accessToken : null);
+          const claim = await hosting.createClaim(`${origin()}/admin/?vercel=returned`, auth?.expiresAt > Date.now() ? auth : null);
           await store().set('vercel-transfer', claim, 86400);
           return send(200, claim);
         });
@@ -287,6 +287,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
     } catch (error) {
       // Never serialize provider bodies, SQL, credentials, tokens or stack traces.
       if (action === 'oauth-callback') return redirect('/admin/?supabase=error');
+      if (action === 'vercel-oauth-callback') return redirect(`/admin/?vercel=error&reason=${encodeURIComponent(error instanceof AppError ? error.code : 'internal_error')}`);
       const known = error instanceof AppError;
       return send(known ? error.status : 500, { error: { code: known ? error.code : 'internal_error', message: known ? error.message : 'הפעולה לא הושלמה. הנתונים לא נשמרו; נסה שוב או פנה לבעל האתר.' } });
     }

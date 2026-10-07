@@ -4,8 +4,8 @@
 
 ## הגדרה חד־פעמית למוכר
 
-1. ב־Vercel, צור OAuth App בשם `RomTech` והוסף את כתובת ה־Callback: `https://<הדומיין-שלך>/api/romtech`.
-2. הוסף ב־Vercel את `VERCEL_OAUTH_CLIENT_ID` ואת `VERCEL_OAUTH_CLIENT_SECRET` כ־**Secrets** בסביבת Production. הסוד נשאר בשרת בלבד; אין צורך לבקש מהלקוח טוקן.
+1. ב־Vercel Integrations Console צור Integration בשם `RomTech`, עם slug בשם `romtech`, Redirect URL של `https://<הדומיין-שלך>/api/romtech` והרשאת `Project` במצב Read/Write.
+2. הוסף ב־Vercel את `VERCEL_INTEGRATION_SLUG`, `VERCEL_OAUTH_CLIENT_ID` ואת `VERCEL_OAUTH_CLIENT_SECRET` כ־**Secrets** בסביבת Production. הסוד נשאר בשרת בלבד; אין צורך לבקש מהלקוח טוקן.
 3. `VERCEL_PROJECT_ID` זמין בדרך כלל אוטומטית בזמן ריצה. אם אזור הניהול עדיין מציג שההעברה אינה מוכנה, הוסף אותו כ־Config; אפשר למצוא אותו ב־`.vercel/project.json` במחשב מקושר. בפרויקט ששייך לצוות, הוסף גם `VERCEL_TEAM_ID` כ־Config.
 4. פרוס מחדש את האתר. באזור הניהול יוצג שהכול מוכן ליצירת קישור.
 

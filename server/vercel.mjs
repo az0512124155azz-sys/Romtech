@@ -8,12 +8,19 @@ export function vercelHosting(env, request = fetch) {
   const teamId = String(env.VERCEL_TEAM_ID || '').trim();
   const clientId = String(env.VERCEL_OAUTH_CLIENT_ID || '').trim();
   const clientSecret = String(env.VERCEL_OAUTH_CLIENT_SECRET || '').trim();
-  const ready = () => !!(projectId && clientId && clientSecret);
+  const integrationSlug = String(env.VERCEL_INTEGRATION_SLUG || '').trim();
+  const integrationMode = !!integrationSlug;
+  const ready = () => !!(projectId && clientId && clientSecret && (!integrationMode || /^[a-z0-9-]{1,64}$/.test(integrationSlug)));
   const fail = (status, code, message) => { throw new AppError(status, code, message); };
   return {
     ready,
     authorizeUrl(redirectUri, state, codeChallenge) {
       if (!ready()) fail(503, 'vercel_setup_required', 'יש להשלים את הגדרת אפליקציית OAuth של Vercel לפני החיבור.');
+      if (integrationMode) {
+        const url = new URL(`https://vercel.com/integrations/${integrationSlug}/new`);
+        url.searchParams.set('state', state);
+        return url.href;
+      }
       const url = new URL(authorize);
       url.search = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: 'code', scope: 'openid email profile', state, code_challenge: codeChallenge, code_challenge_method: 'S256' }).toString();
       return url.href;
@@ -21,20 +28,23 @@ export function vercelHosting(env, request = fetch) {
     async exchange(code, redirectUri, codeVerifier) {
       let response;
       try {
-        response = await request(`${api}/login/oauth/token`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'authorization_code', client_id: clientId, client_secret: clientSecret, code, code_verifier: codeVerifier, redirect_uri: redirectUri }) });
+        const body = integrationMode
+          ? new URLSearchParams({ client_id: clientId, client_secret: clientSecret, code, redirect_uri: redirectUri })
+          : new URLSearchParams({ grant_type: 'authorization_code', client_id: clientId, client_secret: clientSecret, code, code_verifier: codeVerifier, redirect_uri: redirectUri });
+        response = await request(`${api}${integrationMode ? '/v2/oauth/access_token' : '/login/oauth/token'}`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
       } catch { fail(503, 'vercel_unavailable', 'לא ניתן להגיע ל־Vercel כרגע. נסה שוב בעוד רגע.'); }
       let body = {}; try { body = await response.json(); } catch {}
       if (!response.ok || typeof body.access_token !== 'string') fail(response.status === 401 ? 401 : 502, 'vercel_oauth_failed', 'Vercel לא אישר את החיבור. נסה שוב.');
       const lifetime = Math.min(Number(body.expires_in) || 30 * 24 * 3600, 30 * 24 * 3600);
-      return { accessToken: body.access_token, expiresAt: Date.now() + lifetime * 1000 };
+      return { accessToken: body.access_token, teamId: body.team_id || teamId || null, configurationId: body.configuration_id || null, expiresAt: Date.now() + lifetime * 1000 };
     },
-    async createClaim(returnUrl, accessToken) {
+    async createClaim(returnUrl, authorization) {
       if (!ready()) fail(503, 'vercel_setup_required', 'יש להשלים את הגדרת אפליקציית OAuth של Vercel לפני יצירת קישור ללקוח.');
-      if (!accessToken) fail(401, 'vercel_authorize_required', 'יש ללחוץ קודם על Authorize Vercel.');
+      if (!authorization?.accessToken) fail(401, 'vercel_authorize_required', 'יש ללחוץ קודם על Authorize Vercel.');
       const endpoint = new URL(`${api}/projects/${encodeURIComponent(projectId)}/transfer-request`);
-      if (teamId) endpoint.searchParams.set('teamId', teamId);
+      if (authorization.teamId || teamId) endpoint.searchParams.set('teamId', authorization.teamId || teamId);
       let response;
-      try { response = await request(endpoint, { method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: '{}' }); }
+      try { response = await request(endpoint, { method: 'POST', headers: { Authorization: `Bearer ${authorization.accessToken}`, 'Content-Type': 'application/json' }, body: '{}' }); }
       catch { fail(503, 'vercel_unavailable', 'לא ניתן להגיע ל־Vercel כרגע. נסה שוב בעוד רגע.'); }
       let body = {}; try { body = await response.json(); } catch {}
       if (!response.ok || typeof body.code !== 'string' || !/^[A-Za-z0-9_-]{8,512}$/.test(body.code)) {

@@ -125,5 +125,10 @@
       history.replaceState(null,'',location.pathname);
       status('חשבון Vercel אושר. אפשר ליצור עכשיו קישור להעברת הבעלות.', false);
     }
+    if (new URLSearchParams(location.search).get('vercel') === 'error') {
+      document.querySelector('[data-module="connection"]')?.click();
+      history.replaceState(null,'',location.pathname);
+      status('החיבור ל־Vercel לא הושלם. בדוק שהאינטגרציה פעילה ושיש לה הרשאת Project Read/Write.', true);
+    }
   });
 })();
