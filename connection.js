@@ -25,7 +25,7 @@
     const transferReady = hosting.provider === 'vercel' && hosting.transferReady;
     $('#authorizeVercel').disabled = !c.authenticated || !hosting.authorizeReady;
     $('#vercelAuthorizeStatus').textContent = hosting.authorized ? 'Vercel מחובר' : hosting.authorizeReady ? 'נדרש אישור חד־פעמי' : 'נדרשת הגדרת OAuth בשרת';
-    $('#startCustomerConnection').disabled = !c.authenticated || !hosting.authorizeReady || !c.oauthReady;
+    $('#startCustomerConnection').disabled = c.mode === 'cloud' || !c.authenticated || !hosting.authorizeReady || !c.oauthReady;
     $('#startCustomerConnection').textContent = c.mode === 'cloud' ? 'האתר מחובר' : 'חבר אתר לקוח';
     $('#deleteCustomerProject').disabled = c.mode !== 'cloud';
     $('#publishVercelRelease').disabled = !c.authenticated || !hosting.authorizeReady;
@@ -53,7 +53,11 @@
     status(result.projects.length ? 'בחר פרויקט קיים או צור פרויקט חדש. עד להפעלה, חיבור קיים של האתר ימשיך לפעול.' : 'אין פרויקטים בחשבון המחובר. אפשר ליצור פרויקט חדש.');
   }
   async function runCustomerConnection() {
-    const hosting = (D.config || {}).hosting || {};
+    const config = D.config || {}, hosting = config.hosting || {};
+    if (config.mode === 'cloud') {
+      status('האתר מחובר ל־Supabase ול־Vercel. החיבור נשמר גם לאחר סגירת הדפדפן.');
+      return;
+    }
     if (!hosting.authorized) {
       status('מעביר אותך לאישור Vercel. מיד לאחריו נמשיך אוטומטית לאישור Supabase…');
       location.assign((await D.api('vercel-oauth-start', { next:'supabase' })).url);
