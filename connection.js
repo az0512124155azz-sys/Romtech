@@ -84,16 +84,23 @@
       location.assign((await D.api('oauth-start', {})).url);
       return;
     }
-    const active = result.projects.filter(project => project.status === 'ACTIVE_HEALTHY');
-    const project = active.find(item => /romtech/i.test(item.name)) || active[0];
+    let active = result.projects.filter(project => project.status === 'ACTIVE_HEALTHY');
+    let project = active.find(item => /romtech/i.test(item.name)) || active[0];
     if (!project) {
       const organization = result.organizations[0];
       if (!organization) throw new Error('לא נמצא ארגון זמין ב־Supabase עבור יצירת הפרויקט.');
       creationId ||= crypto.randomUUID();
       status('יוצר אוטומטית פרויקט RomTech בחשבון Supabase. ההקמה עשויה להימשך כמה דקות…');
       await D.api('create-project', { name:'RomTech', organization:organization.slug, confirmCosts:true, requestId:creationId });
-      status('פרויקט RomTech נוצר. כשהוא יסיים הקמה, לחץ שוב על אותו כפתור כדי להמשיך.');
-      return;
+      for (let attempt = 1; attempt <= 36; attempt++) {
+        status(`ממתין להשלמת הקמת Supabase… (${attempt}/36)`);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        result = await D.api('projects');
+        active = result.projects.filter(item => item.status === 'ACTIVE_HEALTHY');
+        project = active.find(item => /romtech/i.test(item.name)) || active[0];
+        if (project) break;
+      }
+      if (!project) throw new Error('Supabase עדיין מקים את הפרויקט. נסה שוב בעוד כמה דקות.');
     }
     status('מכין את Supabase: טבלאות, הרשאות ואחסון תמונות…');
     const setup = await D.api('provision', { ref:project.ref });
