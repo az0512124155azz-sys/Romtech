@@ -25,8 +25,8 @@
     const transferReady = hosting.provider === 'vercel' && hosting.transferReady;
     $('#authorizeVercel').disabled = !c.authenticated || !hosting.authorizeReady;
     $('#vercelAuthorizeStatus').textContent = hosting.authorized ? 'Vercel מחובר' : hosting.authorizeReady ? 'נדרש אישור חד־פעמי' : 'נדרשת הגדרת OAuth בשרת';
-    $('#startCustomerConnection').disabled = c.mode === 'cloud' || !c.authenticated || !hosting.authorizeReady || !c.oauthReady;
-    $('#startCustomerConnection').textContent = c.mode === 'cloud' ? 'האתר מחובר' : 'חבר אתר לקוח';
+    $('#startCustomerConnection').disabled = (c.mode === 'cloud' && !!hosting.copy) || !c.authenticated || !hosting.authorizeReady || !c.oauthReady;
+    $('#startCustomerConnection').textContent = c.mode === 'cloud' ? (hosting.copy ? 'האתר מחובר' : 'צור אתר Vercel') : 'חבר אתר לקוח';
     $('#deleteCustomerProject').disabled = c.mode !== 'cloud';
     $('#publishVercelRelease').disabled = !c.authenticated || !hosting.authorizeReady;
     $('#vercelReleaseStatus').textContent = hosting.release?.publishedAt ? `גרסה מאושרת: ${new Date(hosting.release.publishedAt).toLocaleString('he-IL')}` : 'עדיין לא פורסמה גרסה מאושרת; העותק ייווצר כצילום קבוע של הגרסה הנוכחית.';
@@ -52,10 +52,24 @@
     $('#projectChooser').hidden = false;
     status(result.projects.length ? 'בחר פרויקט קיים או צור פרויקט חדש. עד להפעלה, חיבור קיים של האתר ימשיך לפעול.' : 'אין פרויקטים בחשבון המחובר. אפשר ליצור פרויקט חדש.');
   }
+  async function deployCustomerCopy() {
+    status('Supabase מוכן. יוצר כעת את אתר Vercel של הלקוח…');
+    const suffix = crypto.randomUUID().replaceAll('-','').slice(0,8);
+    const deployed = await D.api('vercel-deploy-copy', { name:`romtech-${suffix}` });
+    const link = $('#customerSiteLink'); link.href = deployed.url; link.hidden = false;
+    return deployed;
+  }
   async function runCustomerConnection() {
     const config = D.config || {}, hosting = config.hosting || {};
     if (config.mode === 'cloud') {
-      status('האתר מחובר ל־Supabase ול־Vercel. החיבור נשמר גם לאחר סגירת הדפדפן.');
+      if (hosting.copy?.url) {
+        const link = $('#customerSiteLink'); link.href = hosting.copy.url; link.hidden = false;
+        status('האתר מחובר ל־Supabase ול־Vercel. החיבור נשמר גם לאחר סגירת הדפדפן.');
+        return;
+      }
+      await deployCustomerCopy();
+      await D.refresh();
+      status('אתר Vercel חדש נוצר והחיבור נשמר.');
       return;
     }
     if (!hosting.authorized) {
@@ -84,9 +98,10 @@
     status('מכין את Supabase: טבלאות, הרשאות ואחסון תמונות…');
     const setup = await D.api('provision', { ref:project.ref });
     await D.api('activate', { generation:setup.connection.generation });
+    const deployed = await deployCustomerCopy();
     await D.refresh();
     window.dispatchEvent(new Event('romtech-data-changed'));
-    status(`האתר מחובר ומוכן · ${setup.connection.name}`);
+    status(`האתר מחובר ומוכן · ${setup.connection.name}. אתר Vercel חדש נוצר.`);
   }
   document.addEventListener('DOMContentLoaded', async () => {
     await D.ready;

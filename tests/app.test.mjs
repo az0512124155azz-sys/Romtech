@@ -55,7 +55,7 @@ test('Vercel ownership transfer creates one temporary claim link for the authent
   const f=await fixture();
   try{
     const config=await invoke(f.app,'config');
-    assert.deepEqual(config.body.hosting,{provider:'vercel',transferReady:true,release:null});
+    assert.deepEqual(config.body.hosting,{provider:'vercel',transferReady:true,release:null,copy:null});
     assert.equal((await invoke(f.app,'vercel-claim',{body:{confirmTransfer:true}})).status,401);
     assert.equal((await invoke(f.app,'vercel-claim',{session:f.session,body:{confirmTransfer:false}})).status,400);
     const first=await invoke(f.app,'vercel-claim',{session:f.session,body:{confirmTransfer:true}});

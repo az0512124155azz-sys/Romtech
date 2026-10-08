@@ -75,8 +75,8 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         if (!ready()) return send(200, { mode: 'local', serverReady: false, oauthReady: false, authenticated: false, connection: null });
         const c = await store().get('connection'), authenticated = !!await owner(req, false);
         const vercelAuth = authenticated && await store().get(`vercel-oauth:${digest(cookie(req))}`);
-        const release = await store().get('vercel-release');
-        const hostingStatus = { provider: env.VERCEL ? 'vercel' : 'other', transferReady: hosting.ready() && (injectedHosting ? true : !!vercelAuth), release: release?.publishedAt ? { publishedAt: release.publishedAt } : null };
+        const release = await store().get('vercel-release'), copy = await store().get('vercel-copy');
+        const hostingStatus = { provider: env.VERCEL ? 'vercel' : 'other', transferReady: hosting.ready() && (injectedHosting ? true : !!vercelAuth), release: release?.publishedAt ? { publishedAt: release.publishedAt } : null, copy: copy?.url ? { url:copy.url } : null };
         if (!injectedHosting) Object.assign(hostingStatus, { authorizeReady: hosting.ready(), authorized: !!vercelAuth });
         return send(200, { mode: c?.active ? 'cloud' : c ? 'disconnected' : 'local', serverReady: true, oauthReady: oauthReady(), authenticated, connection: c?.active ? publicConnection(c) : null, hosting: hostingStatus });
       }
