@@ -55,7 +55,7 @@ test('Vercel ownership transfer creates one temporary claim link for the authent
   const f=await fixture();
   try{
     const config=await invoke(f.app,'config');
-    assert.deepEqual(config.body.hosting,{provider:'vercel',transferReady:true});
+    assert.deepEqual(config.body.hosting,{provider:'vercel',transferReady:true,release:null});
     assert.equal((await invoke(f.app,'vercel-claim',{body:{confirmTransfer:true}})).status,401);
     assert.equal((await invoke(f.app,'vercel-claim',{session:f.session,body:{confirmTransfer:false}})).status,400);
     const first=await invoke(f.app,'vercel-claim',{session:f.session,body:{confirmTransfer:true}});
@@ -63,6 +63,16 @@ test('Vercel ownership transfer creates one temporary claim link for the authent
     assert.equal(f.hosting.calls.length,1);assert.ok(!first.text.includes('vercel-private-test'));
     const repeat=await invoke(f.app,'vercel-claim',{session:f.session,body:{confirmTransfer:true}});
     assert.deepEqual(repeat.body,first.body);assert.equal(f.hosting.calls.length,1);
+  }finally{await f.p.close()}
+});
+test('customer releases are explicitly approved and stored separately from main',async()=>{
+  const f=await fixture();
+  try{
+    const published=await invoke(f.app,'vercel-publish-release',{session:f.session,body:{}});
+    assert.equal(published.status,200,published.text);
+    const config=await invoke(f.app,'config',{session:f.session});
+    assert.ok(config.body.hosting.release?.publishedAt);
+    assert.equal((await f.store.get('vercel-release')).sha,'abcdef1234567');
   }finally{await f.p.close()}
 });
 test('full backend flow: provision, health, activation, migration, public orders/reviews, private admin and replacement',async()=>{

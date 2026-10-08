@@ -25,6 +25,9 @@
     const transferReady = hosting.provider === 'vercel' && hosting.transferReady;
     $('#authorizeVercel').disabled = !c.authenticated || !hosting.authorizeReady;
     $('#vercelAuthorizeStatus').textContent = hosting.authorized ? 'Vercel מחובר' : hosting.authorizeReady ? 'נדרש אישור חד־פעמי' : 'נדרשת הגדרת OAuth בשרת';
+    $('#startCustomerConnection').disabled = !c.authenticated || !hosting.authorizeReady || !c.oauthReady;
+    $('#publishVercelRelease').disabled = !c.authenticated || !hosting.authorizeReady;
+    $('#vercelReleaseStatus').textContent = hosting.release?.publishedAt ? `גרסה מאושרת: ${new Date(hosting.release.publishedAt).toLocaleString('he-IL')}` : 'עדיין לא פורסמה גרסה מאושרת; העותק ייווצר כצילום קבוע של הגרסה הנוכחית.';
     $('#vercelTransferStatus').textContent = transferReady
       ? 'הכול מוכן לפרסום עותק עצמאי בחשבון Vercel של הלקוח.'
       : hosting.provider === 'vercel'
@@ -54,6 +57,10 @@
     $('#connectSupabase').addEventListener('click', e => busy(e.currentTarget, async () => {
       status('מעביר אותך להתחברות המאובטחת ב־Supabase…');
       location.assign((await D.api('oauth-start', {})).url);
+    }));
+    $('#startCustomerConnection').addEventListener('click', e => busy(e.currentTarget, async () => {
+      status('מעביר אותך לאישור Vercel. מיד לאחריו נמשיך אוטומטית לאישור Supabase…');
+      location.assign((await D.api('vercel-oauth-start', { next:'supabase' })).url);
     }));
     $('#refreshProjects').addEventListener('click', e => busy(e.currentTarget, listProjects));
     $('#createProject').addEventListener('click', e => busy(e.currentTarget, async () => {
@@ -91,6 +98,11 @@
       status('מעביר אותך לאישור המאובטח של Vercel…');
       location.assign((await D.api('vercel-oauth-start', {})).url);
     }));
+    $('#publishVercelRelease').addEventListener('click', e => busy(e.currentTarget, async () => {
+      const release = await D.api('vercel-publish-release', {});
+      await D.refresh();
+      status(`הגרסה אושרה ללקוחות · ${new Date(release.publishedAt).toLocaleString('he-IL')}`);
+    }));
     $('#createVercelClaim').addEventListener('click', e => busy(e.currentTarget, async () => {
       status('מפרסם עותק חדש בחשבון Vercel שאושר…');
       const claim = await D.api('vercel-deploy-copy', { name: $('#vercelCopyName').value });
@@ -120,8 +132,12 @@
     }
     if (new URLSearchParams(location.search).get('vercel') === 'authorized') {
       document.querySelector('[data-module="connection"]')?.click();
+      const next = new URLSearchParams(location.search).get('next');
       history.replaceState(null,'',location.pathname);
-      status('חשבון Vercel אושר. אפשר לפרסם עכשיו עותק חדש.', false);
+      if (next === 'supabase') {
+        status('חשבון Vercel אושר. מעביר אותך לחיבור Supabase…');
+        location.assign((await D.api('oauth-start', {})).url);
+      } else status('חשבון Vercel אושר. אפשר לפרסם עכשיו עותק חדש.', false);
     }
     if (new URLSearchParams(location.search).get('vercel') === 'error') {
       document.querySelector('[data-module="connection"]')?.click();

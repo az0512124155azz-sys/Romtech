@@ -49,3 +49,15 @@ test('Vercel uses the project name when its internal project ID is not transfera
   assert.match(calls[0], /projects\/prj_test\/transfer-request/);
   assert.match(calls[1], /projects\/romtech\/transfer-request/);
 });
+
+test('customer copy is pinned to an approved commit and never follows main', async () => {
+  let deployment;
+  const request = async (_url, options) => {
+    deployment = JSON.parse(options.body);
+    return new Response(JSON.stringify({ name:'customer-store', url:'customer-store.vercel.app', readyState:'BUILDING' }), { status:200 });
+  };
+  const hosting = vercelHosting({ VERCEL_PROJECT_ID:'prj_test', VERCEL_INTEGRATION_SLUG:'romtech', VERCEL_OAUTH_CLIENT_ID:'oac_test', VERCEL_OAUTH_CLIENT_SECRET:'private', ROMTECH_TEMPLATE_GITHUB_REPO_ID:'1397509289' }, request);
+  await hosting.deployCopy('customer-store', { accessToken:'vca_private' }, { sha:'abcdef1234567' });
+  assert.equal(deployment.gitSource.sha, 'abcdef1234567');
+  assert.equal('ref' in deployment.gitSource, false);
+});

@@ -75,7 +75,8 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         if (!ready()) return send(200, { mode: 'local', serverReady: false, oauthReady: false, authenticated: false, connection: null });
         const c = await store().get('connection'), authenticated = !!await owner(req, false);
         const vercelAuth = authenticated && await store().get(`vercel-oauth:${digest(cookie(req))}`);
-        const hostingStatus = { provider: env.VERCEL ? 'vercel' : 'other', transferReady: hosting.ready() && (injectedHosting ? true : !!vercelAuth) };
+        const release = await store().get('vercel-release');
+        const hostingStatus = { provider: env.VERCEL ? 'vercel' : 'other', transferReady: hosting.ready() && (injectedHosting ? true : !!vercelAuth), release: release?.publishedAt ? { publishedAt: release.publishedAt } : null };
         if (!injectedHosting) Object.assign(hostingStatus, { authorizeReady: hosting.ready(), authorized: !!vercelAuth });
         return send(200, { mode: c?.active ? 'cloud' : c ? 'disconnected' : 'local', serverReady: true, oauthReady: oauthReady(), authenticated, connection: c?.active ? publicConnection(c) : null, hosting: hostingStatus });
       }
@@ -130,13 +131,13 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         const token = await hosting.exchange(code, `${origin(req)}/api/romtech`, saved.verifier);
         await store().set(`vercel-oauth:${saved.sid}`, token, Math.ceil((token.expiresAt - Date.now()) / 1000));
         await store().del(stateKey);
-        return redirect('/admin/?vercel=authorized');
+        return redirect(`/admin/?vercel=authorized${saved.next === 'supabase' ? '&next=supabase' : ''}`);
       }
       const sid = await owner(req);
       if (action === 'session') return send(200, { authenticated: true });
       if (action === 'vercel-oauth-start') {
         const state = randomId(), verifier = randomId(), challenge = createHash('sha256').update(verifier).digest('base64url');
-        await store().set(`vercel-state:${digest(state)}`, { state, sid, verifier }, 600);
+        await store().set(`vercel-state:${digest(state)}`, { state, sid, verifier, next: body.next === 'supabase' ? 'supabase' : null }, 600);
         return send(200, { url: hosting.authorizeUrl(`${origin()}/api/romtech`, state, challenge) });
       }
       if (action === 'vercel-oauth-callback') {
@@ -161,7 +162,15 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
       }
       if (action === 'vercel-deploy-copy') {
         const auth = await store().get(`vercel-oauth:${sid}`);
-        return send(200, await hosting.deployCopy(text(body.name,64,true), auth?.expiresAt > Date.now() ? auth : null));
+        const release = await store().get('vercel-release');
+        return send(200, await hosting.deployCopy(text(body.name,64,true), auth?.expiresAt > Date.now() ? auth : null, release));
+      }
+      if (action === 'vercel-publish-release') {
+        const sha = typeof hosting.releaseSha === 'function' ? hosting.releaseSha() : null;
+        if (!sha) throw new AppError(409, 'release_sha_unavailable', 'לא נמצאה גרסת קוד לפרסום. נסה שוב לאחר פריסה תקינה של האתר.');
+        const release = { sha, publishedAt: new Date().toISOString() };
+        await store().set('vercel-release', release);
+        return send(200, { publishedAt: release.publishedAt });
       }
       if (action === 'logout') {
         await store().del(`session:${sid}`); await store().del(`oauth:${sid}`); await store().del(`pending:${sid}`);

@@ -12,12 +12,15 @@ export function vercelHosting(env, request = fetch) {
   const clientSecret = String(env.VERCEL_OAUTH_CLIENT_SECRET || '').trim();
   const integrationSlug = String(env.VERCEL_INTEGRATION_SLUG || '').trim();
   const templateRepository = String(env.ROMTECH_TEMPLATE_GITHUB_REPO_ID || '1397509289').trim();
-  const templateSha = String(env.VERCEL_GIT_COMMIT_SHA || env.ROMTECH_TEMPLATE_GIT_SHA || '').trim();
   const integrationMode = !!integrationSlug;
   const ready = () => !!((projectId || projectName) && clientId && clientSecret && (!integrationMode || /^[a-z0-9-]{1,64}$/.test(integrationSlug)));
   const fail = (status, code, message) => { throw new AppError(status, code, message); };
   return {
     ready,
+    releaseSha() {
+      const sha = String(env.VERCEL_GIT_COMMIT_SHA || env.ROMTECH_TEMPLATE_GIT_SHA || '').trim();
+      return /^[a-f0-9]{7,64}$/i.test(sha) ? sha : null;
+    },
     authorizeUrl(redirectUri, state, codeChallenge) {
       if (!ready()) fail(503, 'vercel_setup_required', 'יש להשלים את הגדרת אפליקציית OAuth של Vercel לפני החיבור.');
       if (integrationMode) {
@@ -72,13 +75,15 @@ export function vercelHosting(env, request = fetch) {
       claim.search = new URLSearchParams({ code: body.code, returnUrl }).toString();
       return { url: claim.href, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() };
     },
-    async deployCopy(name, authorization) {
+    async deployCopy(name, authorization, release) {
       if (!authorization?.accessToken) fail(401, 'vercel_authorize_required', 'יש ללחוץ קודם על Authorize Vercel.');
       const project = String(name || '').trim().toLowerCase();
       if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(project)) fail(400, 'vercel_project_name', 'בחר שם קצר באנגלית לפרויקט החדש.');
       let response;
-      const source = /^\d+$/.test(templateRepository) && /^[a-f0-9]{7,64}$/i.test(templateSha)
-        ? { gitSource:{ type:'github', repoId:Number(templateRepository), ref:'main', sha:templateSha } }
+      // A customer site is always pinned to a version explicitly released by its seller.
+      // It must never follow the development branch in real time.
+      const source = /^\d+$/.test(templateRepository) && /^[a-f0-9]{7,64}$/i.test(release?.sha || '')
+        ? { gitSource:{ type:'github', repoId:Number(templateRepository), sha:release.sha } }
         : { files:templateFiles };
       try { response = await request(`${api}/v13/deployments`, { method:'POST', headers:{ Authorization:`Bearer ${authorization.accessToken}`, 'Content-Type':'application/json' }, body:JSON.stringify({ name:project, target:'production', ...source, projectSettings:{ framework:null, installCommand:'npm ci', buildCommand:'npm run build', outputDirectory:'dist', nodeVersion:'22.x' } }) }); }
       catch { fail(503, 'vercel_unavailable', 'לא ניתן להגיע ל־Vercel כרגע. נסה שוב בעוד רגע.'); }

@@ -11,7 +11,7 @@ export const testEnv = {
 };
 export function mockHosting() {
   const calls=[];
-  return { calls, ready:()=>true, async createClaim(returnUrl) { calls.push({returnUrl}); return {url:`https://vercel.com/claim-deployment?code=claim-code-test&returnUrl=${encodeURIComponent(returnUrl)}`,expiresAt:'2030-01-01T00:00:00.000Z'}; } };
+  return { calls, ready:()=>true, releaseSha:()=> 'abcdef1234567', async createClaim(returnUrl) { calls.push({returnUrl}); return {url:`https://vercel.com/claim-deployment?code=claim-code-test&returnUrl=${encodeURIComponent(returnUrl)}`,expiresAt:'2030-01-01T00:00:00.000Z'}; } };
 }
 export function memoryStore() {
   const items=new Map(),locks=new Set(),rates=new Map();

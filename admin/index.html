@@ -258,7 +258,10 @@
 
       <section class="admin-module" data-panel="connection" id="connectionPanel">
         <div class="card card-body connection-card">
-          <h2>חיבור Supabase</h2>
+          <h2>חיבור אתר לקוח</h2>
+          <p>לחיצה אחת מתחילה חיבור ל־Vercel, ואז ממשיכה אוטומטית ל־Supabase. הלקוח מאשר כל חשבון בדף המאובטח שלו.</p>
+          <div class="actions"><button type="button" class="btn" id="startCustomerConnection">חבר אתר לקוח</button></div>
+          <h3>Supabase</h3>
           <p>חבר את חשבון Supabase שלך כדי לנהל נתונים ותמונות משותפים לכל המכשירים.</p>
           <ol class="connection-steps"><li>התחברות לחשבון</li><li>בחירת פרויקט</li><li>הגדרה ובדיקה</li><li>הפעלת החיבור</li></ol>
           <p class="connection-project" id="connectionProject">טוען מצב חיבור…</p>
@@ -284,13 +287,14 @@
             <button type="button" class="btn secondary" id="migrateLocal">העבר נתונים מקומיים</button>
           </div>
           <div class="connection-section" id="vercelTransfer">
-            <h3>פרסם עותק לחשבון Vercel של הלקוח</h3>
+            <h3>Vercel וגרסה ללקוח</h3>
             <p id="vercelTransferStatus" class="muted">בודק את אפשרות ההעברה…</p>
-            <p class="muted">הלקוח מאשר את Vercel בלחיצה אחת, ו־RomTech מפרסם עותק עצמאי של האתר בחשבון שלו.</p>
+            <p class="muted">הלקוח מאשר את Vercel בלחיצה אחת, ו־RomTech מפרסם עותק עצמאי של האתר בחשבון שלו. העותק נעול לגרסה שאישרת ולא עוקב אחרי main.</p>
             <div class="actions"><button type="button" class="btn secondary" id="authorizeVercel">Authorize Vercel</button><span id="vercelAuthorizeStatus" class="muted"></span></div>
+            <div class="actions"><button type="button" class="btn secondary" id="publishVercelRelease">פרסם גרסה מאושרת ללקוחות</button><span id="vercelReleaseStatus" class="muted"></span></div>
             <label>שם הפרויקט החדש ב־Vercel <input id="vercelCopyName" value="romtech-store" pattern="[a-z0-9-]+"></label>
             <div class="actions"><button type="button" class="btn secondary" id="createVercelClaim" disabled>פרסם עותק לחשבון הלקוח</button><a id="vercelClaimLink" class="btn" target="_blank" rel="noopener" hidden>פתח את האתר החדש</a></div>
-            <p class="muted">הפרויקט החדש נבנה ונפרס ישירות בחשבון Vercel שאושר.</p>
+            <p class="muted">הפרויקט החדש נבנה ונפרס ישירות בחשבון Vercel שאושר, רק מהגרסה המאושרת האחרונה.</p>
           </div>
         </div>
       </section>
