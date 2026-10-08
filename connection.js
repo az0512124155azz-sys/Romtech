@@ -26,6 +26,7 @@
     $('#authorizeVercel').disabled = !c.authenticated || !hosting.authorizeReady;
     $('#vercelAuthorizeStatus').textContent = hosting.authorized ? 'Vercel מחובר' : hosting.authorizeReady ? 'נדרש אישור חד־פעמי' : 'נדרשת הגדרת OAuth בשרת';
     $('#startCustomerConnection').disabled = !c.authenticated || !hosting.authorizeReady || !c.oauthReady;
+    $('#startCustomerConnection').textContent = c.mode === 'cloud' ? 'האתר מחובר' : 'חבר אתר לקוח';
     $('#publishVercelRelease').disabled = !c.authenticated || !hosting.authorizeReady;
     $('#vercelReleaseStatus').textContent = hosting.release?.publishedAt ? `גרסה מאושרת: ${new Date(hosting.release.publishedAt).toLocaleString('he-IL')}` : 'עדיין לא פורסמה גרסה מאושרת; העותק ייווצר כצילום קבוע של הגרסה הנוכחית.';
     $('#vercelTransferStatus').textContent = transferReady
@@ -50,6 +51,38 @@
     $('#projectChooser').hidden = false;
     status(result.projects.length ? 'בחר פרויקט קיים או צור פרויקט חדש. עד להפעלה, חיבור קיים של האתר ימשיך לפעול.' : 'אין פרויקטים בחשבון המחובר. אפשר ליצור פרויקט חדש.');
   }
+  async function runCustomerConnection() {
+    const hosting = (D.config || {}).hosting || {};
+    if (!hosting.authorized) {
+      status('מעביר אותך לאישור Vercel. מיד לאחריו נמשיך אוטומטית לאישור Supabase…');
+      location.assign((await D.api('vercel-oauth-start', { next:'supabase' })).url);
+      return;
+    }
+    let result;
+    try { result = await D.api('projects'); }
+    catch {
+      status('מעביר אותך לאישור Supabase…');
+      location.assign((await D.api('oauth-start', {})).url);
+      return;
+    }
+    const active = result.projects.filter(project => project.status === 'ACTIVE_HEALTHY');
+    const project = active.find(item => /romtech/i.test(item.name)) || active[0];
+    if (!project) {
+      const organization = result.organizations[0];
+      if (!organization) throw new Error('לא נמצא ארגון זמין ב־Supabase עבור יצירת הפרויקט.');
+      creationId ||= crypto.randomUUID();
+      status('יוצר אוטומטית פרויקט RomTech בחשבון Supabase. ההקמה עשויה להימשך כמה דקות…');
+      await D.api('create-project', { name:'RomTech', organization:organization.slug, confirmCosts:true, requestId:creationId });
+      status('פרויקט RomTech נוצר. כשהוא יסיים הקמה, לחץ שוב על אותו כפתור כדי להמשיך.');
+      return;
+    }
+    status('מכין את Supabase: טבלאות, הרשאות ואחסון תמונות…');
+    const setup = await D.api('provision', { ref:project.ref });
+    await D.api('activate', { generation:setup.connection.generation });
+    await D.refresh();
+    window.dispatchEvent(new Event('romtech-data-changed'));
+    status(`האתר מחובר ומוכן · ${setup.connection.name}`);
+  }
   document.addEventListener('DOMContentLoaded', async () => {
     await D.ready;
     if (!$('#connectionPanel')) return;
@@ -58,10 +91,7 @@
       status('מעביר אותך להתחברות המאובטחת ב־Supabase…');
       location.assign((await D.api('oauth-start', {})).url);
     }));
-    $('#startCustomerConnection').addEventListener('click', e => busy(e.currentTarget, async () => {
-      status('מעביר אותך לאישור Vercel. מיד לאחריו נמשיך אוטומטית לאישור Supabase…');
-      location.assign((await D.api('vercel-oauth-start', { next:'supabase' })).url);
-    }));
+    $('#startCustomerConnection').addEventListener('click', e => busy(e.currentTarget, runCustomerConnection));
     $('#refreshProjects').addEventListener('click', e => busy(e.currentTarget, listProjects));
     $('#createProject').addEventListener('click', e => busy(e.currentTarget, async () => {
       if (!$('#projectCostConsent').checked) throw new Error('יש לאשר יצירת פרויקט לפי תנאי ומכסת החשבון.');
@@ -122,7 +152,7 @@
     if (result) {
       document.querySelector('[data-module="connection"]')?.click();
       history.replaceState(null,'',location.pathname);
-      if (result === 'connected') await busy(null, listProjects);
+      if (result === 'connected') await busy($('#startCustomerConnection'), runCustomerConnection);
       else status('החיבור בוטל, פג או לא הושלם. לחץ שוב על חבר Supabase.', true);
     }
     if (new URLSearchParams(location.search).get('vercel') === 'returned') {

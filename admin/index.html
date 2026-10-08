@@ -259,15 +259,15 @@
       <section class="admin-module" data-panel="connection" id="connectionPanel">
         <div class="card card-body connection-card">
           <h2>חיבור אתר לקוח</h2>
-          <p>לחיצה אחת מתחילה חיבור ל־Vercel, ואז ממשיכה אוטומטית ל־Supabase. הלקוח מאשר כל חשבון בדף המאובטח שלו.</p>
+          <p>לחיצה אחת מחברת את Vercel ואת Supabase ומכינה את האתר. האישורים עצמם נפתחים בדפים המאובטחים של החשבונות.</p>
           <div class="actions"><button type="button" class="btn" id="startCustomerConnection">חבר אתר לקוח</button></div>
-          <h3>Supabase</h3>
-          <p>חבר את חשבון Supabase שלך כדי לנהל נתונים ותמונות משותפים לכל המכשירים.</p>
-          <ol class="connection-steps"><li>התחברות לחשבון</li><li>בחירת פרויקט</li><li>הגדרה ובדיקה</li><li>הפעלת החיבור</li></ol>
-          <p class="connection-project" id="connectionProject">טוען מצב חיבור…</p>
+          <h3 hidden>Supabase</h3>
+          <p hidden>חבר את חשבון Supabase שלך כדי לנהל נתונים ותמונות משותפים לכל המכשירים.</p>
+          <ol class="connection-steps" hidden><li>התחברות לחשבון</li><li>בחירת פרויקט</li><li>הגדרה ובדיקה</li><li>הפעלת החיבור</li></ol>
+          <p class="connection-project" id="connectionProject" hidden>טוען מצב חיבור…</p>
           <div id="connectionStatus" class="connection-status" role="status" aria-live="polite">החיבור יכין אוטומטית את מסד הנתונים, ההרשאות ואחסון התמונות של RomTech.</div>
-          <p id="connectionSetupHelp" class="muted">החיבור עדיין אינו זמין. בעל האתר צריך להשלים פעם אחת את הגדרת השרת ואפליקציית OAuth לפי מדריך ההתקנה המצורף לפרויקט. לאחר מכן הלקוחות יתחברו כאן לחשבון שלהם.</p>
-          <div class="actions"><button type="button" class="btn" id="connectSupabase" disabled>חבר Supabase</button></div>
+          <p id="connectionSetupHelp" class="muted" hidden>החיבור עדיין אינו זמין. בעל האתר צריך להשלים פעם אחת את הגדרת השרת ואפליקציית OAuth לפי מדריך ההתקנה המצורף לפרויקט. לאחר מכן הלקוחות יתחברו כאן לחשבון שלהם.</p>
+          <div class="actions" hidden><button type="button" class="btn" id="connectSupabase" disabled>חבר Supabase</button></div>
           <div id="projectChooser" class="connection-section" hidden>
             <label>פרויקט קיים<select id="supabaseProject"></select></label>
             <div class="actions"><button type="button" class="btn" id="setupProject">הכן את הפרויקט</button><button type="button" class="btn secondary" id="refreshProjects">רענן פרויקטים</button></div>
@@ -286,7 +286,7 @@
             <p class="muted">הפעל את ההעברה במכשיר שבו נשמרו הנתונים המקוריים. גם התמונות יועברו לאחסון. סיסמאות מקומיות והעדפות גלישה אינן מועברות. אם ההעברה נעצרת, אפשר להפעיל אותה שוב.</p>
             <button type="button" class="btn secondary" id="migrateLocal">העבר נתונים מקומיים</button>
           </div>
-          <div class="connection-section" id="vercelTransfer">
+          <div class="connection-section" id="vercelTransfer" hidden>
             <h3>Vercel וגרסה ללקוח</h3>
             <p id="vercelTransferStatus" class="muted">בודק את אפשרות ההעברה…</p>
             <p class="muted">הלקוח מאשר את Vercel בלחיצה אחת, ו־RomTech מפרסם עותק עצמאי של האתר בחשבון שלו. העותק נעול לגרסה שאישרת ולא עוקב אחרי main.</p>
