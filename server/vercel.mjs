@@ -90,6 +90,15 @@ export function vercelHosting(env, request = fetch) {
       let body = {}; try { body = await response.json(); } catch {}
       if (!response.ok || typeof body.url !== 'string') fail(response.status === 401 || response.status === 403 ? 403 : 502, 'vercel_deploy_failed', response.status === 409 ? 'שם הפרויקט כבר קיים בחשבון Vercel.' : 'Vercel לא הצליח לפרסם את העותק. נסה שוב.');
       return { project:body.name || project, url:`https://${body.url}`, readyState:body.readyState || 'BUILDING' };
+    },
+    async deleteProject(project, authorization) {
+      if (!authorization?.accessToken) fail(401, 'vercel_authorize_required', 'יש לחבר מחדש את Vercel לפני מחיקת הפרויקט.');
+      if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(project || '')) fail(400, 'vercel_project_name', 'לא נמצא פרויקט Vercel תקין למחיקה.');
+      let response;
+      try { response = await request(`${api}/v9/projects/${encodeURIComponent(project)}`, { method:'DELETE', headers:{ Authorization:`Bearer ${authorization.accessToken}` } }); }
+      catch { fail(503, 'vercel_unavailable', 'לא ניתן להגיע ל־Vercel כרגע. נסה שוב בעוד רגע.'); }
+      if (!response.ok && response.status !== 404) fail(response.status === 401 || response.status === 403 ? 403 : 502, 'vercel_delete_failed', 'Vercel לא הצליח למחוק את הפרויקט.');
+      return { deleted:true };
     }
   };
 }

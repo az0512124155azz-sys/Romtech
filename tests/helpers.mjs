@@ -42,12 +42,13 @@ export async function mockProvider() {
   const p={
     state,calls,databases,buckets,projects,
     async request(url,options){calls.push({url,options});if(url.endsWith('/oauth/token'))return {access_token:'management-private-test',refresh_token:'refresh-private-test',expires_in:3600};if(url.includes('/storage/v1/object/'))return {Key:'ok'};throw new Error('Unexpected request '+url)},
-    async management(token,path,body){
-      calls.push({path,body,token});
+    async management(token,path,body,method){
+      calls.push({path,body,token,method});
       if(path==='/projects'&&!body)return projects;
       if(path==='/organizations')return [{slug:'test-org',name:'Test org'}];
       if(path==='/projects'&&body){const project={id:'zzzzzzzzzzzzzzzzzzzz',name:body.name,status:'ACTIVE_HEALTHY'};projects.push(project);return project}
       const ref=path.split('/')[2];
+      if(method==='DELETE'&&path===`/projects/${ref}`){const index=projects.findIndex(project=>project.id===ref);if(index>=0)projects.splice(index,1);return null}
       if(path.endsWith('/database/query')){
         if(state.failQuery)throw new AppError(502,'supabase_error','Cannot query');
         let db=databases.get(ref);if(!db){db=await database();databases.set(ref,db)}

@@ -75,6 +75,17 @@ test('customer releases are explicitly approved and stored separately from main'
     assert.equal((await f.store.get('vercel-release')).sha,'abcdef1234567');
   }finally{await f.p.close()}
 });
+test('deleting a connected customer project requires confirmation and removes the active connection',async()=>{
+  const f=await fixture();
+  try{
+    await f.connect();
+    assert.equal((await invoke(f.app,'delete-customer-project',{session:f.session,body:{confirmDelete:false}})).status,400);
+    const deleted=await invoke(f.app,'delete-customer-project',{session:f.session,body:{confirmDelete:true}});
+    assert.equal(deleted.status,200,deleted.text);
+    assert.equal((await invoke(f.app,'config')).body.mode,'local');
+    assert.ok(f.p.calls.some(call=>call.method==='DELETE'&&call.path===`/projects/${REF}`));
+  }finally{await f.p.close()}
+});
 test('full backend flow: provision, health, activation, migration, public orders/reviews, private admin and replacement',async()=>{
   const f=await fixture();
   try{

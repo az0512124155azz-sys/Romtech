@@ -163,7 +163,9 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
       if (action === 'vercel-deploy-copy') {
         const auth = await store().get(`vercel-oauth:${sid}`);
         const release = await store().get('vercel-release');
-        return send(200, await hosting.deployCopy(text(body.name,64,true), auth?.expiresAt > Date.now() ? auth : null, release));
+        const deployed = await hosting.deployCopy(text(body.name,64,true), auth?.expiresAt > Date.now() ? auth : null, release);
+        await store().set('vercel-copy', { project: deployed.project, url: deployed.url });
+        return send(200, deployed);
       }
       if (action === 'vercel-publish-release') {
         const sha = typeof hosting.releaseSha === 'function' ? hosting.releaseSha() : null;
@@ -171,6 +173,22 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
         const release = { sha, publishedAt: new Date().toISOString() };
         await store().set('vercel-release', release);
         return send(200, { publishedAt: release.publishedAt });
+      }
+      if (action === 'delete-customer-project') {
+        if (body.confirmDelete !== true) throw new AppError(400, 'delete_confirmation_required', 'יש לאשר במפורש את מחיקת הפרויקטים.');
+        const activeConnection = await connection();
+        const access = await token(sid);
+        await accessibleProject(access, activeConnection.ref);
+        const copy = await store().get('vercel-copy');
+        if (copy?.project) {
+          const auth = await store().get(`vercel-oauth:${sid}`);
+          await hosting.deleteProject(copy.project, auth?.expiresAt > Date.now() ? auth : null);
+          await store().del('vercel-copy');
+        }
+        await supabase.management(access, `/projects/${activeConnection.ref}`, undefined, 'DELETE');
+        await store().del('connection');
+        await store().del(`pending:${sid}`);
+        return send(200, { ok:true, deletedVercel: !!copy?.project, deletedSupabase:true });
       }
       if (action === 'logout') {
         await store().del(`session:${sid}`); await store().del(`oauth:${sid}`); await store().del(`pending:${sid}`);
@@ -265,7 +283,7 @@ export function createApp({ env = process.env, store: injectedStore, supabase = 
           if ((current?.generation || null) !== pending.previousGeneration) throw new AppError(409, 'project_changed', 'החיבור שונה במכשיר אחר. רענן ונסה שוב.');
           await supabase.health(pending.connection);
           await store().set('connection', pending.connection);
-          await store().del(`pending:${sid}`); await store().del(`oauth:${sid}`);
+          await store().del(`pending:${sid}`);
           return send(200, { ok: true, connection: publicConnection(pending.connection) });
         });
       }

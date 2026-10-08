@@ -27,6 +27,7 @@
     $('#vercelAuthorizeStatus').textContent = hosting.authorized ? 'Vercel מחובר' : hosting.authorizeReady ? 'נדרש אישור חד־פעמי' : 'נדרשת הגדרת OAuth בשרת';
     $('#startCustomerConnection').disabled = !c.authenticated || !hosting.authorizeReady || !c.oauthReady;
     $('#startCustomerConnection').textContent = c.mode === 'cloud' ? 'האתר מחובר' : 'חבר אתר לקוח';
+    $('#deleteCustomerProject').disabled = c.mode !== 'cloud';
     $('#publishVercelRelease').disabled = !c.authenticated || !hosting.authorizeReady;
     $('#vercelReleaseStatus').textContent = hosting.release?.publishedAt ? `גרסה מאושרת: ${new Date(hosting.release.publishedAt).toLocaleString('he-IL')}` : 'עדיין לא פורסמה גרסה מאושרת; העותק ייווצר כצילום קבוע של הגרסה הנוכחית.';
     $('#vercelTransferStatus').textContent = transferReady
@@ -92,6 +93,13 @@
       location.assign((await D.api('oauth-start', {})).url);
     }));
     $('#startCustomerConnection').addEventListener('click', e => busy(e.currentTarget, runCustomerConnection));
+    $('#deleteCustomerProject').addEventListener('click', e => busy(e.currentTarget, async () => {
+      if (!confirm('האם אתה בטוח? הפעולה תמחק לצמיתות את פרויקט Supabase המחובר ואת עותק ה־Vercel שנוצר דרך RomTech. לא ניתן לשחזר נתונים לאחר המחיקה.')) return;
+      status('מוחק את פרויקט Supabase ואת עותק Vercel…');
+      await D.api('delete-customer-project', { confirmDelete:true });
+      await D.refresh();
+      status('הפרויקטים נמחקו והאתר נותק.');
+    }));
     $('#refreshProjects').addEventListener('click', e => busy(e.currentTarget, listProjects));
     $('#createProject').addEventListener('click', e => busy(e.currentTarget, async () => {
       if (!$('#projectCostConsent').checked) throw new Error('יש לאשר יצירת פרויקט לפי תנאי ומכסת החשבון.');

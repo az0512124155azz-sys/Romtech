@@ -31,8 +31,8 @@ export function provider(fetcher = fetch) {
     }
     return body;
   }
-  const management = (token, path, body) => request(`${API}${path}`, {
-    method: body === undefined ? 'GET' : 'POST',
+  const management = (token, path, body, method = body === undefined ? 'GET' : 'POST') => request(`${API}${path}`, {
+    method,
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     ...(body === undefined ? {} : { body: JSON.stringify(body) })
   });
